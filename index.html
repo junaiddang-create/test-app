@@ -227,7 +227,7 @@
                 <button onclick="clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div><div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div></button>
                 <button onclick="exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div><div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div></button>
             </div>
-            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v6.1</p>
+            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v6.2</p>
         </section>
 
         <!-- NAV -->
@@ -357,7 +357,7 @@
 
             if(email === stored.email && pass === stored.password) {
                 localStorage.setItem(SESSION_KEY, 'true');
-                document.getElementById('login-container').classList.add('hidden');
+                document.getElementById('login-container').style.display = 'none'; // Fixed here
                 showApp();
             } else {
                 alert("Invalid Email or Password.");
@@ -385,6 +385,7 @@
         }
 
         function showApp() {
+            document.getElementById('login-container').style.display = 'none'; // Ensure hidden
             document.getElementById('main-container').style.display = 'block';
             
             // Show current user email in settings
