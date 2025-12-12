@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Madani Exp Tracker</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PDF & Excel Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -138,7 +142,7 @@
                 <button onclick="clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div><div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div></button>
                 <button onclick="exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div><div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div></button>
             </div>
-            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v11.0</p>
+            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v5.4</p>
         </section>
 
         <!-- NAV -->
@@ -258,8 +262,23 @@
                     const color = isLoan ? 'text-orange-600' : 'text-green-600';
                     const label = isLoan ? 'Udhar Liya' : 'Wapas Diya';
                     const icon = isLoan ? 'fa-arrow-up' : 'fa-arrow-down';
+                    // Use item.d (date) and item.a (amount). If note exists, it's item.n
                     const details = item.n ? `<br><span class="text-[9px] text-slate-400 italic">${item.n}</span>` : '';
-                    list.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs text-slate-500"><i class="fas ${icon}"></i></div><div><p class="font-bold text-xs text-slate-700">${label} ${details}</p><p class="text-[10px] text-slate-400">${item.d}</p></div></div><span class="font-bold text-sm ${color}">${formatter.format(item.a)}</span></div>`;
+                    
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs text-slate-500">
+                                    <i class="fas ${icon}"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-xs text-slate-700">${label} ${details}</p>
+                                    <p class="text-[10px] text-slate-400">${item.d}</p>
+                                </div>
+                            </div>
+                            <span class="font-bold text-sm ${color}">${formatter.format(item.a)}</span>
+                        </div>
+                    `;
                 });
             } catch(e) { console.log("History load error", e); }
         }
@@ -270,7 +289,7 @@
             const history = transactions
                 .filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`))
                 .sort((a,b) => b.id - a.id)
-                .map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' }));
+                .map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); // Include Note 'n'
             
             // Safe Encode for URL
             const jsonStr = JSON.stringify(history);
@@ -281,6 +300,7 @@
 
         // ... [Standard App Logic] ...
         function saveData() { localStorage.setItem('transactions', JSON.stringify(transactions)); updateUI(); }
+        
         function switchView(view) {
             ['home', 'report', 'udhar', 'settings'].forEach(v => {
                 document.getElementById('view-'+v).classList.add('hidden');
@@ -324,24 +344,27 @@
             const source = document.getElementById('udhar-source').value;
             const date = document.getElementById('udhar-date').value;
             const rDate = document.getElementById('udhar-return-date').value;
+
             if(!amount || amount <= 0) return alert("Enter valid amount");
             if(!person) return alert("Person name required");
 
-            if(editingTransactionId) {
+            if (editingTransactionId) {
                 const idx = transactions.findIndex(t => t.id === editingTransactionId);
-                if(idx !== -1) {
+                if (idx !== -1) {
                      transactions[idx].amount = amount; transactions[idx].person = person;
                      transactions[idx].phone = phone; transactions[idx].account = source;
                      transactions[idx].date = date; transactions[idx].returnDate = rDate;
                      transactions[idx].desc = `Loan to ${person}`;
                      saveData(); closeUdharModal();
                      if(lastOpenedPerson) openPersonDetails(lastOpenedPerson);
-                     return;
+                     renderUdharList(); return;
                 }
             }
+
             const entry = { id: Date.now(), date, amount, type: 'udhar', note: '', desc: `Loan to ${person}`, person, phone, account: source, returnDate: rDate, isUdhar: true, status: 'active', repaid: 0 };
             transactions.push(entry); saveData(); closeUdharModal();
             if(lastOpenedPerson === person) openPersonDetails(person);
+            renderUdharList();
 
             if(phone) {
                 const cleanPhone = phone.replace(/\D/g, '');
@@ -355,7 +378,7 @@
         }
         
         window.editTransaction = function(id) { const t = transactions.find(tx => tx.id === id); if (!t) return; if(t.type === 'udhar' || t.type.includes('Recovery')) { openNewUdharModal(); editingTransactionId = id; document.getElementById('udhar-modal-title').innerText = "Edit Loan"; document.getElementById('save-udhar-btn-text').innerText = "Update Loan"; document.getElementById('udhar-amount').value = t.amount; document.getElementById('udhar-person').value = t.person; document.getElementById('udhar-phone').value = t.phone || ''; document.getElementById('udhar-source').value = t.account; document.getElementById('udhar-date').value = t.date; document.getElementById('udhar-return-date').value = t.returnDate || ''; return; } editingTransactionId = id; document.getElementById('entry-modal-title').innerText = "Edit Entry"; document.getElementById('save-btn-text').innerText = "Update Transaction"; setTxType(t.type); document.getElementById('tx-amount').value = t.amount; document.getElementById('tx-date').value = t.date; document.getElementById('tx-note').value = t.note || ''; document.getElementById('tx-category').value = t.desc; document.getElementById('tx-account').value = t.account; document.getElementById('entry-modal').classList.remove('hidden'); };
-        window.deleteTransaction = function(id) { if(!confirm("Delete this entry?")) return; transactions = transactions.filter(t => t.id !== id); saveData(); };
+        window.deleteTransaction = function(id) { if(!confirm("Delete this entry?")) return; transactions = transactions.filter(t => t.id !== id); saveData(); if(currentView === 'report') renderFullList(); if(currentView === 'udhar' && lastOpenedPerson) openPersonDetails(lastOpenedPerson); updateUI(); };
         
         function updateDatalist() { const names = [...new Set(transactions.filter(t => t.type === 'udhar').map(t => t.person))]; const datalist = document.getElementById('udhar-names-list'); datalist.innerHTML = ''; names.forEach(name => { const opt = document.createElement('option'); opt.value = name; datalist.appendChild(opt); }); document.getElementById('udhar-person').onchange = function() { const existing = transactions.find(t => t.person === this.value && t.phone); if(existing) document.getElementById('udhar-phone').value = existing.phone; } }
         async function pickContact() { try { if ('contacts' in navigator && 'ContactsManager' in window) { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false }); if (contacts.length) { document.getElementById('udhar-person').value = contacts[0].name[0]; if (contacts[0].tel && contacts[0].tel.length) document.getElementById('udhar-phone').value = contacts[0].tel[0].replace(/\D/g, ''); return; } } } catch(e) {} showAppContactList(); }
@@ -366,7 +389,6 @@
             const modal = document.getElementById('summary-modal');
             const title = document.getElementById('summary-title');
             const content = document.getElementById('summary-content');
-            // Show all transactions of this type, not filtered by month
             const filtered = transactions.filter(t => t.type === type);
             const total = filtered.reduce((sum, t) => sum + t.amount, 0);
             const categories = {};
@@ -389,129 +411,13 @@
 
         function giveMoreUdhar(name) { openNewUdharModal(); document.getElementById('udhar-person').value = name; const existing = transactions.find(t => t.person === name && t.phone); if(existing) document.getElementById('udhar-phone').value = existing.phone; }
         function recalculateRepayments() { transactions.forEach(t => { if(t.type === 'udhar') { t.repaid = 0; t.status = 'active'; }}); const recoveries = transactions.filter(t => t.type === 'income' && t.desc && t.desc.startsWith('Recovery:')); const recoveriesByPerson = {}; recoveries.forEach(r => { const name = r.desc.replace('Recovery: ', ''); if(!recoveriesByPerson[name]) recoveriesByPerson[name] = []; recoveriesByPerson[name].push(r); }); for(const person in recoveriesByPerson) { const loans = transactions.filter(t => t.type === 'udhar' && t.person === person).sort((a,b) => a.id - b.id); let totalRecovered = recoveriesByPerson[person].reduce((sum, r) => sum + r.amount, 0); for(const loan of loans) { if(totalRecovered <= 0) break; const allocation = Math.min(loan.amount, totalRecovered); loan.repaid += allocation; totalRecovered -= allocation; if(loan.repaid >= loan.amount - 0.1) loan.status = 'settled'; } } }
-        
-        function updateUI() {
-            recalculateRepayments();
-            let cash = 0, bank = 0, udhar = 0, income = 0, expense = 0;
-            transactions.forEach(t => {
-                if(t.type === 'income') { income += t.amount; t.account === 'Cash' ? cash += t.amount : bank += t.amount; }
-                else if(t.type === 'expense') { expense += t.amount; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; }
-                else if(t.type === 'udhar') {
-                    const rem = t.amount - t.repaid;
-                    if (t.status === 'active' || rem > 0.1) udhar += rem;
-                    t.account === 'Cash' ? cash -= t.amount : bank -= t.amount;
-                }
-            });
-            document.getElementById('total-balance').innerText = formatter.format(cash + bank + udhar);
-            document.getElementById('cash-balance').innerText = formatter.format(cash);
-            document.getElementById('bank-balance').innerText = formatter.format(bank);
-            document.getElementById('udhar-balance').innerText = formatter.format(udhar);
-            document.getElementById('udhar-total-display').innerText = formatter.format(udhar);
-            document.getElementById('total-income').innerText = formatter.format(income);
-            document.getElementById('total-expense').innerText = formatter.format(expense);
-            
-            if(currentView === 'home') updateChart();
-            if(currentView === 'report') renderFullList();
-            if(currentView === 'udhar') renderUdharList();
-        }
-
-        function renderUdharList() {
-            const list = document.getElementById('udhar-list');
-            list.innerHTML = '';
-            const people = {};
-            transactions.forEach(t => {
-                if(t.type === 'udhar' && t.status === 'active') {
-                    if(!people[t.person]) people[t.person] = { name: t.person, total: 0, repaid: 0, lastTxDate: t.date, returnDate: t.returnDate };
-                    people[t.person].total += t.amount;
-                    people[t.person].repaid += (t.repaid || 0);
-                    if(t.returnDate) { const days = Math.ceil((new Date(t.returnDate) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)); if(days <= 1) people[t.person].isDue = true; }
-                    if(new Date(t.date) > new Date(people[t.person].lastTxDate)) people[t.person].lastTxDate = t.date;
-                }
-            });
-            // Show all, even if 0
-            const activePeople = Object.values(people).sort((a,b) => (b.total - b.repaid) - (a.total - a.repaid)); 
-            if(activePeople.length === 0) document.getElementById('no-udhar-msg').classList.remove('hidden');
-            else document.getElementById('no-udhar-msg').classList.add('hidden');
-
-            activePeople.forEach(p => {
-                const remaining = p.total - p.repaid;
-                const initial = p.name.charAt(0).toUpperCase();
-                let warningIcon = p.isDue && remaining > 0 ? '<i class="fas fa-exclamation-circle text-red-500 ml-2 blink-red" title="Due Soon"></i>' : '';
-                const li = document.createElement('li');
-                li.onclick = () => openPersonDetails(p.name);
-                li.className = "bg-white p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-b-0";
-                li.innerHTML = `<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold shadow-sm">${initial}</div><div><h4 class="font-bold text-slate-800 text-sm flex items-center">${p.name} ${warningIcon}</h4><p class="text-[10px] text-slate-400">${timeAgo(p.lastTxDate)}</p></div></div><span class="font-bold ${remaining < 1 ? 'text-slate-400' : 'text-emerald-600'} text-sm">${formatter.format(remaining)}</span>`;
-                list.appendChild(li);
-            });
-        }
-        
+        function updateUI() { recalculateRepayments(); let cash = 0, bank = 0, udhar = 0, income = 0, expense = 0; transactions.forEach(t => { if(t.type === 'income') { income += t.amount; t.account === 'Cash' ? cash += t.amount : bank += t.amount; } else if(t.type === 'expense') { expense += t.amount; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; } else if(t.type === 'udhar') { const rem = t.amount - t.repaid; if (t.status === 'active' || rem > 0.1) udhar += rem; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; } }); document.getElementById('total-balance').innerText = formatter.format(cash + bank + udhar); document.getElementById('cash-balance').innerText = formatter.format(cash); document.getElementById('bank-balance').innerText = formatter.format(bank); document.getElementById('udhar-balance').innerText = formatter.format(udhar); document.getElementById('udhar-total-display').innerText = formatter.format(udhar); document.getElementById('total-income').innerText = formatter.format(income); document.getElementById('total-expense').innerText = formatter.format(expense); if(currentView === 'home') updateChart(); if(currentView === 'report') renderFullList(); if(currentView === 'udhar') renderUdharList(); }
+        function renderUdharList() { const list = document.getElementById('udhar-list'); list.innerHTML = ''; const people = {}; transactions.forEach(t => { if(t.type === 'udhar') { if(!people[t.person]) people[t.person] = { name: t.person, total: 0, repaid: 0, lastTxDate: t.date, returnDate: t.returnDate }; people[t.person].total += t.amount; people[t.person].repaid += (t.repaid || 0); if(t.returnDate) { const days = Math.ceil((new Date(t.returnDate) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)); if(days <= 1) people[t.person].isDue = true; } if(new Date(t.date) > new Date(people[t.person].lastTxDate)) people[t.person].lastTxDate = t.date; } }); const activePeople = Object.values(people).filter(p => (p.total - p.repaid) > 0.1); if(activePeople.length === 0) document.getElementById('no-udhar-msg').classList.remove('hidden'); else document.getElementById('no-udhar-msg').classList.add('hidden'); activePeople.forEach(p => { const remaining = p.total - p.repaid; const initial = p.name.charAt(0).toUpperCase(); let warningIcon = p.isDue ? '<i class="fas fa-exclamation-circle text-red-500 ml-2 blink-red" title="Due Soon"></i>' : ''; const li = document.createElement('li'); li.onclick = () => openPersonDetails(p.name); li.className = "bg-white p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-b-0"; li.innerHTML = `<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold shadow-sm">${initial}</div><div><h4 class="font-bold text-slate-800 text-sm flex items-center">${p.name} ${warningIcon}</h4><p class="text-[10px] text-slate-400">${timeAgo(p.lastTxDate)}</p></div></div><span class="font-bold text-emerald-600 text-sm">${formatter.format(remaining)}</span>`; list.appendChild(li); }); }
         function openPersonDetails(name) { lastOpenedPerson = name; const modal = document.getElementById('person-history-modal'); document.getElementById('ph-name').innerText = name; modal.classList.remove('hidden'); document.getElementById('btn-give-more').onclick = () => giveMoreUdhar(name); document.getElementById('btn-receive-money').onclick = () => openWusoolForPerson(name); const content = document.getElementById('ph-content'); content.innerHTML = ''; const related = transactions.filter(t => (t.type === 'udhar' && t.person === name) || (t.type === 'income' && t.desc === `Recovery: ${name}`)).sort((a,b) => b.id - a.id); if(related.length === 0) content.innerHTML = '<p class="text-center text-xs text-slate-400">No history.</p>'; else { related.forEach(t => { let isRecovery = t.type === 'income'; let color = isRecovery ? 'text-green-600' : 'text-orange-600'; let icon = isRecovery ? 'fa-arrow-down' : 'fa-arrow-up'; let label = isRecovery ? 'Received' : 'Given'; let editBtn = ''; if(t.type === 'udhar') editBtn = `<button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500 text-[10px] mr-2"><i class="fas fa-pencil-alt"></i></button>`; content.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg relative"><div class="flex items-center gap-3"><i class="fas ${icon} text-xs text-slate-400"></i><div><p class="font-bold text-xs text-slate-700">${label}</p><p class="text-[10px] text-slate-400">${t.date}</p></div></div><div class="text-right"><span class="font-bold text-sm ${color} block">${formatter.format(t.amount)}</span><div class="flex justify-end mt-1">${editBtn}<button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500 text-[10px]"><i class="fas fa-trash"></i></button></div></div></div>`; }); } }
         function openWusoolForPerson(name) { lastOpenedPerson = name; document.getElementById('person-history-modal').classList.add('hidden'); recalculateRepayments(); const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === name); const totalPending = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0); if(totalPending <= 0.1) return alert("No pending balance."); document.getElementById('wusool-person-name').value = name; document.getElementById('wusool-msg').innerText = `Total Pending: ${formatter.format(totalPending)}`; document.getElementById('wusool-amount').value = ''; document.getElementById('wusool-modal').classList.remove('hidden'); }
-        function confirmWusool() {
-            const person = document.getElementById('wusool-person-name').value;
-            const receivedAmount = parseFloat(document.getElementById('wusool-amount').value);
-            const targetAcc = document.getElementById('wusool-account').value;
-            if (!receivedAmount || receivedAmount <= 0) return alert("Enter valid amount");
-            const recoveryEntry = { id: Date.now(), date: new Date().toISOString().split('T')[0], amount: receivedAmount, type: 'income', desc: `Recovery: ${person}`, account: targetAcc, note: `Udhar recovered` };
-            transactions.push(recoveryEntry);
-            saveData();
-            document.getElementById('wusool-modal').classList.add('hidden');
-            if(lastOpenedPerson) openPersonDetails(lastOpenedPerson);
-            
-            recalculateRepayments();
-            const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === person);
-            const totalPending = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0);
-            const lastTx = transactions.slice().reverse().find(tx => tx.person === person && tx.phone);
-            if (lastTx && lastTx.phone) {
-                const cleanPhone = lastTx.phone.replace(/\D/g, '');
-                const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
-                const link = generateLink(person, totalPending);
-                let msg = totalPending > 0 ? `Salam%0A${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0ABaaki: ₹${totalPending}.%0A%0AStatement:${link}` : `${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0AShukriya.`;
-                window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
-            }
-        }
-
-        function renderFullList() {
-            const list = document.getElementById('full-list');
-            list.innerHTML = '';
-            const data = getFilteredTransactions().sort((a,b) => b.id - a.id);
-            if(data.length === 0) { list.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">No records.</p>'; return; }
-            data.forEach(t => {
-                let color = t.type === 'income' ? 'text-emerald-600' : (t.type === 'udhar' ? 'text-orange-500' : 'text-rose-600');
-                let sign = t.type === 'income' ? '+' : '-';
-                const details = t.note ? `• ${t.note}` : '';
-                let actions = '';
-                if(t.type !== 'udhar' && !t.type.includes('Recovery')) {
-                    actions = `<div class="flex gap-2 ml-2"><button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500 text-[10px]"><i class="fas fa-pencil-alt"></i></button><button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500 text-[10px]"><i class="fas fa-trash"></i></button></div>`;
-                }
-                const li = document.createElement('li');
-                li.className = "p-4 flex justify-between items-center border-b border-slate-50 last:border-b-0";
-                li.innerHTML = `<div class="flex-1 flex flex-col gap-0.5"><div class="font-bold text-sm text-slate-700">${t.desc} <span class="font-normal text-slate-400 text-xs">${details}</span></div><div class="text-[10px] text-slate-400 flex items-center gap-2"><span>${t.date}</span><span class="uppercase text-[9px] font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-500">${t.type}</span></div></div><div class="flex items-center"><div class="text-sm font-bold ${color}">${sign}${formatter.format(t.amount)}</div>${actions}</div>`;
-                list.appendChild(li);
-            });
-        }
-
-        function updateChart() {
-             if(document.getElementById('view-home').classList.contains('hidden')) return;
-             const ctx = document.getElementById('expenseChart').getContext('2d');
-             const legendContainer = document.getElementById('analysis-legend');
-             const expenses = {};
-             // Use filtered data if you want, but typically homepage shows current month
-             const currentMonth = new Date().toISOString().slice(0,7);
-             const expenseTx = transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth));
-             const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0);
-             expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; });
-             document.getElementById('chart-total-center').innerText = formatter.format(totalExpense);
-             if(chartInstance) chartInstance.destroy();
-             chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(expenses), datasets: [{ data: Object.values(expenses), backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } });
-             legendContainer.innerHTML = '';
-             Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => {
-                 const percent = ((amount / totalExpense) * 100).toFixed(1);
-                 const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"};
-                 legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} flex items-center justify-center ${cfg.text} shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`;
-             });
-        }
-        
+        function confirmWusool() { const person = document.getElementById('wusool-person-name').value; const receivedAmount = parseFloat(document.getElementById('wusool-amount').value); const targetAcc = document.getElementById('wusool-account').value; if (!receivedAmount || receivedAmount <= 0) return alert("Enter valid amount"); const recoveryEntry = { id: Date.now(), date: new Date().toISOString().split('T')[0], amount: receivedAmount, type: 'income', desc: `Recovery: ${person}`, account: targetAcc, note: `Udhar recovered` }; transactions.push(recoveryEntry); saveData(); document.getElementById('wusool-modal').classList.add('hidden'); if(lastOpenedPerson) openPersonDetails(lastOpenedPerson); renderUdharList(); recalculateRepayments(); const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === person); const totalPending = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0); const lastTx = transactions.slice().reverse().find(tx => tx.person === person && tx.phone); if (lastTx && lastTx.phone) { const cleanPhone = lastTx.phone.replace(/\D/g, ''); const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; const link = generateLink(person, totalPending); let msg = totalPending > 0 ? `Salam%0A${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0ABaaki: ₹${totalPending}.%0A%0AStatement:${link}` : `${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0AShukriya.`; window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); } }
+        function renderFullList() { const list = document.getElementById('full-list'); list.innerHTML = ''; const data = getFilteredTransactions().sort((a,b) => b.id - a.id); if(data.length === 0) { list.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">No records.</p>'; return; } data.forEach(t => { let color = t.type === 'income' ? 'text-emerald-600' : (t.type === 'udhar' ? 'text-orange-500' : 'text-rose-600'); let sign = t.type === 'income' ? '+' : '-'; const details = t.note ? `• ${t.note}` : ''; let actions = ''; if(t.type !== 'udhar' && !t.type.includes('Recovery')) { actions = `<div class="flex gap-2 ml-2"><button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500 text-[10px]"><i class="fas fa-pencil-alt"></i></button><button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500 text-[10px]"><i class="fas fa-trash"></i></button></div>`; } const li = document.createElement('li'); li.className = "p-4 flex justify-between items-center border-b border-slate-50 last:border-b-0"; li.innerHTML = `<div class="flex-1 flex flex-col gap-0.5"><div class="font-bold text-sm text-slate-700">${t.desc} <span class="font-normal text-slate-400 text-xs">${details}</span></div><div class="text-[10px] text-slate-400 flex items-center gap-2"><span>${t.date}</span><span class="w-1 h-1 rounded-full bg-slate-300"></span><span>${t.type.toUpperCase()}</span></div></div><div class="flex items-center"><div class="text-sm font-bold ${color}">${sign}${formatter.format(t.amount)}</div>${actions}</div>`; list.appendChild(li); }); }
+        function updateChart() { if(document.getElementById('view-home').classList.contains('hidden')) return; const ctx = document.getElementById('expenseChart').getContext('2d'); const legendContainer = document.getElementById('analysis-legend'); const expenses = {}; const currentMonth = new Date().toISOString().slice(0,7); const expenseTx = transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth)); const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0); expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; }); document.getElementById('chart-total-center').innerText = formatter.format(totalExpense); if(chartInstance) chartInstance.destroy(); chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(expenses), datasets: [{ data: Object.values(expenses), backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } }); legendContainer.innerHTML = ''; Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { const percent = ((amount / totalExpense) * 100).toFixed(1); const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} flex items-center justify-center ${cfg.text} shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; }); }
         function downloadPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFontSize(18); doc.setTextColor(13, 148, 136); doc.text("Madani Exp Tracker Report", 14, 20); doc.setFontSize(10); doc.setTextColor(100); doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 28); const data = getFilteredTransactions(); const rows = data.map(t => { const dateObj = new Date(t.id); const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); return [{ content: `${t.date}\n${timeStr}`, styles: { halign: 'center', valign: 'middle' } }, t.desc, t.note || '-', t.type.toUpperCase(), t.account, { content: formatter.format(t.amount).replace('₹', ''), styles: { halign: 'right', fontStyle: 'bold' } }]; }); doc.autoTable({ head: [['Date & Time', 'Category', 'Details', 'Type', 'Account', 'Amount']], body: rows, startY: 35, theme: 'grid', styles: { fontSize: 8, cellPadding: 3 }, headStyles: { fillColor: [13, 148, 136], textColor: 255, fontStyle: 'bold', halign: 'center' } }); doc.save('Madani_Report.pdf'); }
         function downloadExcel() { const data = getFilteredTransactions(); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Transactions"); XLSX.writeFile(wb, "Madani_Data.xlsx"); }
         function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions)); const a = document.createElement('a'); a.href = dataStr; a.download = "backup.json"; a.click(); }
