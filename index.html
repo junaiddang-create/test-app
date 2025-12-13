@@ -287,6 +287,26 @@
             return `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${encodedHistory}`;
         }
 
+        // --- UPDATED HELPER: Get FULL History Text ---
+        function getFullHistoryText(person) {
+            const history = transactions
+                .filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`))
+                .sort((a,b) => b.id - a.id);
+                // REMOVED .slice(0, 3) to show ALL history
+            
+            if(history.length === 0) return "";
+            
+            let text = "%0A%0A*Transaction History:*";
+            history.forEach(t => {
+                const date = t.date;
+                const type = t.type === 'udhar' ? '🔻 Given' : '🟢 Received';
+                // Removing currency symbol to be safe in URL, using standard formatting
+                const amt = formatter.format(t.amount); 
+                text += `%0A${type}: ${amt} (${date})`;
+            });
+            return text;
+        }
+
         // ... [Standard App Logic] ...
         function saveData() { localStorage.setItem('transactions', JSON.stringify(transactions)); updateUI(); }
         
@@ -623,7 +643,7 @@
                 let msg = "";
                 
                 if(totalPending <= 1) {
-                    msg = `Salam ${person}%0AAap ka hisaab poora ho chuka hai.%0AKoi raqam baqi nahi%0A🤝 Shukriya`;
+                    msg = `Salam%0A${person}%0AAap ne ₹${receivedAmountFormatted} Diye%0AAb Aap ka hisaab poora ho chuka hai.%0AKoi raqam baqi nahi%0A🤝 Shukriya`;
                 } else {
                     msg = `Salam ${person}%0AAaj aap ki taraf se ₹${receivedAmountFormatted} receive hue hain%0ABaaqi raqam: ₹${totalPendingFormatted}%0AShukriya.`;
                 }
