@@ -67,11 +67,11 @@
         <!-- === 1. HOME VIEW === -->
         <section id="view-home" class="p-4 fade-in block pb-24">
             
-            <!-- HOME FILTERS -->
-            <div class="flex justify-center mb-4 bg-slate-100 p-1 rounded-xl">
-                <button onclick="setHomeFilter('day')" id="hf-day" class="px-4 py-1.5 text-xs font-bold rounded-lg text-slate-500 transition-all">Daily</button>
-                <button onclick="setHomeFilter('month')" id="hf-month" class="px-4 py-1.5 text-xs font-bold rounded-lg bg-white shadow-sm text-teal-700 transition-all">Monthly</button>
-                <button onclick="setHomeFilter('year')" id="hf-year" class="px-4 py-1.5 text-xs font-bold rounded-lg text-slate-500 transition-all">Yearly</button>
+            <!-- HOME FILTERS (UPDATED DESIGN LIKE IMAGE) -->
+            <div class="flex p-1 bg-slate-200/60 rounded-xl mb-5 mx-1">
+                <button onclick="setHomeFilter('day')" id="hf-day" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Daily</button>
+                <button onclick="setHomeFilter('month')" id="hf-month" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white shadow-sm text-teal-700">Monthly</button>
+                <button onclick="setHomeFilter('year')" id="hf-year" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Yearly</button>
             </div>
 
             <!-- Assets Cards (Always Cumulative) -->
@@ -163,7 +163,7 @@
                             <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-home text-xs"></i></div>
                             <div>
                                 <h3 class="font-bold text-sm text-slate-700">Needs (50%)</h3>
-                                <p class="text-[10px] text-blue-500 font-bold" id="budget-needs-limit">You can use: ₹0</p>
+                                <p class="text-[10px] text-blue-500 font-bold" id="budget-needs-limit">Baqi: ₹0</p>
                             </div>
                         </div>
                         <div class="text-right"><p class="font-bold text-sm text-blue-600" id="budget-needs-val">₹0</p><p class="text-[10px] text-slate-400">Spent</p></div>
@@ -182,7 +182,7 @@
                             <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fas fa-shopping-bag text-xs"></i></div>
                             <div>
                                 <h3 class="font-bold text-sm text-slate-700">Wants (30%)</h3>
-                                <p class="text-[10px] text-purple-500 font-bold" id="budget-wants-limit">You can use: ₹0</p>
+                                <p class="text-[10px] text-purple-500 font-bold" id="budget-wants-limit">Baqi: ₹0</p>
                             </div>
                         </div>
                         <div class="text-right"><p class="font-bold text-sm text-purple-600" id="budget-wants-val">₹0</p><p class="text-[10px] text-slate-400">Spent</p></div>
@@ -246,7 +246,7 @@
                 <button onclick="clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div><div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div></button>
                 <button onclick="exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div><div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div></button>
             </div>
-            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v9.0</p>
+            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v9.5</p>
         </section>
 
         <!-- NAV -->
@@ -261,7 +261,7 @@
     </div>
 
     <!-- ENTRY MODAL -->
-    <div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="entry-modal-title">New Entry</h3><button onclick="closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs" id="type-tabs-wrapper"><button onclick="setTxType('expense')" id="btn-expense" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600">Expense</button><button onclick="setTxType('income')" id="btn-income" class="flex-1 py-3 rounded-lg text-slate-400">Income</button></div><input type="hidden" id="tx-type" value="expense"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="tx-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-teal-500"></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><select id="tx-category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"></select></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Wallet</label><select id="tx-account" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><div class="flex gap-1"><input type="date" id="tx-date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"><button onclick="setToday('tx-date')" class="bg-teal-50 text-teal-700 px-3 rounded-xl text-xs font-bold border border-teal-100">Today</button></div></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Note</label><input type="text" id="tx-note" placeholder="Details..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div></div><button onclick="saveTransaction()" class="w-full bg-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-check"></i> <span id="save-btn-text">Save Transaction</span></button></div></div></div>
+    <div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="entry-modal-title">New Entry</h3><button onclick="closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs" id="type-tabs-wrapper"><button onclick="setTxType('expense')" id="btn-expense" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600">Expense</button><button onclick="setTxType('income')" id="btn-income" class="flex-1 py-3 rounded-lg text-slate-400">Income</button></div><input type="hidden" id="tx-type" value="expense"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="tx-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-teal-500"></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><select id="tx-category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"></select></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Wallet</label><select id="tx-account" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><input type="date" id="tx-date" onchange="highlightDate(this)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Note</label><input type="text" id="tx-note" placeholder="Details..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div></div><button onclick="saveTransaction()" class="w-full bg-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-check"></i> <span id="save-btn-text">Save Transaction</span></button></div></div></div>
 
     <!-- UDHAR MODAL -->
     <div id="udhar-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in">
@@ -281,7 +281,7 @@
                 <div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Person Name</label><input type="text" id="udhar-person" list="udhar-names-list" placeholder="Enter Name" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"><datalist id="udhar-names-list"></datalist></div>
                 <div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Mobile (WA)</label><input type="tel" id="udhar-phone" placeholder="91..." class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"></div><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">From Wallet</label><select id="udhar-source" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Date</label><div class="flex gap-1"><input type="date" id="udhar-date" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"><button onclick="setToday('udhar-date')" class="bg-orange-50 text-orange-700 px-3 rounded-xl text-xs font-bold border border-orange-100">Today</button></div></div>
+                    <div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Date</label><input type="date" id="udhar-date" onchange="highlightDate(this)" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div>
                     <div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Due Date</label><input type="date" id="udhar-return-date" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div>
                 </div>
                 <button onclick="saveUdharTransaction()" class="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-orange-700 active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-save"></i> <span id="save-udhar-btn-text">Save Loan Record</span></button>
@@ -387,6 +387,11 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('tx-date').value = today;
             document.getElementById('udhar-date').value = today;
+            
+            // Initial highlight check
+            highlightDate(document.getElementById('tx-date'));
+            highlightDate(document.getElementById('udhar-date'));
+
             const yrSelect = document.getElementById('filter-year-input');
             const currentYear = new Date().getFullYear();
             for(let i=0; i<5; i++) { const opt = document.createElement('option'); opt.value = currentYear - i; opt.text = currentYear - i; yrSelect.appendChild(opt); }
@@ -402,7 +407,27 @@
         }
 
         function setToday(inputId) {
-            document.getElementById(inputId).value = new Date().toISOString().split('T')[0];
+            const today = new Date().toISOString().split('T')[0];
+            const el = document.getElementById(inputId);
+            el.value = today;
+            highlightDate(el);
+        }
+
+        function highlightDate(el) {
+            const today = new Date().toISOString().split('T')[0];
+            const isUdhar = el.id.includes('udhar');
+            const activeColor = isUdhar ? 'border-orange-500' : 'border-teal-500';
+            const activeBg = isUdhar ? 'bg-orange-50' : 'bg-teal-50';
+            const baseBorder = isUdhar ? 'border-orange-200' : 'border-slate-200';
+            const baseBg = isUdhar ? 'bg-white' : 'bg-slate-50';
+
+            if(el.value === today) {
+                el.classList.add(activeColor, activeBg);
+                el.classList.remove(baseBorder, baseBg);
+            } else {
+                el.classList.remove(activeColor, activeBg);
+                el.classList.add(baseBorder, baseBg);
+            }
         }
 
         // --- HOME FILTERS ---
@@ -414,9 +439,9 @@
             btns.forEach(b => {
                 const btn = document.getElementById(`hf-${b}`);
                 if (b === period) {
-                    btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg bg-white shadow-sm text-teal-700 transition-all";
+                    btn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white shadow-sm text-teal-700";
                 } else {
-                    btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg text-slate-500 transition-all";
+                    btn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500";
                 }
             });
 
@@ -555,7 +580,16 @@
                 if(pct > 100) pct = 100;
                 const color = spent > limit ? 'bg-red-500' : 'bg-teal-500';
                 const textCol = spent > limit ? 'text-red-500' : 'text-slate-500';
+                const remaining = limit - spent;
                 
+                // Logic for Baqi / Extra Text
+                let statusText = "";
+                if (remaining >= 0) {
+                    statusText = `<span class="text-teal-600 font-bold">Baqi: ${formatter.format(remaining)}</span>`;
+                } else {
+                    statusText = `<span class="text-rose-500 font-bold">Extra: ${formatter.format(Math.abs(remaining))}</span>`;
+                }
+
                 const html = `
                     <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm relative">
                         <button onclick="removeCategoryLimit('${cat}')" class="absolute top-2 right-2 text-slate-300 hover:text-red-400"><i class="fas fa-times"></i></button>
@@ -566,6 +600,7 @@
                         <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <div class="h-full ${color}" style="width: ${pct}%"></div>
                         </div>
+                        <p class="text-[9px] text-right mt-1">${statusText}</p>
                     </div>
                 `;
                 list.innerHTML += html;
@@ -575,12 +610,26 @@
         function updateBudgetUI(type, spent, limit, categoryTotals) {
             document.getElementById(`budget-${type}-val`).innerText = formatter.format(spent);
             
-            // Explicit Limit Text
+            // Explicit Limit Text with Remaining
             const limitTextEl = document.getElementById(`budget-${type}-limit`);
+            const remaining = limit - spent;
+
             if (type === 'savings') {
                 limitTextEl.innerText = `Target: ${formatter.format(limit)}`;
+                limitTextEl.className = "text-[10px] text-emerald-600 font-bold";
             } else {
-                limitTextEl.innerText = `You can use: ${formatter.format(limit)}`;
+                if (limit > 0) {
+                    if (remaining >= 0) {
+                        limitTextEl.innerText = `Baqi: ${formatter.format(remaining)}`;
+                        limitTextEl.className = "text-[10px] text-emerald-600 font-bold";
+                    } else {
+                        limitTextEl.innerText = `Extra: ${formatter.format(Math.abs(remaining))}`;
+                        limitTextEl.className = "text-[10px] text-rose-500 font-bold";
+                    }
+                } else {
+                    limitTextEl.innerText = `Limit: ${formatter.format(limit)}`;
+                    limitTextEl.className = "text-[10px] text-slate-400 font-bold";
+                }
             }
             
             let pct = (limit > 0) ? (spent / limit) * 100 : 0;
