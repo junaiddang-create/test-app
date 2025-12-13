@@ -381,7 +381,8 @@
                 const totalPending = transactions.filter(t => t.type === 'udhar' && t.status === 'active' && t.person === person).reduce((sum, t) => sum + (t.amount - (t.repaid || 0)), 0);
                 const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' }));
                 const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${btoa(JSON.stringify(history))}`;
-                const msg = `Salam%0A${person},%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.%0A%0ASee Full Statement:%0A${link}`;
+                // Updated Msg
+                const msg = `Salam%0A${person}%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.%0A%0AStatement: ${link}`;
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
             }
         }
@@ -576,12 +577,13 @@
                 const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); 
                 const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${btoa(JSON.stringify(history))}`; 
                 
-                let msg = "";
-                if(totalPending <= 1) {
-                    msg = `Salam ${person},%0A*Hisaab Barabar!*%0AAapki taraf se poori payment receive ho gayi hai.%0ATotal Balance: ₹0.%0AShukriya.`;
-                } else {
-                    msg = `Salam ${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0AAbhi Baaki: ₹${totalPending}.%0A%0AStatement:${link}`; 
+                // Updated Logic Here
+                let msg = `${person}%0AAaj aapki taraf se ₹${receivedAmount} receive hue.`;
+                if(totalPending > 0) {
+                    msg += `%0AAbhi Baaki: ₹${totalPending}.`;
                 }
+                msg += `%0AShukriya.`;
+                msg += `%0A%0AStatement: ${link}`;
                 
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
             } 
