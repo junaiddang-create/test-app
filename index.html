@@ -404,9 +404,9 @@
                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
                 recalculateRepayments();
                 const totalPending = transactions.filter(t => t.type === 'udhar' && t.status === 'active' && t.person === person).reduce((sum, t) => sum + (t.amount - (t.repaid || 0)), 0);
-                const link = getSafeHistoryLink(person, totalPending);
+                // const link = getSafeHistoryLink(person, totalPending); // Link removed as requested
                 const fullTxText = getFullHistoryText(person);
-                const msg = `Salam%0A${person}%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.${fullTxText}%0A%0AStatement: ${link}`;
+                const msg = `Salam%0A${person}%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.${fullTxText}%0A%0ATotal Pending: ₹${formatter.format(totalPending)}`;
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
             }
         }
@@ -637,7 +637,7 @@
             if (lastTx && lastTx.phone) { 
                 const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
-                const link = getSafeHistoryLink(person, totalPending);
+                // const link = getSafeHistoryLink(person, totalPending); // Link removed as requested
                 const fullTxText = getFullHistoryText(person);
                 
                 // Updated Logic Here
@@ -648,11 +648,11 @@
                 if(totalPending <= 1) {
                     msg += `%0A%0A✅ *Hisaab Barabar ho gaya (Nil).*`;
                 } else {
-                    msg += `%0A%0A⚠️ *Abhi Baaki: ₹${totalPending}.*`;
+                    msg += `%0A%0A⚠️ *Abhi Baaki: ₹${formatter.format(totalPending)}.*`;
                 }
                 
                 msg += `%0A%0AShukriya.`;
-                msg += `%0A%0A📄 *Statement Check karein:*%0A${link}`;
+                // msg += `%0A%0A📄 *Statement Check karein:*%0A${link}`; // Statement link removed
                 
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
             } 
@@ -663,9 +663,9 @@
              if (lastTx && lastTx.phone) {
                  const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
                  const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
-                 const link = getSafeHistoryLink(person, amount);
+                 // const link = getSafeHistoryLink(person, amount); // Link removed as requested
                  const fullTxText = getFullHistoryText(person);
-                 const msg = `Salam ${person},%0AYeh aapka Udhar statement hai.${fullTxText}%0A%0ATotal Pending: ₹${amount}.%0A%0ACheck details here:%0A${link}`;
+                 const msg = `Salam ${person},%0AYeh aapka Udhar statement hai.${fullTxText}%0A%0ATotal Pending: ₹${formatter.format(amount)}.`;
                  window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
              } else {
                  alert("Phone number not found for this person.");
