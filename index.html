@@ -380,7 +380,9 @@
                 recalculateRepayments();
                 const totalPending = transactions.filter(t => t.type === 'udhar' && t.status === 'active' && t.person === person).reduce((sum, t) => sum + (t.amount - (t.repaid || 0)), 0);
                 const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' }));
-                const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${btoa(JSON.stringify(history))}`;
+                const jsonStr = JSON.stringify(history);
+                const encodedHistory = window.btoa(unescape(encodeURIComponent(jsonStr)));
+                const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${encodedHistory}`;
                 // Updated Msg
                 const msg = `Salam%0A${person}%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.%0A%0AStatement: ${link}`;
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
@@ -575,15 +577,22 @@
                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
                 const baseUrl = window.location.href.split('?')[0]; 
                 const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); 
-                const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${btoa(JSON.stringify(history))}`; 
+                const jsonStr = JSON.stringify(history);
+                // Safe Encode for Unicode
+                const encodedHistory = window.btoa(unescape(encodeURIComponent(jsonStr)));
+                const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${encodedHistory}`; 
                 
                 // Updated Logic Here
-                let msg = `${person}%0AAaj aapki taraf se ₹${receivedAmount} receive hue.`;
-                if(totalPending > 0) {
-                    msg += `%0AAbhi Baaki: ₹${totalPending}.`;
+                let msg = `Salam *${person}*,%0A%0AAaj aapki taraf se *₹${receivedAmount}* receive hue.`;
+                
+                if(totalPending <= 1) {
+                    msg += `%0A✅ *Hisaab Barabar ho gaya (Nil).*`;
+                } else {
+                    msg += `%0A⚠️ *Abhi Baaki: ₹${totalPending}.*`;
                 }
-                msg += `%0AShukriya.`;
-                msg += `%0A%0AStatement: ${link}`;
+                
+                msg += `%0A%0AShukriya.`;
+                msg += `%0A%0A📄 *Statement Check karein:*%0A${link}`;
                 
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
             } 
@@ -596,7 +605,10 @@
                  const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
                  const baseUrl = window.location.href.split('?')[0]; 
                  const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); 
-                 const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${amount}&h=${btoa(JSON.stringify(history))}`; 
+                 const jsonStr = JSON.stringify(history);
+                 // Safe Encode for Unicode
+                 const encodedHistory = window.btoa(unescape(encodeURIComponent(jsonStr)));
+                 const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${amount}&h=${encodedHistory}`; 
                  const msg = `Salam ${person},%0AYeh aapka Udhar statement hai.%0ATotal Pending: ₹${amount}.%0A%0ACheck details here:%0A${link}`;
                  window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
              } else {
