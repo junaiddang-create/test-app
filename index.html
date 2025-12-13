@@ -250,11 +250,15 @@
         function loadGuestHistory(encodedData) {
             if(!encodedData) return;
             try {
-                // Decode: Base64 -> String -> JSON
+                // Fix: Properly handle URI decoding for robust link sharing
                 const jsonStr = decodeURIComponent(escape(window.atob(encodedData))); 
                 const history = JSON.parse(jsonStr);
                 const list = document.getElementById('guest-history-list');
                 list.innerHTML = '';
+                if(history.length === 0) {
+                    list.innerHTML = '<p class="text-slate-400 text-xs text-center mt-4">No recent history.</p>';
+                    return;
+                }
                 history.forEach(item => {
                     const isLoan = item.t === 'L';
                     const color = isLoan ? 'text-orange-600' : 'text-green-600';
@@ -263,11 +267,14 @@
                     const details = item.n ? `<br><span class="text-[9px] text-slate-400 italic">${item.n}</span>` : '';
                     list.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs text-slate-500"><i class="fas ${icon}"></i></div><div><p class="font-bold text-xs text-slate-700">${label} ${details}</p><p class="text-[10px] text-slate-400">${item.d}</p></div></div><span class="font-bold text-sm ${color}">${formatter.format(item.a)}</span></div>`;
                 });
-            } catch(e) {}
+            } catch(e) {
+                console.error("Link parsing error:", e);
+                document.getElementById('guest-history-list').innerHTML = '<p class="text-rose-400 text-xs text-center mt-4">Unable to load history.<br>Link might be broken.</p>';
+            }
         }
 
-        // --- LINK GENERATOR (Robust) ---
-        function generateLink(person, totalPending) {
+        // --- LINK GENERATOR (Safe) ---
+        function getSafeHistoryLink(person, totalPending) {
             const baseUrl = window.location.href.split('?')[0];
             const history = transactions
                 .filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`))
@@ -275,10 +282,29 @@
                 .map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' }));
             
             const jsonStr = JSON.stringify(history);
-            // Updated to be safer, though maintaining user logic structure
-            const encodedHistory = window.btoa(unescape(encodeURIComponent(jsonStr)));
-            
+            // Critical Fix: Wrap base64 in encodeURIComponent to prevent URL breakage
+            const encodedHistory = encodeURIComponent(window.btoa(unescape(encodeURIComponent(jsonStr))));
             return `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${encodedHistory}`;
+        }
+
+        // --- UPDATED HELPER: Get FULL History Text ---
+        function getFullHistoryText(person) {
+            const history = transactions
+                .filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`))
+                .sort((a,b) => b.id - a.id);
+                // REMOVED .slice(0, 3) to show ALL history
+            
+            if(history.length === 0) return "";
+            
+            let text = "%0A%0A*Transaction History:*";
+            history.forEach(t => {
+                const date = t.date;
+                const type = t.type === 'udhar' ? '🔻 Given' : '🟢 Received';
+                // Removing currency symbol to be safe in URL, using standard formatting
+                const amt = formatter.format(t.amount); 
+                text += `%0A${type}: ${amt} (${date})`;
+            });
+            return text;
         }
 
         // ... [Standard App Logic] ...
@@ -376,15 +402,11 @@
             if(phone) {
                 const cleanPhone = phone.replace(/\D/g, '');
                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
-                const baseUrl = window.location.href.split('?')[0];
                 recalculateRepayments();
                 const totalPending = transactions.filter(t => t.type === 'udhar' && t.status === 'active' && t.person === person).reduce((sum, t) => sum + (t.amount - (t.repaid || 0)), 0);
-                const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' }));
-                const jsonStr = JSON.stringify(history);
-                const encodedHistory = window.btoa(unescape(encodeURIComponent(jsonStr)));
-                const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${encodedHistory}`;
-                // Updated Msg
-                const msg = `Salam%0A${person}%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.%0A%0AStatement: ${link}`;
+                const link = getSafeHistoryLink(person, totalPending);
+                const fullTxText = getFullHistoryText(person);
+                const msg = `Salam%0A${person}%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.${fullTxText}%0A%0AStatement: ${link}`;
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
             }
         }
@@ -457,7 +479,47 @@
 
         function giveMoreUdhar(name) { openNewUdharModal(); document.getElementById('udhar-person').value = name; const existing = transactions.find(t => t.person === name && t.phone); if(existing) document.getElementById('udhar-phone').value = existing.phone; }
         function recalculateRepayments() { transactions.forEach(t => { if(t.type === 'udhar') { t.repaid = 0; t.status = 'active'; }}); const recoveries = transactions.filter(t => t.type === 'income' && t.desc && t.desc.startsWith('Recovery:')); const recoveriesByPerson = {}; recoveries.forEach(r => { const name = r.desc.replace('Recovery: ', ''); if(!recoveriesByPerson[name]) recoveriesByPerson[name] = []; recoveriesByPerson[name].push(r); }); for(const person in recoveriesByPerson) { const loans = transactions.filter(t => t.type === 'udhar' && t.person === person).sort((a,b) => a.id - b.id); let totalRecovered = recoveriesByPerson[person].reduce((sum, r) => sum + r.amount, 0); for(const loan of loans) { if(totalRecovered <= 0) break; const allocation = Math.min(loan.amount, totalRecovered); loan.repaid += allocation; totalRecovered -= allocation; if(loan.repaid >= loan.amount - 0.1) loan.status = 'settled'; } } }
-        function updateUI() { recalculateRepayments(); let cash = 0, bank = 0, udhar = 0, income = 0, expense = 0; transactions.forEach(t => { if(t.type === 'income') { income += t.amount; t.account === 'Cash' ? cash += t.amount : bank += t.amount; } else if(t.type === 'expense') { expense += t.amount; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; } else if(t.type === 'udhar') { const rem = t.amount - t.repaid; if (t.status === 'active' || rem > 0.1) udhar += rem; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; } }); document.getElementById('total-balance').innerText = formatter.format(cash + bank + udhar); document.getElementById('cash-balance').innerText = formatter.format(cash); document.getElementById('bank-balance').innerText = formatter.format(bank); document.getElementById('udhar-balance').innerText = formatter.format(udhar); document.getElementById('udhar-total-display').innerText = formatter.format(udhar); document.getElementById('total-income').innerText = formatter.format(income); document.getElementById('total-expense').innerText = formatter.format(expense); if(currentView === 'home') updateChart(); if(currentView === 'report') renderFullList(); if(currentView === 'udhar') renderCustomerList(); }
+        
+        // --- UPDATED ACCOUNT LOGIC ---
+        function updateUI() { 
+            recalculateRepayments(); 
+            let cash = 0, bank = 0, udhar = 0, income = 0, expense = 0; 
+            
+            transactions.forEach(t => { 
+                if(t.type === 'income') { 
+                    // ONLY add to TOTAL INCOME if it is NOT a recovery
+                    if(!t.isWusool) {
+                        income += t.amount; 
+                    }
+                    
+                    // ALWAYS add to account balance (Recovery IS cash flow)
+                    t.account === 'Cash' ? cash += t.amount : bank += t.amount; 
+                } 
+                else if(t.type === 'expense') { 
+                    expense += t.amount; 
+                    t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; 
+                } 
+                else if(t.type === 'udhar') { 
+                    const rem = t.amount - t.repaid; 
+                    if (t.status === 'active' || rem > 0.1) udhar += rem; 
+                    // Deduct from Source Account (This was already correct)
+                    t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; 
+                } 
+            }); 
+            
+            document.getElementById('total-balance').innerText = formatter.format(cash + bank + udhar); 
+            document.getElementById('cash-balance').innerText = formatter.format(cash); 
+            document.getElementById('bank-balance').innerText = formatter.format(bank); 
+            document.getElementById('udhar-balance').innerText = formatter.format(udhar); 
+            document.getElementById('udhar-total-display').innerText = formatter.format(udhar); 
+            document.getElementById('total-income').innerText = formatter.format(income); 
+            document.getElementById('total-expense').innerText = formatter.format(expense); 
+            
+            if(currentView === 'home') updateChart(); 
+            if(currentView === 'report') renderFullList(); 
+            if(currentView === 'udhar') renderCustomerList(); 
+        }
+        
         function renderCustomerList() { const list = document.getElementById('udhar-list-container'); list.innerHTML = ''; const people = {}; transactions.forEach(t => { if(t.person) { if(!people[t.person]) people[t.person] = { name: t.person, bal: 0, last: t.date, phone: t.phone }; if(t.type === 'udhar') people[t.person].bal += t.amount; else if(t.isWusool) people[t.person].bal -= t.amount; if(t.date > people[t.person].last) people[t.person].last = t.date; } }); const sorted = Object.values(people).sort((a,b) => b.last.localeCompare(a.last)); if(sorted.length === 0) { document.getElementById('no-udhar-msg').classList.remove('hidden'); return; } document.getElementById('no-udhar-msg').classList.add('hidden'); sorted.forEach(p => { const bal = p.bal; const color = bal > 0 ? 'text-rose-600' : (bal < 0 ? 'text-emerald-600' : 'text-slate-400'); const subtext = bal > 0 ? 'You will get' : (bal < 0 ? 'You will give' : 'Settled'); const initial = p.name.charAt(0).toUpperCase(); list.innerHTML += `<div onclick="openPersonDetails('${p.name}')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center active:scale-95 transition-transform"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold border border-slate-200">${initial}</div><div><h4 class="font-bold text-slate-800 text-sm">${p.name}</h4><p class="text-[10px] text-slate-400">${timeAgo(p.last)}</p></div></div><div class="text-right"><span class="block font-black text-sm ${color}">${formatter.format(Math.abs(bal))}</span><span class="text-[9px] font-bold text-slate-400 uppercase">${subtext}</span></div></div>`; }); }
         
         // --- NEW & UPDATED UDHAR LOGIC ---
@@ -575,20 +637,18 @@
             if (lastTx && lastTx.phone) { 
                 const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
-                const baseUrl = window.location.href.split('?')[0]; 
-                const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); 
-                const jsonStr = JSON.stringify(history);
-                // Safe Encode for Unicode
-                const encodedHistory = window.btoa(unescape(encodeURIComponent(jsonStr)));
-                const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${encodedHistory}`; 
+                const link = getSafeHistoryLink(person, totalPending);
+                const fullTxText = getFullHistoryText(person);
                 
                 // Updated Logic Here
                 let msg = `Salam *${person}*,%0A%0AAaj aapki taraf se *₹${receivedAmount}* receive hue.`;
                 
+                msg += fullTxText; // Add FULL history here
+
                 if(totalPending <= 1) {
-                    msg += `%0A✅ *Hisaab Barabar ho gaya (Nil).*`;
+                    msg += `%0A%0A✅ *Hisaab Barabar ho gaya (Nil).*`;
                 } else {
-                    msg += `%0A⚠️ *Abhi Baaki: ₹${totalPending}.*`;
+                    msg += `%0A%0A⚠️ *Abhi Baaki: ₹${totalPending}.*`;
                 }
                 
                 msg += `%0A%0AShukriya.`;
@@ -603,13 +663,9 @@
              if (lastTx && lastTx.phone) {
                  const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
                  const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
-                 const baseUrl = window.location.href.split('?')[0]; 
-                 const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); 
-                 const jsonStr = JSON.stringify(history);
-                 // Safe Encode for Unicode
-                 const encodedHistory = window.btoa(unescape(encodeURIComponent(jsonStr)));
-                 const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${amount}&h=${encodedHistory}`; 
-                 const msg = `Salam ${person},%0AYeh aapka Udhar statement hai.%0ATotal Pending: ₹${amount}.%0A%0ACheck details here:%0A${link}`;
+                 const link = getSafeHistoryLink(person, amount);
+                 const fullTxText = getFullHistoryText(person);
+                 const msg = `Salam ${person},%0AYeh aapka Udhar statement hai.${fullTxText}%0A%0ATotal Pending: ₹${amount}.%0A%0ACheck details here:%0A${link}`;
                  window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
              } else {
                  alert("Phone number not found for this person.");
