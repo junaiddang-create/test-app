@@ -18,170 +18,81 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        
-        /* Smooth Animations */
-        .fade-in { animation: fadeIn 0.4s ease-out; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in-up { animation: fadeInUp 0.3s ease-out forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
         .fab-shadow { box-shadow: 0 4px 15px rgba(13, 148, 136, 0.4); }
         .nav-item.active { color: #0d9488; }
         .nav-item { color: #94a3b8; transition: color 0.3s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         select { -webkit-appearance: none; appearance: none; }
-        
-        #guest-container, #main-container, #login-container { display: none; }
+        #guest-container { display: none; }
         .blink-red { animation: blinker 1.5s linear infinite; color: #ef4444; }
         @keyframes blinker { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body class="text-slate-800 bg-slate-50">
 
-    <!-- === AUTH CONTAINER (Login/Register) === -->
-    <div id="login-container" class="w-full max-w-md mx-auto min-h-screen bg-white flex flex-col items-center justify-center p-6 fade-in">
-        <div class="text-center mb-8">
-            <div class="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <i class="fas fa-shield-alt text-4xl text-teal-600"></i>
-            </div>
-            <h1 class="text-2xl font-extrabold text-slate-800" id="auth-title">Welcome</h1>
-            <p class="text-xs text-slate-400 mt-1">Madani Exp Tracker</p>
-        </div>
-
-        <!-- LOGIN FORM -->
-        <div id="login-form" class="w-full space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Gmail ID</label>
-                <div class="relative">
-                    <i class="fab fa-google absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="email" id="login-email" placeholder="Enter Gmail ID" class="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-teal-500">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Password</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="password" id="login-password" placeholder="Enter Password" class="w-full pl-10 pr-10 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-teal-500">
-                    <i class="fas fa-eye absolute right-4 top-3.5 text-slate-400 cursor-pointer hover:text-teal-600 transition-colors" onclick="togglePassword('login-password', this)"></i>
-                </div>
-            </div>
-            <div class="text-right">
-                <button onclick="toggleAuthView('forgot')" class="text-xs text-teal-600 font-bold hover:underline">Forgot Password?</button>
-            </div>
-            <button onclick="handleLogin()" class="w-full bg-slate-800 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg hover:bg-slate-900 transition-all active:scale-95">
-                Login
-            </button>
-            <div class="text-center mt-4">
-                <p class="text-xs text-slate-400">New User? <button onclick="toggleAuthView('register')" class="text-teal-600 font-bold hover:underline">Create Account</button></p>
-            </div>
-        </div>
-
-        <!-- REGISTER FORM -->
-        <div id="register-form" class="w-full space-y-4 hidden">
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Gmail ID</label>
-                <div class="relative">
-                    <i class="fab fa-google absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="email" id="reg-email" value="junaiddang@gmail.com" class="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-teal-500">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Create Password</label>
-                <div class="relative">
-                    <i class="fas fa-key absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="password" id="reg-password" placeholder="Create Password" class="w-full pl-10 pr-10 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-teal-500">
-                    <i class="fas fa-eye absolute right-4 top-3.5 text-slate-400 cursor-pointer hover:text-teal-600 transition-colors" onclick="togglePassword('reg-password', this)"></i>
-                </div>
-            </div>
-            <button onclick="handleRegister()" class="w-full bg-teal-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg hover:bg-teal-700 transition-all active:scale-95">
-                Create Account
-            </button>
-            <div class="text-center mt-4">
-                <p class="text-xs text-slate-400">Already have account? <button onclick="toggleAuthView('login')" class="text-teal-600 font-bold hover:underline">Login here</button></p>
-            </div>
-        </div>
-
-        <!-- FORGOT FORM -->
-        <div id="forgot-form" class="w-full space-y-4 hidden">
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-2">
-                <p class="text-xs text-blue-700 leading-relaxed">Enter your registered Gmail ID to reset your password locally.</p>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Gmail ID</label>
-                <div class="relative">
-                    <i class="fab fa-google absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="email" id="forgot-email" placeholder="Enter your email" class="w-full pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-teal-500">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">New Password</label>
-                <div class="relative">
-                    <i class="fas fa-lock-open absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="password" id="new-password" placeholder="Set new password" class="w-full pl-10 pr-10 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:border-teal-500">
-                    <i class="fas fa-eye absolute right-4 top-3.5 text-slate-400 cursor-pointer hover:text-teal-600 transition-colors" onclick="togglePassword('new-password', this)"></i>
-                </div>
-            </div>
-            <button onclick="handleForgot()" class="w-full bg-orange-500 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg hover:bg-orange-600 transition-all active:scale-95">
-                Reset Password
-            </button>
-            <div class="text-center mt-4">
-                <button onclick="toggleAuthView('login')" class="text-xs text-slate-400 font-bold hover:text-slate-600">Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <!-- === GUEST VIEW === -->
-    <div id="guest-container" class="w-full max-w-md mx-auto min-h-screen bg-white p-6 flex flex-col items-center fade-in">
-        <div class="w-full flex justify-between items-center mb-8">
-            <div><h1 class="text-xl font-bold text-slate-800">Madani Tracker</h1><p class="text-[10px] text-teal-600 font-bold uppercase tracking-wider">Junaid Madani</p></div>
-            <div class="w-10 h-10 bg-teal-50 rounded-full flex items-center justify-center border border-teal-100 text-teal-600"><i class="fas fa-file-invoice"></i></div>
+    <div id="guest-container" class="w-full max-w-md mx-auto min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center fade-in">
+        <div class="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-teal-100">
+            <i class="fas fa-file-invoice-dollar text-3xl text-teal-600"></i>
         </div>
-        <div class="w-full bg-slate-900 text-white p-6 rounded-3xl shadow-xl mb-6 relative overflow-hidden">
-             <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 blur-2xl"></div>
-             <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Account Holder</p>
-             <h2 class="text-2xl font-bold text-white mb-4 truncate" id="guest-name">---</h2>
-             <div class="w-full h-px bg-white/20 mb-4"></div>
-             <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Total Outstanding</p>
-             <h1 class="text-4xl font-black text-rose-400" id="guest-balance">₹0</h1>
+        <h1 class="text-2xl font-bold text-slate-800 mb-1">Madani Exp Tracker</h1>
+        <p class="text-xs text-teal-600 font-semibold mb-8 tracking-widest uppercase">Junaid Madani</p>
+        <div class="w-full bg-slate-50 p-8 rounded-3xl border border-slate-200 mb-6 shadow-sm">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Account Name</p>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6" id="guest-name">---</h2>
+            <div class="w-full border-t border-dashed border-slate-300 mb-6"></div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Total Pending Balance</p>
+            <h1 class="text-5xl font-black text-rose-600" id="guest-balance">₹0</h1>
         </div>
-        <div class="w-full flex-1 overflow-hidden flex flex-col">
-             <h3 class="font-bold text-left text-sm mb-3 flex items-center gap-2"><i class="fas fa-history text-slate-400"></i> Transaction History</h3>
-             <div id="guest-history-list" class="space-y-3 overflow-y-auto flex-1 pr-1 pb-4"></div>
+        <div class="p-4 w-full flex-1 overflow-y-auto">
+             <h3 class="font-bold text-left text-sm mb-3">History</h3>
+             <div id="guest-history-list" class="space-y-3"></div>
         </div>
-        <div class="mt-4 text-center"><p class="text-[10px] text-slate-400">Generated automatically via secure link.</p></div>
     </div>
 
     <!-- === MAIN APP CONTAINER === -->
     <div id="main-container" class="w-full max-w-md mx-auto min-h-screen relative bg-white sm:shadow-xl overflow-hidden pb-[90px]">
+        
+        <!-- HEADER -->
         <header class="bg-white p-4 sticky top-0 z-30 shadow-sm border-b border-slate-100 flex justify-between items-center">
             <div>
                 <h1 class="text-lg font-bold text-teal-700 flex items-center gap-2"><i class="fas fa-wallet"></i> Madani Exp Tracker</h1>
                 <p class="text-[10px] text-teal-600 font-bold ml-7 -mt-1 tracking-wide">Junaid Madani</p>
             </div>
             <div class="text-right">
-                <button onclick="logout()" class="text-xs text-red-500 font-bold bg-red-50 px-2 py-1 rounded-lg"><i class="fas fa-power-off"></i> Logout</button>
+                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Net Worth</p>
+                <h2 class="text-xl font-bold text-slate-800" id="total-balance">₹0</h2>
             </div>
         </header>
 
-        <!-- HOME -->
+        <!-- === 1. HOME VIEW === -->
         <section id="view-home" class="p-4 fade-in block pb-24">
             <div class="grid grid-cols-3 gap-3 mb-5">
                 <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center"><p class="text-[10px] text-slate-500 uppercase font-bold">Cash</p><p class="text-sm font-bold text-slate-800" id="cash-balance">₹0</p></div>
                 <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-center"><p class="text-[10px] text-slate-500 uppercase font-bold">Bank</p><p class="text-sm font-bold text-slate-800" id="bank-balance">₹0</p></div>
                 <div class="bg-orange-50 p-3 rounded-xl border border-orange-100 text-center relative"><p class="text-[10px] text-slate-500 uppercase font-bold">Udhar</p><p class="text-sm font-bold text-orange-600" id="udhar-balance">₹0</p></div>
             </div>
+
             <div class="grid grid-cols-2 gap-3 mb-6">
                 <div onclick="showSummary('income')" class="cursor-pointer bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex justify-between items-center active:scale-95 transition-transform"><div><p class="text-[10px] text-emerald-600 font-bold uppercase">Income</p><p class="text-lg font-bold text-emerald-700" id="total-income">₹0</p></div><div class="bg-emerald-200/50 w-8 h-8 rounded-full flex items-center justify-center text-emerald-700"><i class="fas fa-arrow-down"></i></div></div>
                 <div onclick="showSummary('expense')" class="cursor-pointer bg-rose-50 p-4 rounded-xl border border-rose-100 flex justify-between items-center active:scale-95 transition-transform"><div><p class="text-[10px] text-rose-600 font-bold uppercase">Expense</p><p class="text-lg font-bold text-rose-700" id="total-expense">₹0</p></div><div class="bg-rose-200/50 w-8 h-8 rounded-full flex items-center justify-center text-rose-700"><i class="fas fa-arrow-up"></i></div></div>
             </div>
+
             <h3 class="font-bold text-slate-700 text-sm mb-3">Expense Analysis</h3>
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 mb-4">
-                <div class="flex justify-center mb-6 relative"><div class="h-48 w-48 relative z-10"><canvas id="expenseChart"></canvas></div><div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><p class="text-[10px] text-slate-400 uppercase font-bold">Total</p><p class="text-lg font-bold text-slate-800" id="chart-total-center">₹0</p></div></div>
+                <div class="flex justify-center mb-6 relative">
+                    <div class="h-48 w-48 relative z-10"><canvas id="expenseChart"></canvas></div>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><p class="text-[10px] text-slate-400 uppercase font-bold">Total</p><p class="text-lg font-bold text-slate-800" id="chart-total-center">₹0</p></div>
+                </div>
                 <div id="analysis-legend" class="space-y-3"></div>
             </div>
         </section>
 
-        <!-- REPORT -->
+        <!-- === 2. REPORT VIEW === -->
         <section id="view-report" class="p-4 fade-in hidden pb-24">
             <h2 class="text-lg font-bold mb-4">Reports & History</h2>
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4">
@@ -193,16 +104,15 @@
                 <div id="custom-date-range" class="hidden flex gap-2"><input type="date" id="filter-start-date" class="w-1/2 p-2 text-xs rounded-lg border border-slate-300"><input type="date" id="filter-end-date" class="w-1/2 p-2 text-xs rounded-lg border border-slate-300"></div>
             </div>
             <div class="flex gap-2 mb-4">
-                <button onclick="downloadPDF()" class="flex-1 bg-slate-800 text-white py-2.5 rounded-lg text-xs font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform"><i class="fas fa-file-pdf"></i> PDF</button>
-                <button onclick="downloadExcel()" class="flex-1 bg-green-700 text-white py-2.5 rounded-lg text-xs font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform"><i class="fas fa-file-excel"></i> Excel</button>
-                <button onclick="sendEmailStatement()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg text-xs font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95"><i class="fas fa-envelope"></i> Email</button>
+                <button onclick="downloadPDF()" class="flex-1 bg-slate-800 text-white py-2.5 rounded-lg text-xs font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95"><i class="fas fa-file-pdf"></i> PDF</button>
+                <button onclick="downloadExcel()" class="flex-1 bg-green-700 text-white py-2.5 rounded-lg text-xs font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95"><i class="fas fa-file-excel"></i> Excel</button>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"><ul id="full-list" class="divide-y divide-slate-50"></ul></div>
         </section>
 
-        <!-- UDHAR -->
+        <!-- === 3. UDHAR VIEW === -->
         <section id="view-udhar" class="p-4 fade-in hidden pb-24">
-            <div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-slate-800">Udhar Manager</h2><span class="text-[10px] bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-bold">To Collect</span></div>
+            <div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-slate-800">Udhar Manager</h2></div>
             <div class="bg-orange-50 p-5 rounded-xl border border-orange-100 mb-4 text-center">
                 <p class="text-xs text-orange-800 uppercase font-bold tracking-wider mb-1">Total Udhar Market Mein</p>
                 <h1 class="text-3xl font-bold text-orange-600" id="udhar-total-display">₹0</h1>
@@ -213,21 +123,17 @@
             <p id="no-udhar-msg" class="text-center text-slate-400 text-xs py-10 hidden">No active loans.</p>
         </section>
 
-        <!-- SETTINGS -->
+        <!-- === 4. SETTINGS VIEW === -->
         <section id="view-settings" class="p-4 fade-in hidden pb-24">
             <h2 class="text-lg font-bold mb-4">Settings</h2>
             <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-4 bg-slate-50 border-b border-slate-100 mb-2">
-                    <p class="text-xs font-bold text-slate-400 uppercase">Logged in as</p>
-                    <p class="text-sm font-bold text-teal-700 flex items-center gap-2" id="current-user-email"><i class="fab fa-google"></i> junaiddang@gmail.com</p>
-                </div>
                 <button onclick="exportData()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-save"></i></div><div><p class="text-sm font-bold text-slate-700">Backup Data</p><p class="text-[10px] text-slate-400">Save to device</p></div></button>
                 <button onclick="document.getElementById('import-file').click()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><i class="fas fa-file-import"></i></div><div><p class="text-sm font-bold text-slate-700">Restore Data</p><p class="text-[10px] text-slate-400">Import backup file</p></div></button>
                 <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(this)">
                 <button onclick="clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div><div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div></button>
                 <button onclick="exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div><div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div></button>
             </div>
-            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v6.2</p>
+            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v5.5</p>
         </section>
 
         <!-- NAV -->
@@ -241,7 +147,7 @@
     </div>
 
     <!-- ENTRY MODAL -->
-    <div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="entry-modal-title">New Entry</h3><button onclick="closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs" id="type-tabs-wrapper"><button onclick="setTxType('expense')" id="btn-expense" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600">Expense</button><button onclick="setTxType('income')" id="btn-income" class="flex-1 py-3 rounded-lg text-slate-400">Income</button></div><input type="hidden" id="tx-type" value="expense"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="tx-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-teal-500"></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><select id="tx-category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"></select></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Wallet</label><select id="tx-account" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><input type="date" id="tx-date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Note</label><input type="text" id="tx-note" placeholder="Details..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div></div><button onclick="saveTransaction()" class="w-full bg-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-check"></i> <span id="save-btn-text">Save Transaction</span></button></div></div></div>
+    <div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="entry-modal-title">New Entry</h3><button onclick="closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs" id="type-tabs-wrapper"><button onclick="setTxType('expense')" id="btn-expense" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600">Expense</button><button onclick="setTxType('income')" id="btn-income" class="flex-1 py-3 rounded-lg text-slate-400">Income</button></div><input type="hidden" id="tx-type" value="expense"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="tx-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-teal-500"></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><select id="tx-category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"></select></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Wallet</label><select id="tx-account" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><input type="date" id="tx-date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Note</label><input type="text" id="tx-note" placeholder="Details..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div></div><button onclick="saveTransaction()" class="w-full bg-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-check"></i> <span id="save-btn-text">Save Transaction</span></button></div></div></div>
 
     <!-- UDHAR MODAL -->
     <div id="udhar-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="udhar-modal-title">New Udhar Entry</h3><button onclick="closeUdharModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="udhar-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-orange-500"></div><button onclick="pickContact()" class="w-full py-3 bg-orange-50 border border-dashed border-orange-200 rounded-xl text-orange-600 font-bold text-xs flex items-center justify-center gap-2 hover:bg-orange-100"><i class="fas fa-address-book text-lg"></i> Select from Contacts</button><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Person Name</label><input type="text" id="udhar-person" list="udhar-names-list" placeholder="Enter Name" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"><datalist id="udhar-names-list"></datalist></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Mobile (WA)</label><input type="tel" id="udhar-phone" placeholder="91..." class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"></div><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">From Wallet</label><select id="udhar-source" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Date Given</label><input type="date" id="udhar-date" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Due Date</label><input type="date" id="udhar-return-date" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div></div><button onclick="saveUdharTransaction()" class="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-orange-700 active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-save"></i> <span id="save-udhar-btn-text">Save Loan Record</span></button></div></div></div>
@@ -260,13 +166,23 @@
         let lastOpenedPerson = null;
         let currentView = 'home';
         let filterState = { type: 'month', month: new Date().toISOString().slice(0,7), year: new Date().getFullYear(), start: '', end: '' };
-        
-        // LOGIN STATE CONSTANTS
-        const SESSION_KEY = "madani_logged_in";
-        const USER_CREDS_KEY = "madani_user_creds";
-        const DEFAULT_EMAIL = "junaiddang@gmail.com";
 
-        const catConfig = { "Food": { icon: "fa-utensils", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50" }, "Rent": { icon: "fa-home", color: "bg-blue-500", text: "text-blue-500", bgLight: "bg-blue-50" }, "Bills": { icon: "fa-file-invoice-dollar", color: "bg-red-500", text: "text-red-500", bgLight: "bg-red-50" }, "Transport": { icon: "fa-bus", color: "bg-yellow-500", text: "text-yellow-500", bgLight: "bg-yellow-50" }, "Shopping": { icon: "fa-shopping-bag", color: "bg-purple-500", text: "text-purple-500", bgLight: "bg-purple-50" }, "Medical": { icon: "fa-briefcase-medical", color: "bg-green-500", text: "text-green-500", bgLight: "bg-green-50" }, "Education": { icon: "fa-graduation-cap", color: "bg-indigo-500", text: "text-indigo-500", bgLight: "bg-indigo-50" }, "Charity": { icon: "fa-hand-holding-heart", color: "bg-pink-500", text: "text-pink-500", bgLight: "bg-pink-50" }, "Other": { icon: "fa-shapes", color: "bg-slate-500", text: "text-slate-500", bgLight: "bg-slate-50" }, "Salary": { icon: "fa-money-bill", color: "bg-emerald-500", text: "text-emerald-500", bgLight: "bg-emerald-50" }, "Business": { icon: "fa-briefcase", color: "bg-blue-600", text: "text-blue-600", bgLight: "bg-blue-50" }, "Gift": { icon: "fa-gift", color: "bg-pink-500", text: "text-pink-500", bgLight: "bg-pink-50" }, "Bonus": { icon: "fa-star", color: "bg-yellow-500", text: "text-yellow-500", bgLight: "bg-yellow-50" }, "Loan Taken": { icon: "fa-hand-holding-usd", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50" } };
+        const catConfig = {
+            "Food": { icon: "fa-utensils", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50" },
+            "Rent": { icon: "fa-home", color: "bg-blue-500", text: "text-blue-500", bgLight: "bg-blue-50" },
+            "Bills": { icon: "fa-file-invoice-dollar", color: "bg-red-500", text: "text-red-500", bgLight: "bg-red-50" },
+            "Transport": { icon: "fa-bus", color: "bg-yellow-500", text: "text-yellow-500", bgLight: "bg-yellow-50" },
+            "Shopping": { icon: "fa-shopping-bag", color: "bg-purple-500", text: "text-purple-500", bgLight: "bg-purple-50" },
+            "Medical": { icon: "fa-briefcase-medical", color: "bg-green-500", text: "text-green-500", bgLight: "bg-green-50" },
+            "Education": { icon: "fa-graduation-cap", color: "bg-indigo-500", text: "text-indigo-500", bgLight: "bg-indigo-50" },
+            "Charity": { icon: "fa-hand-holding-heart", color: "bg-pink-500", text: "text-pink-500", bgLight: "bg-pink-50" },
+            "Other": { icon: "fa-shapes", color: "bg-slate-500", text: "text-slate-500", bgLight: "bg-slate-50" },
+            "Salary": { icon: "fa-money-bill", color: "bg-emerald-500", text: "text-emerald-500", bgLight: "bg-emerald-50" },
+            "Business": { icon: "fa-briefcase", color: "bg-blue-600", text: "text-blue-600", bgLight: "bg-blue-50" },
+            "Gift": { icon: "fa-gift", color: "bg-pink-500", text: "text-pink-500", bgLight: "bg-pink-50" },
+            "Bonus": { icon: "fa-star", color: "bg-yellow-500", text: "text-yellow-500", bgLight: "bg-yellow-50" },
+            "Loan Taken": { icon: "fa-hand-holding-usd", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50" }
+        };
         const expenseCats = Object.keys(catConfig).filter(k => !["Salary","Business","Gift","Bonus","Loan Taken"].includes(k));
         const incomeCats = ["Salary", "Business", "Gift", "Bonus", "Loan Taken", "Other"];
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 });
@@ -274,175 +190,269 @@
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
             if(params.get('guest') === 'true') {
+                document.getElementById('main-container').style.display = 'none';
                 document.getElementById('guest-container').style.display = 'flex';
                 document.getElementById('guest-name').innerText = decodeURIComponent(params.get('n') || 'Guest');
                 document.getElementById('guest-balance').innerText = formatter.format(parseFloat(params.get('b')) || 0);
                 loadGuestHistory(params.get('h'));
-                return; 
-            }
-
-            // Init default user if not exists
-            if (!localStorage.getItem(USER_CREDS_KEY)) {
-                // Initial Default Creds: no password set initially, forces registration if logic dictates, 
-                // but let's allow 'junaiddang@gmail.com' to register easily.
-            }
-
-            if(localStorage.getItem(SESSION_KEY) === 'true') {
-                showApp();
             } else {
-                document.getElementById('login-container').style.display = 'flex';
+                setupDates();
+                initFilterUI();
+                recalculateRepayments();
+                switchView('home');
+                updateUI();
             }
         };
 
-        // --- AUTH LOGIC ---
-        function toggleAuthView(view) {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('register-form').classList.add('hidden');
-            document.getElementById('forgot-form').classList.add('hidden');
+        // --- FILTERS & SETUP ---
+        function setupDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tx-date').value = today;
+            document.getElementById('udhar-date').value = today;
+            const yrSelect = document.getElementById('filter-year-input');
+            const currentYear = new Date().getFullYear();
+            for(let i=0; i<5; i++) { const opt = document.createElement('option'); opt.value = currentYear - i; opt.text = currentYear - i; yrSelect.appendChild(opt); }
+        }
+
+        function initFilterUI() {
+            document.getElementById('filter-month-input').value = filterState.month;
+            document.getElementById('filter-year-input').value = filterState.year;
+            document.getElementById('filter-type').addEventListener('change', (e) => {
+                const type = e.target.value; filterState.type = type;
+                document.getElementById('filter-month-input').classList.toggle('hidden', type !== 'month');
+                document.getElementById('filter-year-input').classList.toggle('hidden', type !== 'year');
+                document.getElementById('custom-date-range').classList.toggle('hidden', type !== 'custom');
+                renderFullList();
+            });
+            document.getElementById('filter-month-input').addEventListener('change', (e) => { filterState.month = e.target.value; renderFullList(); });
+            document.getElementById('filter-year-input').addEventListener('change', (e) => { filterState.year = e.target.value; renderFullList(); });
+            document.getElementById('filter-start-date').addEventListener('change', (e) => { filterState.start = e.target.value; renderFullList(); });
+            document.getElementById('filter-end-date').addEventListener('change', (e) => { filterState.end = e.target.value; renderFullList(); });
+        }
+
+        function getFilteredTransactions() {
+            return transactions.filter(t => {
+                if (filterState.type === 'month') return t.date.startsWith(filterState.month);
+                if (filterState.type === 'year') return new Date(t.date).getFullYear() == filterState.year;
+                if (filterState.type === 'custom') { if (filterState.start && t.date < filterState.start) return false; if (filterState.end && t.date > filterState.end) return false; return true; }
+                return true; 
+            });
+        }
+
+        // --- GUEST LOGIC ---
+        function loadGuestHistory(encodedData) {
+            if(!encodedData) return;
+            try {
+                // Decode: Base64 -> String -> JSON
+                const jsonStr = decodeURIComponent(escape(window.atob(encodedData))); 
+                const history = JSON.parse(jsonStr);
+                const list = document.getElementById('guest-history-list');
+                list.innerHTML = '';
+                history.forEach(item => {
+                    const isLoan = item.t === 'L';
+                    const color = isLoan ? 'text-orange-600' : 'text-green-600';
+                    const label = isLoan ? 'Udhar Liya' : 'Wapas Diya';
+                    const icon = isLoan ? 'fa-arrow-up' : 'fa-arrow-down';
+                    const details = item.n ? `<br><span class="text-[9px] text-slate-400 italic">${item.n}</span>` : '';
+                    list.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs text-slate-500"><i class="fas ${icon}"></i></div><div><p class="font-bold text-xs text-slate-700">${label} ${details}</p><p class="text-[10px] text-slate-400">${item.d}</p></div></div><span class="font-bold text-sm ${color}">${formatter.format(item.a)}</span></div>`;
+                });
+            } catch(e) {}
+        }
+
+        // --- LINK GENERATOR (Robust) ---
+        function generateLink(person, totalPending) {
+            const baseUrl = window.location.href.split('?')[0];
+            const history = transactions
+                .filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`))
+                .sort((a,b) => b.id - a.id)
+                .map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' }));
             
-            if(view === 'login') {
-                document.getElementById('auth-title').innerText = "Welcome";
-                document.getElementById('login-form').classList.remove('hidden');
-            } else if(view === 'register') {
-                document.getElementById('auth-title').innerText = "Create Account";
-                document.getElementById('register-form').classList.remove('hidden');
-            } else if(view === 'forgot') {
-                document.getElementById('auth-title').innerText = "Reset Password";
-                document.getElementById('forgot-form').classList.remove('hidden');
-            }
-        }
-
-        function togglePassword(fieldId, icon) {
-            const field = document.getElementById(fieldId);
-            if(field.type === 'password') {
-                field.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                field.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        function handleRegister() {
-            const email = document.getElementById('reg-email').value.trim();
-            const pass = document.getElementById('reg-password').value.trim();
-
-            if(!email || !pass) return alert("Please fill all fields.");
-            if(pass.length < 4) return alert("Password too short.");
-
-            // Save Credentials
-            localStorage.setItem(USER_CREDS_KEY, JSON.stringify({ email, password: pass }));
-            alert("Account created successfully! Please login.");
-            toggleAuthView('login');
-            // Pre-fill login email
-            document.getElementById('login-email').value = email;
-        }
-
-        function handleLogin() {
-            const email = document.getElementById('login-email').value.trim();
-            const pass = document.getElementById('login-password').value.trim();
-            const stored = JSON.parse(localStorage.getItem(USER_CREDS_KEY));
-
-            if(!stored) {
-                // If no user exists yet, guide to register or allow default logic
-                // For user 'junaiddang@gmail.com' specifically requested
-                if(email === DEFAULT_EMAIL && pass === '1234') { // Legacy backdoor if needed, or prompt reg
-                    alert("Please create an account first.");
-                    return toggleAuthView('register');
-                }
-                return alert("User not found. Please register.");
-            }
-
-            if(email === stored.email && pass === stored.password) {
-                localStorage.setItem(SESSION_KEY, 'true');
-                document.getElementById('login-container').style.display = 'none'; // Fixed here
-                showApp();
-            } else {
-                alert("Invalid Email or Password.");
-            }
-        }
-
-        function handleForgot() {
-            const email = document.getElementById('forgot-email').value.trim();
-            const newPass = document.getElementById('new-password').value.trim();
-            const stored = JSON.parse(localStorage.getItem(USER_CREDS_KEY));
-
-            if(!stored || stored.email !== email) return alert("Email not found.");
-            if(!newPass) return alert("Enter new password.");
-
-            // Update Password
-            stored.password = newPass;
-            localStorage.setItem(USER_CREDS_KEY, JSON.stringify(stored));
-            alert("Password reset successfully. Login now.");
-            toggleAuthView('login');
-        }
-
-        function logout() {
-            localStorage.removeItem(SESSION_KEY);
-            location.reload();
-        }
-
-        function showApp() {
-            document.getElementById('login-container').style.display = 'none'; // Ensure hidden
-            document.getElementById('main-container').style.display = 'block';
+            const jsonStr = JSON.stringify(history);
+            const encodedHistory = window.btoa(unescape(encodeURIComponent(jsonStr)));
             
-            // Show current user email in settings
-            const stored = JSON.parse(localStorage.getItem(USER_CREDS_KEY));
-            if(stored) document.getElementById('current-user-email').innerHTML = `<i class="fab fa-google"></i> ${stored.email}`;
-
-            setupDates();
-            initFilterUI();
-            recalculateRepayments();
-            switchView('home');
-            updateUI();
+            return `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${encodedHistory}`;
         }
 
-        // --- EMAIL STATEMENT LOGIC ---
-        function sendEmailStatement() {
-            const stored = JSON.parse(localStorage.getItem(USER_CREDS_KEY));
-            const email = stored ? stored.email : USER_EMAIL;
-            const subject = "Madani Exp Tracker - Transaction Statement";
-            
-            let body = "Madani Exp Tracker Report\n\nRecent Transactions:\n---------------------\n";
-            const data = getFilteredTransactions().slice(0, 20); 
-            data.forEach(t => { const typeSym = t.type === 'income' ? '+' : '-'; body += `${t.date}: ${t.desc} (${typeSym}${t.amount})\n`; });
-            body += "\n---------------------\nGenerated by Junaid Madani";
-            window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-        }
-
-        // --- EXISTING LOGIC REMAINS BELOW ---
-        function loadGuestHistory(encodedData) { if(!encodedData) return; try { const jsonStr = decodeURIComponent(escape(window.atob(encodedData))); const history = JSON.parse(jsonStr); const list = document.getElementById('guest-history-list'); list.innerHTML = ''; history.forEach(item => { const isLoan = item.t === 'L'; const color = isLoan ? 'text-orange-600' : 'text-green-600'; const label = isLoan ? 'Udhar Liya' : 'Wapas Diya'; const icon = isLoan ? 'fa-arrow-up' : 'fa-arrow-down'; const details = item.n ? `<br><span class="text-[9px] text-slate-400 italic">${item.n}</span>` : ''; list.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs text-slate-500"><i class="fas ${icon}"></i></div><div><p class="font-bold text-xs text-slate-700">${label} ${details}</p><p class="text-[10px] text-slate-400">${item.d}</p></div></div><span class="font-bold text-sm ${color}">${formatter.format(item.a)}</span></div>`; }); } catch(e) {} }
-        function setupDates() { const today = new Date().toISOString().split('T')[0]; document.getElementById('tx-date').value = today; document.getElementById('udhar-date').value = today; const yrSelect = document.getElementById('filter-year-input'); const currentYear = new Date().getFullYear(); for(let i=0; i<5; i++) { const opt = document.createElement('option'); opt.value = currentYear - i; opt.text = currentYear - i; yrSelect.appendChild(opt); } }
-        function initFilterUI() { document.getElementById('filter-month-input').value = filterState.month; document.getElementById('filter-year-input').value = filterState.year; document.getElementById('filter-type').addEventListener('change', (e) => { const type = e.target.value; filterState.type = type; document.getElementById('filter-month-input').classList.toggle('hidden', type !== 'month'); document.getElementById('filter-year-input').classList.toggle('hidden', type !== 'year'); document.getElementById('custom-date-range').classList.toggle('hidden', type !== 'custom'); renderFullList(); }); document.getElementById('filter-month-input').addEventListener('change', (e) => { filterState.month = e.target.value; renderFullList(); }); document.getElementById('filter-year-input').addEventListener('change', (e) => { filterState.year = e.target.value; renderFullList(); }); document.getElementById('filter-start-date').addEventListener('change', (e) => { filterState.start = e.target.value; renderFullList(); }); document.getElementById('filter-end-date').addEventListener('change', (e) => { filterState.end = e.target.value; renderFullList(); }); }
-        function getFilteredTransactions() { return transactions.filter(t => { if (filterState.type === 'month') return t.date.startsWith(filterState.month); if (filterState.type === 'year') return new Date(t.date).getFullYear() == filterState.year; if (filterState.type === 'custom') { if (filterState.start && t.date < filterState.start) return false; if (filterState.end && t.date > filterState.end) return false; return true; } return true; }); }
+        // ... [Standard App Logic] ...
         function saveData() { localStorage.setItem('transactions', JSON.stringify(transactions)); updateUI(); }
-        function switchView(view) { ['home', 'report', 'udhar', 'settings'].forEach(v => { document.getElementById('view-'+v).classList.add('hidden'); document.getElementById('nav-'+v).classList.remove('active', 'text-teal-600'); if(v !== view) document.getElementById('nav-'+v).classList.add('text-slate-300'); }); document.getElementById('view-'+view).classList.remove('hidden'); const nav = document.getElementById('nav-'+view); nav.classList.add('active', 'text-teal-600'); nav.classList.remove('text-slate-300'); currentView = view; if(view === 'home') updateChart(); if(view === 'report') renderFullList(); if(view === 'udhar') renderUdharList(); }
-        function openEntryModal() { editingTransactionId = null; document.getElementById('entry-modal-title').innerText = "New Entry"; document.getElementById('save-btn-text').innerText = "Save Transaction"; setTxType('expense'); document.getElementById('tx-amount').value = ''; document.getElementById('tx-note').value = ''; document.getElementById('entry-modal').classList.remove('hidden'); }
+        
+        function switchView(view) {
+            ['home', 'report', 'udhar', 'settings'].forEach(v => {
+                document.getElementById('view-'+v).classList.add('hidden');
+                document.getElementById('nav-'+v).classList.remove('active', 'text-teal-600');
+                if(v !== view) document.getElementById('nav-'+v).classList.add('text-slate-300');
+            });
+            document.getElementById('view-'+view).classList.remove('hidden');
+            const nav = document.getElementById('nav-'+view);
+            nav.classList.add('active', 'text-teal-600');
+            nav.classList.remove('text-slate-300');
+            currentView = view;
+            if(view === 'home') updateChart();
+            if(view === 'report') renderFullList();
+            if(view === 'udhar') renderCustomerList();
+        }
+
+        // --- ENTRY FUNCTIONS ---
+        function openEntryModal() {
+            editingTransactionId = null;
+            document.getElementById('entry-modal-title').innerText = "New Entry";
+            document.getElementById('save-btn-text').innerText = "Save Transaction";
+            setTxType('expense');
+            document.getElementById('tx-amount').value = '';
+            document.getElementById('tx-note').value = '';
+            document.getElementById('entry-modal').classList.remove('hidden');
+        }
         function closeEntryModal() { document.getElementById('entry-modal').classList.add('hidden'); }
         function openNewUdharModal() { document.getElementById('person-history-modal').classList.add('hidden'); document.getElementById('udhar-modal').classList.remove('hidden'); document.getElementById('udhar-amount').value = ''; document.getElementById('udhar-person').value = ''; document.getElementById('udhar-phone').value = ''; updateDatalist(); }
         function closeUdharModal() { document.getElementById('udhar-modal').classList.add('hidden'); }
         function setTxType(type) { document.getElementById('tx-type').value = type; const btns = { expense: document.getElementById('btn-expense'), income: document.getElementById('btn-income') }; Object.values(btns).forEach(b => { b.className = 'flex-1 py-3 rounded-lg text-slate-400 transition-all hover:text-slate-600'; }); const activeClass = "flex-1 py-3 rounded-lg font-bold transition-all shadow-sm bg-white"; if(type === 'expense') { btns.expense.className = `${activeClass} text-rose-600`; populateCats(expenseCats); } else { btns.income.className = `${activeClass} text-emerald-600`; populateCats(incomeCats); } }
         function populateCats(cats) { const sel = document.getElementById('tx-category'); sel.innerHTML = ''; cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); }); }
-        function saveTransaction() { const type = document.getElementById('tx-type').value; const amount = parseFloat(document.getElementById('tx-amount').value); const date = document.getElementById('tx-date').value; const note = document.getElementById('tx-note').value; const cat = document.getElementById('tx-category').value; const acc = document.getElementById('tx-account').value; if(!amount || amount <= 0) return alert("Enter valid amount"); if (editingTransactionId) { const idx = transactions.findIndex(t => t.id === editingTransactionId); if (idx !== -1) { transactions[idx] = { ...transactions[idx], amount, date, note, type, desc: cat, account: acc }; saveData(); closeEntryModal(); return; } } const entry = { id: Date.now(), date, amount, type, note, desc: cat, account: acc }; transactions.push(entry); saveData(); closeEntryModal(); }
-        function saveUdharTransaction() { const amount = parseFloat(document.getElementById('udhar-amount').value); const person = document.getElementById('udhar-person').value; const phone = document.getElementById('udhar-phone').value; const source = document.getElementById('udhar-source').value; const date = document.getElementById('udhar-date').value; const rDate = document.getElementById('udhar-return-date').value; if(!amount || amount <= 0) return alert("Enter valid amount"); if(!person) return alert("Person name required"); if (editingTransactionId) { const idx = transactions.findIndex(t => t.id === editingTransactionId); if (idx !== -1) { transactions[idx].amount = amount; transactions[idx].person = person; transactions[idx].phone = phone; transactions[idx].account = source; transactions[idx].date = date; transactions[idx].returnDate = rDate; transactions[idx].desc = `Loan to ${person}`; saveData(); closeUdharModal(); if(lastOpenedPerson) openPersonDetails(lastOpenedPerson); renderUdharList(); return; } } const entry = { id: Date.now(), date, amount, type: 'udhar', note: '', desc: `Loan to ${person}`, person, phone, account: source, returnDate: rDate, isUdhar: true, status: 'active', repaid: 0 }; transactions.push(entry); saveData(); closeUdharModal(); if(lastOpenedPerson === person) openPersonDetails(person); renderUdharList(); if(phone) { const cleanPhone = phone.replace(/\D/g, ''); const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; const baseUrl = window.location.href.split('?')[0]; recalculateRepayments(); const totalPending = transactions.filter(t => t.type === 'udhar' && t.status === 'active' && t.person === person).reduce((sum, t) => sum + (t.amount - (t.repaid || 0)), 0); const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${btoa(JSON.stringify(history))}`; const msg = `Salam%0A${person},%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.%0A%0ASee Full Statement:%0A${link}`; window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); } }
-        window.editTransaction = function(id) { const t = transactions.find(tx => tx.id === id); if (!t) return; if(t.type === 'udhar' || t.type.includes('Recovery')) { openNewUdharModal(); editingTransactionId = id; document.getElementById('udhar-modal-title').innerText = "Edit Loan"; document.getElementById('save-udhar-btn-text').innerText = "Update Loan"; document.getElementById('udhar-amount').value = t.amount; document.getElementById('udhar-person').value = t.person; document.getElementById('udhar-phone').value = t.phone || ''; document.getElementById('udhar-source').value = t.account; document.getElementById('udhar-date').value = t.date; document.getElementById('udhar-return-date').value = t.returnDate || ''; return; } editingTransactionId = id; document.getElementById('entry-modal-title').innerText = "Edit Entry"; document.getElementById('save-btn-text').innerText = "Update Transaction"; setTxType(t.type); document.getElementById('tx-amount').value = t.amount; document.getElementById('tx-date').value = t.date; document.getElementById('tx-note').value = t.note || ''; document.getElementById('tx-category').value = t.desc; document.getElementById('tx-account').value = t.account; document.getElementById('entry-modal').classList.remove('hidden'); };
-        window.deleteTransaction = function(id) { if(!confirm("Delete this entry?")) return; transactions = transactions.filter(t => t.id !== id); saveData(); if(currentView === 'report') renderFullList(); if(currentView === 'udhar' && lastOpenedPerson) openPersonDetails(lastOpenedPerson); updateUI(); };
+        
+        function saveTransaction() {
+            const type = document.getElementById('tx-type').value;
+            const amount = parseFloat(document.getElementById('tx-amount').value);
+            const date = document.getElementById('tx-date').value;
+            const note = document.getElementById('tx-note').value;
+            const cat = document.getElementById('tx-category').value;
+            const acc = document.getElementById('tx-account').value;
+
+            if(!amount || amount <= 0) return alert("Enter valid amount");
+
+            if (editingTransactionId) {
+                const idx = transactions.findIndex(t => t.id === editingTransactionId);
+                if (idx !== -1) {
+                    transactions[idx] = { ...transactions[idx], amount, date, note, type, desc: cat, account: acc };
+                    saveData();
+                    closeEntryModal();
+                    return;
+                }
+            }
+
+            const entry = { id: Date.now(), date, amount, type, note, desc: cat, account: acc };
+            transactions.push(entry);
+            saveData();
+            closeEntryModal();
+        }
+
+        function saveUdharTransaction() {
+            const amount = parseFloat(document.getElementById('udhar-amount').value);
+            const person = document.getElementById('udhar-person').value;
+            const phone = document.getElementById('udhar-phone').value;
+            const source = document.getElementById('udhar-source').value;
+            const date = document.getElementById('udhar-date').value;
+            const rDate = document.getElementById('udhar-return-date').value;
+
+            if(!amount || amount <= 0) return alert("Enter valid amount");
+            if(!person) return alert("Person name required");
+
+            if (editingTransactionId) {
+                const idx = transactions.findIndex(t => t.id === editingTransactionId);
+                if (idx !== -1) {
+                     transactions[idx].amount = amount; transactions[idx].person = person;
+                     transactions[idx].phone = phone; transactions[idx].account = source;
+                     transactions[idx].date = date; transactions[idx].returnDate = rDate;
+                     transactions[idx].desc = `Loan to ${person}`;
+                     saveData(); closeUdharModal();
+                     if(lastOpenedPerson) openPersonDetails(lastOpenedPerson);
+                     renderCustomerList(); return;
+                }
+            }
+
+            const entry = { id: Date.now(), date, amount, type: 'udhar', note: '', desc: `Loan to ${person}`, person, phone, account: source, returnDate: rDate, isUdhar: true, status: 'active', repaid: 0 };
+            transactions.push(entry);
+            saveData();
+            closeUdharModal();
+            if(lastOpenedPerson === person) openPersonDetails(person);
+            renderCustomerList();
+
+            if(phone) {
+                const cleanPhone = phone.replace(/\D/g, '');
+                const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+                const baseUrl = window.location.href.split('?')[0];
+                recalculateRepayments();
+                const totalPending = transactions.filter(t => t.type === 'udhar' && t.status === 'active' && t.person === person).reduce((sum, t) => sum + (t.amount - (t.repaid || 0)), 0);
+                const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' }));
+                const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${btoa(JSON.stringify(history))}`;
+                const msg = `Salam%0A${person},%0AAapne ₹${amount} udhaar liye hain.%0AWapas karne ki tareekh: ${rDate || 'Tay nahi hui'}.%0A%0ASee Full Statement:%0A${link}`;
+                window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
+            }
+        }
+
+        window.editTransaction = function(id) {
+            const t = transactions.find(tx => tx.id === id);
+            if (!t) return;
+            if(t.type === 'udhar' || t.type.includes('Recovery')) {
+                 openNewUdharModal(); 
+                 editingTransactionId = id; 
+                 document.getElementById('udhar-modal-title').innerText = "Edit Loan";
+                 document.getElementById('save-udhar-btn-text').innerText = "Update Loan";
+                 document.getElementById('udhar-amount').value = t.amount;
+                 document.getElementById('udhar-person').value = t.person;
+                 document.getElementById('udhar-phone').value = t.phone || '';
+                 document.getElementById('udhar-source').value = t.account;
+                 document.getElementById('udhar-date').value = t.date;
+                 document.getElementById('udhar-return-date').value = t.returnDate || '';
+                 return; 
+            }
+            editingTransactionId = id;
+            document.getElementById('entry-modal-title').innerText = "Edit Entry";
+            document.getElementById('save-btn-text').innerText = "Update Transaction";
+            setTxType(t.type);
+            document.getElementById('tx-amount').value = t.amount;
+            document.getElementById('tx-date').value = t.date;
+            document.getElementById('tx-note').value = t.note || '';
+            document.getElementById('tx-category').value = t.desc;
+            document.getElementById('tx-account').value = t.account;
+            document.getElementById('entry-modal').classList.remove('hidden');
+        };
+
+        window.deleteTransaction = function(id) {
+            if(!confirm("Delete this entry?")) return;
+            transactions = transactions.filter(t => t.id !== id);
+            saveData();
+            if(currentView === 'report') renderFullList();
+            if(currentView === 'udhar' && lastOpenedPerson) openPersonDetails(lastOpenedPerson);
+            updateUI();
+        };
+
         function updateDatalist() { const names = [...new Set(transactions.filter(t => t.type === 'udhar').map(t => t.person))]; const datalist = document.getElementById('udhar-names-list'); datalist.innerHTML = ''; names.forEach(name => { const opt = document.createElement('option'); opt.value = name; datalist.appendChild(opt); }); document.getElementById('udhar-person').onchange = function() { const existing = transactions.find(t => t.person === this.value && t.phone); if(existing) document.getElementById('udhar-phone').value = existing.phone; } }
         async function pickContact() { try { if ('contacts' in navigator && 'ContactsManager' in window) { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false }); if (contacts.length) { document.getElementById('udhar-person').value = contacts[0].name[0]; if (contacts[0].tel && contacts[0].tel.length) document.getElementById('udhar-phone').value = contacts[0].tel[0].replace(/\D/g, ''); return; } } } catch(e) {} showAppContactList(); }
         function showAppContactList() { const names = [...new Set(transactions.filter(t => t.type === 'udhar').map(t => t.person))]; const listDiv = document.getElementById('contacts-list-content'); listDiv.innerHTML = names.length ? '' : '<p class="text-xs text-slate-400 text-center">No contacts saved.</p>'; names.forEach(name => { const btn = document.createElement('button'); btn.className = "w-full text-left p-3 bg-slate-50 rounded-lg text-sm font-bold text-slate-700 flex items-center gap-3 hover:bg-slate-100"; btn.innerHTML = `<div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-xs">${name.charAt(0)}</div> ${name}`; btn.onclick = () => { document.getElementById('udhar-person').value = name; const existing = transactions.find(t => t.person === name && t.phone); if(existing) document.getElementById('udhar-phone').value = existing.phone; document.getElementById('contacts-modal').classList.add('hidden'); }; listDiv.appendChild(btn); }); document.getElementById('contacts-modal').classList.remove('hidden'); }
         function timeAgo(dateStr) { const diffDays = Math.ceil(Math.abs(new Date() - new Date(dateStr)) / (1000 * 60 * 60 * 24)); if (diffDays <= 1) return 'Today'; if (diffDays === 2) return 'Yesterday'; return `${diffDays} days ago`; }
-        function showSummary(type) { const modal = document.getElementById('summary-modal'); const title = document.getElementById('summary-title'); const content = document.getElementById('summary-content'); const filtered = transactions.filter(t => t.type === type); const total = filtered.reduce((sum, t) => sum + t.amount, 0); const categories = {}; filtered.forEach(t => { categories[t.desc] = (categories[t.desc] || 0) + t.amount; }); title.innerText = type === 'income' ? 'Income Breakdown' : 'Expense Breakdown'; title.className = `font-bold text-lg ${type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`; if (filtered.length === 0) content.innerHTML = '<p class="text-center text-xs text-slate-400 py-8">No records found.</p>'; else { let html = `<div class="mb-4 text-center bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Total</p><h2 class="text-3xl font-bold ${type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">${formatter.format(total)}</h2></div><ul class="space-y-3">`; Object.entries(categories).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { const percent = ((amount / total) * 100).toFixed(1); const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; html += `<li class="flex justify-between items-center text-sm"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center text-xs shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><span class="font-bold text-slate-700 text-xs block">${cat}</span><div class="w-16 h-1 bg-slate-100 rounded-full mt-1"><div class="h-full ${cfg.color}" style="width:${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></li>`; }); html += '</ul>'; content.innerHTML = html; } modal.classList.remove('hidden'); }
+
+        window.showSummary = function(type) {
+            const modal = document.getElementById('summary-modal');
+            const title = document.getElementById('summary-title');
+            const content = document.getElementById('summary-content');
+            const filtered = transactions.filter(t => t.type === type);
+            const total = filtered.reduce((sum, t) => sum + t.amount, 0);
+            const categories = {};
+            filtered.forEach(t => { categories[t.desc] = (categories[t.desc] || 0) + t.amount; });
+            title.innerText = type === 'income' ? 'Income Breakdown' : 'Expense Breakdown';
+            title.className = `font-bold text-lg ${type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`;
+            if (filtered.length === 0) content.innerHTML = '<p class="text-center text-xs text-slate-400 py-8">No records found.</p>';
+            else {
+                let html = `<div class="mb-4 text-center bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Total</p><h2 class="text-3xl font-bold ${type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">${formatter.format(total)}</h2></div><ul class="space-y-3">`;
+                Object.entries(categories).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => {
+                    const percent = ((amount / total) * 100).toFixed(1);
+                    const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"};
+                    html += `<li class="flex justify-between items-center text-sm"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center text-xs shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><span class="font-bold text-slate-700 text-xs block">${cat}</span><div class="w-16 h-1 bg-slate-100 rounded-full mt-1"><div class="h-full ${cfg.color}" style="width:${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></li>`;
+                });
+                html += '</ul>';
+                content.innerHTML = html;
+            }
+            modal.classList.remove('hidden');
+        };
+
         function giveMoreUdhar(name) { openNewUdharModal(); document.getElementById('udhar-person').value = name; const existing = transactions.find(t => t.person === name && t.phone); if(existing) document.getElementById('udhar-phone').value = existing.phone; }
         function recalculateRepayments() { transactions.forEach(t => { if(t.type === 'udhar') { t.repaid = 0; t.status = 'active'; }}); const recoveries = transactions.filter(t => t.type === 'income' && t.desc && t.desc.startsWith('Recovery:')); const recoveriesByPerson = {}; recoveries.forEach(r => { const name = r.desc.replace('Recovery: ', ''); if(!recoveriesByPerson[name]) recoveriesByPerson[name] = []; recoveriesByPerson[name].push(r); }); for(const person in recoveriesByPerson) { const loans = transactions.filter(t => t.type === 'udhar' && t.person === person).sort((a,b) => a.id - b.id); let totalRecovered = recoveriesByPerson[person].reduce((sum, r) => sum + r.amount, 0); for(const loan of loans) { if(totalRecovered <= 0) break; const allocation = Math.min(loan.amount, totalRecovered); loan.repaid += allocation; totalRecovered -= allocation; if(loan.repaid >= loan.amount - 0.1) loan.status = 'settled'; } } }
-        function updateUI() { recalculateRepayments(); let cash = 0, bank = 0, udhar = 0, income = 0, expense = 0; transactions.forEach(t => { if(t.type === 'income') { income += t.amount; t.account === 'Cash' ? cash += t.amount : bank += t.amount; } else if(t.type === 'expense') { expense += t.amount; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; } else if(t.type === 'udhar') { const rem = t.amount - t.repaid; if (t.status === 'active' || rem > 0.1) udhar += rem; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; } }); document.getElementById('total-balance').innerText = formatter.format(cash + bank + udhar); document.getElementById('cash-balance').innerText = formatter.format(cash); document.getElementById('bank-balance').innerText = formatter.format(bank); document.getElementById('udhar-balance').innerText = formatter.format(udhar); document.getElementById('udhar-total-display').innerText = formatter.format(udhar); document.getElementById('total-income').innerText = formatter.format(income); document.getElementById('total-expense').innerText = formatter.format(expense); if(currentView === 'home') updateChart(); if(currentView === 'report') renderFullList(); if(currentView === 'udhar') renderUdharList(); }
-        function renderUdharList() { const list = document.getElementById('udhar-list'); list.innerHTML = ''; const people = {}; transactions.forEach(t => { if(t.type === 'udhar') { if(!people[t.person]) people[t.person] = { name: t.person, total: 0, repaid: 0, lastTxDate: t.date, returnDate: t.returnDate }; people[t.person].total += t.amount; people[t.person].repaid += (t.repaid || 0); if(t.returnDate) { const days = Math.ceil((new Date(t.returnDate) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24)); if(days <= 1) people[t.person].isDue = true; } if(new Date(t.date) > new Date(people[t.person].lastTxDate)) people[t.person].lastTxDate = t.date; } }); const activePeople = Object.values(people).filter(p => (p.total - p.repaid) > 0.1); if(activePeople.length === 0) document.getElementById('no-udhar-msg').classList.remove('hidden'); else document.getElementById('no-udhar-msg').classList.add('hidden'); activePeople.forEach(p => { const remaining = p.total - p.repaid; const initial = p.name.charAt(0).toUpperCase(); let warningIcon = p.isDue ? '<i class="fas fa-exclamation-circle text-red-500 ml-2 blink-red" title="Due Soon"></i>' : ''; const li = document.createElement('li'); li.onclick = () => openPersonDetails(p.name); li.className = "bg-white p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-b-0"; li.innerHTML = `<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold shadow-sm">${initial}</div><div><h4 class="font-bold text-slate-800 text-sm flex items-center">${p.name} ${warningIcon}</h4><p class="text-[10px] text-slate-400">${timeAgo(p.lastTxDate)}</p></div></div><span class="font-bold text-emerald-600 text-sm">${formatter.format(remaining)}</span>`; list.appendChild(li); }); }
+        function updateUI() { recalculateRepayments(); let cash = 0, bank = 0, udhar = 0, income = 0, expense = 0; transactions.forEach(t => { if(t.type === 'income') { income += t.amount; t.account === 'Cash' ? cash += t.amount : bank += t.amount; } else if(t.type === 'expense') { expense += t.amount; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; } else if(t.type === 'udhar') { const rem = t.amount - t.repaid; if (t.status === 'active' || rem > 0.1) udhar += rem; t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; } }); document.getElementById('total-balance').innerText = formatter.format(cash + bank + udhar); document.getElementById('cash-balance').innerText = formatter.format(cash); document.getElementById('bank-balance').innerText = formatter.format(bank); document.getElementById('udhar-balance').innerText = formatter.format(udhar); document.getElementById('udhar-total-display').innerText = formatter.format(udhar); document.getElementById('total-income').innerText = formatter.format(income); document.getElementById('total-expense').innerText = formatter.format(expense); if(currentView === 'home') updateChart(); if(currentView === 'report') renderFullList(); if(currentView === 'udhar') renderCustomerList(); }
+        function renderCustomerList() { const list = document.getElementById('udhar-list-container'); list.innerHTML = ''; const people = {}; transactions.forEach(t => { if(t.person) { if(!people[t.person]) people[t.person] = { name: t.person, bal: 0, last: t.date, phone: t.phone }; if(t.type === 'udhar') people[t.person].bal += t.amount; else if(t.isWusool) people[t.person].bal -= t.amount; if(t.date > people[t.person].last) people[t.person].last = t.date; } }); const sorted = Object.values(people).sort((a,b) => b.last.localeCompare(a.last)); if(sorted.length === 0) { document.getElementById('no-udhar-msg').classList.remove('hidden'); return; } document.getElementById('no-udhar-msg').classList.add('hidden'); sorted.forEach(p => { const bal = p.bal; const color = bal > 0 ? 'text-rose-600' : (bal < 0 ? 'text-emerald-600' : 'text-slate-400'); const subtext = bal > 0 ? 'You will get' : (bal < 0 ? 'You will give' : 'Settled'); const initial = p.name.charAt(0).toUpperCase(); list.innerHTML += `<div onclick="openPersonDetails('${p.name}')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center active:scale-95 transition-transform"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold border border-slate-200">${initial}</div><div><h4 class="font-bold text-slate-800 text-sm">${p.name}</h4><p class="text-[10px] text-slate-400">${timeAgo(p.last)}</p></div></div><div class="text-right"><span class="block font-black text-sm ${color}">${formatter.format(Math.abs(bal))}</span><span class="text-[9px] font-bold text-slate-400 uppercase">${subtext}</span></div></div>`; }); }
         function openPersonDetails(name) { lastOpenedPerson = name; const modal = document.getElementById('person-history-modal'); document.getElementById('ph-name').innerText = name; modal.classList.remove('hidden'); document.getElementById('btn-give-more').onclick = () => giveMoreUdhar(name); document.getElementById('btn-receive-money').onclick = () => openWusoolForPerson(name); const content = document.getElementById('ph-content'); content.innerHTML = ''; const related = transactions.filter(t => (t.type === 'udhar' && t.person === name) || (t.type === 'income' && t.desc === `Recovery: ${name}`)).sort((a,b) => b.id - a.id); if(related.length === 0) content.innerHTML = '<p class="text-center text-xs text-slate-400">No history.</p>'; else { related.forEach(t => { let isRecovery = t.type === 'income'; let color = isRecovery ? 'text-green-600' : 'text-orange-600'; let icon = isRecovery ? 'fa-arrow-down' : 'fa-arrow-up'; let label = isRecovery ? 'Received' : 'Given'; let editBtn = ''; if(t.type === 'udhar') editBtn = `<button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500 text-[10px] mr-2"><i class="fas fa-pencil-alt"></i></button>`; content.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg relative"><div class="flex items-center gap-3"><i class="fas ${icon} text-xs text-slate-400"></i><div><p class="font-bold text-xs text-slate-700">${label}</p><p class="text-[10px] text-slate-400">${t.date}</p></div></div><div class="text-right"><span class="font-bold text-sm ${color} block">${formatter.format(t.amount)}</span><div class="flex justify-end mt-1">${editBtn}<button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500 text-[10px]"><i class="fas fa-trash"></i></button></div></div></div>`; }); } }
         function openWusoolForPerson(name) { lastOpenedPerson = name; document.getElementById('person-history-modal').classList.add('hidden'); recalculateRepayments(); const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === name); const totalPending = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0); if(totalPending <= 0.1) return alert("No pending balance."); document.getElementById('wusool-person-name').value = name; document.getElementById('wusool-msg').innerText = `Total Pending: ${formatter.format(totalPending)}`; document.getElementById('wusool-amount').value = ''; document.getElementById('wusool-modal').classList.remove('hidden'); }
-        function confirmWusool() { const person = document.getElementById('wusool-person-name').value; const receivedAmount = parseFloat(document.getElementById('wusool-amount').value); const targetAcc = document.getElementById('wusool-account').value; if (!receivedAmount || receivedAmount <= 0) return alert("Enter valid amount"); const recoveryEntry = { id: Date.now(), date: new Date().toISOString().split('T')[0], amount: receivedAmount, type: 'income', desc: `Recovery: ${person}`, account: targetAcc, note: `Udhar recovered` }; transactions.push(recoveryEntry); saveData(); document.getElementById('wusool-modal').classList.add('hidden'); if(lastOpenedPerson) openPersonDetails(lastOpenedPerson); renderUdharList(); recalculateRepayments(); const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === person); const totalPending = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0); const lastTx = transactions.slice().reverse().find(tx => tx.person === person && tx.phone); if (lastTx && lastTx.phone) { const cleanPhone = lastTx.phone.replace(/\D/g, ''); const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; const baseUrl = window.location.href.split('?')[0]; const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${btoa(JSON.stringify(history))}`; let msg = totalPending > 0 ? `Salam%0A${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0ABaaki: ₹${totalPending}.%0A%0AStatement:${link}` : `${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0AShukriya.`; window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); } }
+        function confirmWusool() { const person = document.getElementById('wusool-person-name').value; const receivedAmount = parseFloat(document.getElementById('wusool-amount').value); const targetAcc = document.getElementById('wusool-account').value; if (!receivedAmount || receivedAmount <= 0) return alert("Enter valid amount"); const recoveryEntry = { id: Date.now(), date: new Date().toISOString().split('T')[0], amount: receivedAmount, type: 'income', desc: `Recovery: ${person}`, account: targetAcc, note: `Udhar recovered`, isWusool: true, person: person }; transactions.push(recoveryEntry); saveData(); document.getElementById('wusool-modal').classList.add('hidden'); if(lastOpenedPerson) openPersonDetails(lastOpenedPerson); renderCustomerList(); recalculateRepayments(); const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === person); const totalPending = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0); const lastTx = transactions.slice().reverse().find(tx => tx.person === person && tx.phone); if (lastTx && lastTx.phone) { const cleanPhone = lastTx.phone.replace(/\D/g, ''); const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; const baseUrl = window.location.href.split('?')[0]; const history = transactions.filter(t => (t.type === 'udhar' && t.person === person) || (t.type === 'income' && t.desc === `Recovery: ${person}`)).sort((a,b) => b.id - a.id).map(t => ({ d: t.date, t: t.type === 'udhar' ? 'L' : 'R', a: t.amount, n: t.note || '' })); const link = `${baseUrl}?guest=true&n=${encodeURIComponent(person)}&b=${totalPending}&h=${btoa(JSON.stringify(history))}`; let msg = totalPending > 0 ? `Salam%0A${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0ABaaki: ₹${totalPending}.%0A%0AStatement:${link}` : `${person},%0AAaj aapki taraf se ₹${receivedAmount} receive hue.%0AShukriya.`; window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); } }
         function renderFullList() { const list = document.getElementById('full-list'); list.innerHTML = ''; const data = getFilteredTransactions().sort((a,b) => b.id - a.id); if(data.length === 0) { list.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">No records.</p>'; return; } data.forEach(t => { let color = t.type === 'income' ? 'text-emerald-600' : (t.type === 'udhar' ? 'text-orange-500' : 'text-rose-600'); let sign = t.type === 'income' ? '+' : '-'; const details = t.note ? `• ${t.note}` : ''; let actions = ''; if(t.type !== 'udhar' && !t.type.includes('Recovery')) { actions = `<div class="flex gap-2 ml-2"><button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500 text-[10px]"><i class="fas fa-pencil-alt"></i></button><button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500 text-[10px]"><i class="fas fa-trash"></i></button></div>`; } const li = document.createElement('li'); li.className = "p-4 flex justify-between items-center border-b border-slate-50 last:border-b-0"; li.innerHTML = `<div class="flex-1 flex flex-col gap-0.5"><div class="font-bold text-sm text-slate-700">${t.desc} <span class="font-normal text-slate-400 text-xs">${details}</span></div><div class="text-[10px] text-slate-400 flex items-center gap-2"><span>${t.date}</span><span class="w-1 h-1 rounded-full bg-slate-300"></span><span>${t.type.toUpperCase()}</span></div></div><div class="flex items-center"><div class="text-sm font-bold ${color}">${sign}${formatter.format(t.amount)}</div>${actions}</div>`; list.appendChild(li); }); }
-        function updateChart() { if(document.getElementById('view-home').classList.contains('hidden')) return; const ctx = document.getElementById('expenseChart').getContext('2d'); const legendContainer = document.getElementById('analysis-legend'); const expenses = {}; const currentMonth = new Date().toISOString().slice(0,7); const expenseTx = transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth)); const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0); expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; }); document.getElementById('chart-total-center').innerText = formatter.format(totalExpense); if(chartInstance) chartInstance.destroy(); chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(expenses), datasets: [{ data: Object.values(expenses), backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } }); legendContainer.innerHTML = ''; Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { const percent = ((amount / totalExpense) * 100).toFixed(1); const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} flex items-center justify-center ${cfg.text} shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; }); }
+        function updateChart() { if(document.getElementById('view-home').classList.contains('hidden')) return; const ctx = document.getElementById('expenseChart').getContext('2d'); const legendContainer = document.getElementById('analysis-legend'); const expenses = {}; const currentMonth = new Date().toISOString().slice(0,7); const expenseTx = transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth)); const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0); expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; }); document.getElementById('chart-total-center').innerText = formatter.format(totalExpense); if(chartInstance) chartInstance.destroy(); chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(expenses), datasets: [{ data: Object.values(expenses), backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } }); legendContainer.innerHTML = ''; Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { const percent = ((amount / totalExpense) * 100).toFixed(1); const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center ${cfg.text} shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; }); }
         function downloadPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFontSize(18); doc.setTextColor(13, 148, 136); doc.text("Madani Exp Tracker Report", 14, 20); doc.setFontSize(10); doc.setTextColor(100); doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 28); const data = getFilteredTransactions(); const rows = data.map(t => { const dateObj = new Date(t.id); const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); return [{ content: `${t.date}\n${timeStr}`, styles: { halign: 'center', valign: 'middle' } }, t.desc, t.note || '-', t.type.toUpperCase(), t.account, { content: formatter.format(t.amount).replace('₹', ''), styles: { halign: 'right', fontStyle: 'bold' } }]; }); doc.autoTable({ head: [['Date & Time', 'Category', 'Details', 'Type', 'Account', 'Amount']], body: rows, startY: 35, theme: 'grid', styles: { fontSize: 8, cellPadding: 3 }, headStyles: { fillColor: [13, 148, 136], textColor: 255, fontStyle: 'bold', halign: 'center' } }); doc.save('Madani_Report.pdf'); }
         function downloadExcel() { const data = getFilteredTransactions(); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Transactions"); XLSX.writeFile(wb, "Madani_Data.xlsx"); }
         function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions)); const a = document.createElement('a'); a.href = dataStr; a.download = "backup.json"; a.click(); }
