@@ -382,10 +382,9 @@
             if(phone) {
                 const cleanPhone = phone.replace(/\D/g, '');
                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
-                recalculateRepayments();
-                const totalPending = transactions.filter(t => t.type === 'udhar' && t.status === 'active' && t.person === person).reduce((sum, t) => sum + (t.amount - (t.repaid || 0)), 0);
-                
-                const msg = `Salam ${person},%0AAap ne ₹${amount} udhaar liye hain.%0AWapas karne ki DATE: ${rDate || 'Tay nahi hui'}%0AEntry save kar di gayi hai.`;
+                // Formatted amount without symbol for the message
+                const amountFormatted = formatter.format(amount).replace('₹', '').trim();
+                const msg = `Salam ${person},%0AAap ne ₹${amountFormatted} udhaar liye hain.%0AWapas karne ki Date: ${rDate || 'Tay nahi hui'}%0AEntry save kar di gayi hai.`;
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
             }
         }
@@ -617,13 +616,16 @@
                 const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
                 
-                // Updated Logic Here
+                // Formatted amount without symbol for the message
+                const receivedAmountFormatted = formatter.format(receivedAmount).replace('₹', '').trim();
+                const totalPendingFormatted = formatter.format(totalPending).replace('₹', '').trim();
+
                 let msg = "";
                 
                 if(totalPending <= 1) {
                     msg = `Salam ${person}%0AAap ka hisaab poora ho chuka hai.%0AKoi raqam baqi nahi%0A🤝 Shukriya`;
                 } else {
-                    msg = `Salam ${person}%0AAaj aap ki taraf se ₹${receivedAmount} receive hue hain%0ABaaqi raqam: ₹${totalPending}%0AShukriya.`;
+                    msg = `Salam ${person}%0AAaj aap ki taraf se ₹${receivedAmountFormatted} receive hue hain%0ABaaqi raqam: ₹${totalPendingFormatted}%0AShukriya.`;
                 }
                 
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
@@ -637,7 +639,8 @@
                  const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
                  // const link = getSafeHistoryLink(person, amount); // Link removed as requested
                  // const fullTxText = getFullHistoryText(person);
-                 const msg = `Salam ${person},%0AYeh aapka Udhar statement hai.%0ATotal Pending: ₹${formatter.format(amount)}.`;
+                 const amountFormatted = formatter.format(amount).replace('₹', '').trim();
+                 const msg = `Salam ${person},%0AYeh aapka Udhar statement hai.%0ATotal Pending: ₹${amountFormatted}.`;
                  window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
              } else {
                  alert("Phone number not found for this person.");
