@@ -52,7 +52,7 @@
     <!-- === MAIN APP CONTAINER === -->
     <div id="main-container" class="w-full max-w-md mx-auto min-h-screen relative bg-white sm:shadow-xl overflow-hidden pb-[90px]">
         
-        <!-- HEADER (Updated Label) -->
+        <!-- HEADER -->
         <header class="bg-white p-4 sticky top-0 z-30 shadow-sm border-b border-slate-100 flex justify-between items-center">
             <div>
                 <h1 class="text-lg font-bold text-teal-700 flex items-center gap-2"><i class="fas fa-wallet"></i> Madani Exp Tracker</h1>
@@ -67,14 +67,14 @@
         <!-- === 1. HOME VIEW === -->
         <section id="view-home" class="p-4 fade-in block pb-24">
             
-            <!-- HOME FILTERS (UPDATED DESIGN LIKE IMAGE) -->
+            <!-- HOME FILTERS -->
             <div class="flex p-1 bg-slate-200/60 rounded-xl mb-5 mx-1">
                 <button onclick="setHomeFilter('day')" id="hf-day" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Daily</button>
                 <button onclick="setHomeFilter('month')" id="hf-month" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white shadow-sm text-teal-700">Monthly</button>
                 <button onclick="setHomeFilter('year')" id="hf-year" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Yearly</button>
             </div>
 
-            <!-- Assets Cards (Always Cumulative) -->
+            <!-- Assets Cards -->
             <div class="grid grid-cols-3 gap-3 mb-5">
                 <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center relative overflow-hidden group">
                     <i class="fas fa-money-bill-wave absolute -bottom-2 -right-2 text-4xl text-blue-100 opacity-50"></i>
@@ -93,13 +93,13 @@
                 </div>
             </div>
 
-            <!-- Opening Balance (Carry Forward) Info -->
+            <!-- Opening Balance Info -->
             <div id="opening-balance-container" class="mb-3 px-1 flex justify-between items-center text-xs text-slate-400 font-semibold hidden">
                 <span><i class="fas fa-history mr-1"></i> Carry Forward (Opening):</span>
                 <span id="opening-balance-val" class="text-slate-600 font-bold">₹0</span>
             </div>
 
-            <!-- Flow Cards (Filtered) -->
+            <!-- Flow Cards -->
             <div class="grid grid-cols-2 gap-3 mb-6">
                 <div onclick="showSummary('income')" class="cursor-pointer bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex justify-between items-center active:scale-95 transition-transform"><div><p class="text-[10px] text-emerald-600 font-bold uppercase" id="lbl-income">Income (Mo)</p><p class="text-lg font-bold text-emerald-700" id="total-income">₹0</p></div><div class="bg-emerald-200/50 w-8 h-8 rounded-full flex items-center justify-center text-emerald-700"><i class="fas fa-arrow-down"></i></div></div>
                 <div onclick="showSummary('expense')" class="cursor-pointer bg-rose-50 p-4 rounded-xl border border-rose-100 flex justify-between items-center active:scale-95 transition-transform"><div><p class="text-[10px] text-rose-600 font-bold uppercase" id="lbl-expense">Expense (Mo)</p><p class="text-lg font-bold text-rose-700" id="total-expense">₹0</p></div><div class="bg-rose-200/50 w-8 h-8 rounded-full flex items-center justify-center text-rose-700"><i class="fas fa-arrow-up"></i></div></div>
@@ -111,16 +111,14 @@
                     <div class="h-48 w-48 relative z-10"><canvas id="expenseChart"></canvas></div>
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><p class="text-[10px] text-slate-400 uppercase font-bold">Total</p><p class="text-lg font-bold text-slate-800" id="chart-total-center">₹0</p></div>
                 </div>
-                <!-- Legend Container with Icons -->
                 <div id="analysis-legend" class="space-y-3"></div>
             </div>
         </section>
 
-        <!-- === 2. REPORT VIEW (Updated Filters, No Excel) === -->
+        <!-- === 2. REPORT VIEW === -->
         <section id="view-report" class="p-4 fade-in hidden pb-24">
             <h2 class="text-lg font-bold mb-4">Reports & History</h2>
             
-            <!-- SMART FILTERS -->
             <div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs mb-4">
                 <button onclick="setHistoryFilter('all')" id="hf-all" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-slate-800 transition-all">All</button>
                 <button onclick="setHistoryFilter('expense')" id="hf-expense" class="flex-1 py-2 rounded-lg text-slate-500 transition-all hover:text-rose-600">Debit (Exp)</button>
@@ -141,79 +139,48 @@
             <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"><ul id="full-list" class="divide-y divide-slate-50"></ul></div>
         </section>
 
-        <!-- === 3. BUDGET VIEW (FULLY AUTOMATIC) === -->
+        <!-- === 3. BUDGET VIEW === -->
         <section id="view-budget" class="p-4 fade-in hidden pb-24">
             <h2 class="text-lg font-bold mb-4">Budget Planning (50/30/20)</h2>
             
-            <!-- Auto Salary Display (Non-Editable) -->
             <div class="bg-gradient-to-r from-teal-500 to-teal-700 p-5 rounded-2xl shadow-lg border border-teal-600 mb-6 text-white relative overflow-hidden">
-                <div class="absolute right-0 top-0 opacity-10">
-                    <i class="fas fa-wallet text-9xl"></i>
-                </div>
+                <div class="absolute right-0 top-0 opacity-10"><i class="fas fa-wallet text-9xl"></i></div>
                 <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-80">This Month's Salary</p>
                 <h1 class="text-3xl font-black mb-1" id="budget-salary-display">₹0</h1>
                 <p class="text-[9px] font-medium opacity-80 flex items-center gap-1"><i class="fas fa-sync-alt"></i> Auto-detected from Income entries</p>
             </div>
 
             <div id="budget-content" class="space-y-4 mb-8">
-                <!-- Needs -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-home text-xs"></i></div>
-                            <div>
-                                <h3 class="font-bold text-sm text-slate-700">Needs (50%)</h3>
-                                <p class="text-[10px] text-blue-500 font-bold" id="budget-needs-limit">Baqi: ₹0</p>
-                            </div>
-                        </div>
+                        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-home text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Needs (50%)</h3><p class="text-[10px] text-blue-500 font-bold" id="budget-needs-limit">Baqi: ₹0</p></div></div>
                         <div class="text-right"><p class="font-bold text-sm text-blue-600" id="budget-needs-val">₹0</p><p class="text-[10px] text-slate-400">Spent</p></div>
                     </div>
                     <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div id="bar-needs" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
                     <p id="alert-needs" class="text-[10px] text-rose-500 font-bold mt-1 hidden"><i class="fas fa-exclamation-circle"></i> Over Limit!</p>
-                    
-                    <!-- Breakdown List -->
                     <div id="list-needs" class="mt-3 pt-2 border-t border-slate-50 space-y-2"></div>
                 </div>
 
-                <!-- Wants -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fas fa-shopping-bag text-xs"></i></div>
-                            <div>
-                                <h3 class="font-bold text-sm text-slate-700">Wants (30%)</h3>
-                                <p class="text-[10px] text-purple-500 font-bold" id="budget-wants-limit">Baqi: ₹0</p>
-                            </div>
-                        </div>
+                        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fas fa-shopping-bag text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Wants (30%)</h3><p class="text-[10px] text-purple-500 font-bold" id="budget-wants-limit">Baqi: ₹0</p></div></div>
                         <div class="text-right"><p class="font-bold text-sm text-purple-600" id="budget-wants-val">₹0</p><p class="text-[10px] text-slate-400">Spent</p></div>
                     </div>
                     <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div id="bar-wants" class="h-full bg-purple-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
                     <p id="alert-wants" class="text-[10px] text-rose-500 font-bold mt-1 hidden"><i class="fas fa-exclamation-circle"></i> Over Limit!</p>
-                    
-                    <!-- Breakdown List -->
                     <div id="list-wants" class="mt-3 pt-2 border-t border-slate-50 space-y-2"></div>
                 </div>
 
-                <!-- Savings -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fas fa-piggy-bank text-xs"></i></div>
-                            <div>
-                                <h3 class="font-bold text-sm text-slate-700">Savings (20%)</h3>
-                                <p class="text-[10px] text-emerald-600 font-bold" id="budget-savings-limit">Target: ₹0</p>
-                            </div>
-                        </div>
+                        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fas fa-piggy-bank text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Savings (20%)</h3><p class="text-[10px] text-emerald-600 font-bold" id="budget-savings-limit">Target: ₹0</p></div></div>
                         <div class="text-right"><p class="font-bold text-sm text-emerald-600" id="budget-savings-val">₹0</p><p class="text-[10px] text-slate-400">Saved</p></div>
                     </div>
                     <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div id="bar-savings" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                    
-                    <!-- Breakdown List -->
                     <div id="list-savings" class="mt-3 pt-2 border-t border-slate-50 space-y-2"></div>
                 </div>
             </div>
 
-            <!-- Custom Category Budget Section -->
             <div class="mb-4 flex justify-between items-center">
                 <h3 class="font-bold text-sm text-slate-700">Category Wise Limits</h3>
                 <button onclick="document.getElementById('cat-budget-modal').classList.remove('hidden')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95"><i class="fas fa-plus"></i> Add Limit</button>
@@ -246,7 +213,7 @@
                 <button onclick="clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div><div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div></button>
                 <button onclick="exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div><div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div></button>
             </div>
-            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v9.5</p>
+            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v10.0</p>
         </section>
 
         <!-- NAV -->
@@ -362,6 +329,156 @@
         ];
         const incomeCats = ["Salary", "Business", "Gift", "Bonus", "Loan Taken", "Other"];
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 });
+
+        // --- DEFINING FUNCTIONS BEFORE USAGE ---
+
+        function renderFullList() {
+            const list = document.getElementById('full-list');
+            list.innerHTML = '';
+            const data = getFilteredTransactions().sort((a,b) => b.id - a.id);
+            
+            if(data.length === 0) {
+                list.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">No records found.</p>';
+                return;
+            }
+            
+            data.forEach(t => {
+                let color = t.type === 'income' ? 'text-emerald-600' : (t.type === 'udhar' ? 'text-orange-500' : 'text-rose-600');
+                let sign = t.type === 'income' ? '+' : '-';
+                
+                if (t.type === 'udhar') {
+                     if (t.loanType === 'taken') {
+                         color = 'text-emerald-600'; 
+                         sign = '+';
+                     } else {
+                         color = 'text-orange-500'; 
+                         sign = '-';
+                     }
+                }
+                
+                const dateObj = new Date(t.id);
+                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const category = t.desc;
+                const note = t.note ? t.note : '-';
+                const noteClass = t.note ? 'text-slate-500' : 'text-slate-300';
+
+                const actions = `<div class="flex gap-3 ml-3 border-l border-slate-100 pl-3">
+                        <button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500"><i class="fas fa-pencil-alt"></i></button>
+                        <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                     </div>`;
+
+                const li = document.createElement('li');
+                li.className = "p-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50 transition-colors";
+                li.innerHTML = `
+                    <div class="flex flex-col w-full">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-sm text-slate-800">${category}</span>
+                                    <span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded uppercase">${t.type}</span>
+                                </div>
+                                <p class="text-xs ${noteClass} font-medium">${note}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-bold text-base ${color} block">${sign}${formatter.format(t.amount)}</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-dashed border-slate-100 mt-1">
+                            <div class="text-[10px] text-slate-400 flex items-center gap-3 font-semibold">
+                                <span class="flex items-center gap-1"><i class="far fa-calendar"></i> ${t.date}</span>
+                                <span class="flex items-center gap-1"><i class="far fa-clock"></i> ${timeStr}</span>
+                            </div>
+                            <div class="flex items-center">
+                                ${actions}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function renderCustomerList() { 
+            const list = document.getElementById('udhar-list-container'); 
+            list.innerHTML = ''; 
+            const people = {}; 
+            transactions.forEach(t => { 
+                if(t.person) { 
+                    if(!people[t.person]) people[t.person] = { name: t.person, bal: 0, last: t.date, phone: t.phone }; 
+                    if(t.type === 'udhar') {
+                        if (t.loanType === 'taken') {
+                            people[t.person].bal -= t.amount; 
+                        } else {
+                            people[t.person].bal += t.amount; 
+                        }
+                    } else if(t.isWusool) {
+                        people[t.person].bal -= t.amount; 
+                    }
+                    if(t.date > people[t.person].last) people[t.person].last = t.date; 
+                } 
+            }); 
+            const sorted = Object.values(people).sort((a,b) => b.last.localeCompare(a.last)); 
+            if(sorted.length === 0) { document.getElementById('no-udhar-msg').classList.remove('hidden'); return; } 
+            document.getElementById('no-udhar-msg').classList.add('hidden'); 
+            
+            sorted.forEach(p => { 
+                const bal = p.bal; 
+                const color = bal > 0 ? 'text-rose-600' : (bal < 0 ? 'text-emerald-600' : 'text-slate-400'); 
+                const subtext = bal > 0 ? 'You will get' : (bal < 0 ? 'You will give' : 'Settled'); 
+                const initial = p.name.charAt(0).toUpperCase(); 
+                list.innerHTML += `<div onclick="openPersonDetails('${p.name}')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center active:scale-95 transition-transform"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold border border-slate-200">${initial}</div><div><h4 class="font-bold text-slate-800 text-sm">${p.name}</h4><p class="text-[10px] text-slate-400">${timeAgo(p.last)}</p></div></div><div class="text-right"><span class="block font-black text-sm ${color}">${formatter.format(Math.abs(bal))}</span><span class="text-[9px] font-bold text-slate-400 uppercase">${subtext}</span></div></div>`; 
+            }); 
+        }
+
+        function updateChart() { 
+            if(document.getElementById('view-home').classList.contains('hidden')) return; 
+            const ctx = document.getElementById('expenseChart').getContext('2d'); 
+            const legendContainer = document.getElementById('analysis-legend'); 
+            const expenses = {}; 
+            
+            // CHART FILTER LOGIC - UPDATED TO MATCH HOME FILTER
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.slice(0, 7);
+            const currentYear = new Date().getFullYear().toString();
+            
+            const expenseTx = transactions.filter(t => {
+                if (t.type !== 'expense') return false;
+                if (homeFilterState.period === 'day') return t.date === today;
+                if (homeFilterState.period === 'month') return t.date.startsWith(currentMonth);
+                if (homeFilterState.period === 'year') return t.date.startsWith(currentYear);
+                return true;
+            });
+    
+            const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0); 
+            expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; }); 
+            document.getElementById('chart-total-center').innerText = formatter.format(totalExpense); 
+            
+            if(chartInstance) chartInstance.destroy(); 
+            chartInstance = new Chart(ctx, { 
+                type: 'doughnut', 
+                data: { 
+                    labels: Object.keys(expenses), 
+                    datasets: [{ 
+                        data: Object.values(expenses), 
+                        backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'], 
+                        borderWidth: 0 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '75%', 
+                    plugins: { legend: { display: false } } 
+                } 
+            }); 
+            
+            legendContainer.innerHTML = ''; 
+            Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { 
+                const percent = totalExpense > 0 ? ((amount / totalExpense) * 100).toFixed(1) : 0; 
+                const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; 
+                legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; 
+            }); 
+        }
 
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
@@ -810,11 +927,11 @@
                 let msg = "";
                 
                 if (loanType === 'taken') {
-                    // NEW: Updated message for Taken
-                    msg = `Assalamualaikum ${person},%0AMaine aapse ₹${amountFormatted} udhar liye hain.%0AInshaAllah main ${rDate || 'jald'} tak wapas kar dunga.%0AShukriya.`;
+                    // NEW: Arabic Loan Taken Message
+                    msg = `اَلسَّــــــــــــــــلاَمُ عَلَيْـــــــــــــــكُمْ وَرَحْمَۃُاللّٰہِ وَبَرَکَاتُہٗ%0A${person}،%0AAaj aap se ₹${amountFormatted} udhaar liye gaye hain۔%0Aإِنْ شَاءَ ٱللّٰهُ jald hi ada karne ki koshish ki jayegi۔%0A%0Aجزَاکَ اللّٰہُ خَیْرًا کَثِیْرًا وَأَحْسَنَ الجَزَاءَ`;
                 } else {
-                    // Standard message for Given
-                    msg = `Assalamualaikum ${person},%0AAap ne ₹${amountFormatted} udhar liye hain.%0AWapas karne ki Date: ${rDate || 'Tay nahi hui'}%0AEntry save kar di gayi hai.`;
+                    // NEW: Arabic Loan Given Message
+                    msg = `اَلسَّــــــــــــــــلاَمُ عَلَيْـــــــــــــــكُمْ وَرَحْمَۃُاللّٰہِ وَبَرَکَاتُہٗ%0A${person}،%0AAaj aap ne ₹${amountFormatted} udhaar liye hain۔%0AAap ${rDate ? rDate : '...'} ko wapas ada denge۔%0A%0Aجزَاکَ اللّٰہُ خَیْرًا کَثِیْرًا وَأَحْسَنَ الجَزَاءَ`;
                 }
                 
                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
@@ -1013,311 +1130,55 @@
             if(currentView === 'budget') calculateBudget();
         }
         
-        function renderCustomerList() { 
-            const list = document.getElementById('udhar-list-container'); 
-            list.innerHTML = ''; 
-            const people = {}; 
-            transactions.forEach(t => { 
-                if(t.person) { 
-                    if(!people[t.person]) people[t.person] = { name: t.person, bal: 0, last: t.date, phone: t.phone }; 
-                    if(t.type === 'udhar') {
-                        if (t.loanType === 'taken') {
-                            people[t.person].bal -= t.amount; 
-                        } else {
-                            people[t.person].bal += t.amount; 
-                        }
-                    } else if(t.isWusool) {
-                        people[t.person].bal -= t.amount; 
-                    }
-                    if(t.date > people[t.person].last) people[t.person].last = t.date; 
+        function updateChart() { 
+            if(document.getElementById('view-home').classList.contains('hidden')) return; 
+            const ctx = document.getElementById('expenseChart').getContext('2d'); 
+            const legendContainer = document.getElementById('analysis-legend'); 
+            const expenses = {}; 
+            
+            // CHART FILTER LOGIC - UPDATED TO MATCH HOME FILTER
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.slice(0, 7);
+            const currentYear = new Date().getFullYear().toString();
+            
+            const expenseTx = transactions.filter(t => {
+                if (t.type !== 'expense') return false;
+                if (homeFilterState.period === 'day') return t.date === today;
+                if (homeFilterState.period === 'month') return t.date.startsWith(currentMonth);
+                if (homeFilterState.period === 'year') return t.date.startsWith(currentYear);
+                return true;
+            });
+    
+            const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0); 
+            expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; }); 
+            document.getElementById('chart-total-center').innerText = formatter.format(totalExpense); 
+            
+            if(chartInstance) chartInstance.destroy(); 
+            chartInstance = new Chart(ctx, { 
+                type: 'doughnut', 
+                data: { 
+                    labels: Object.keys(expenses), 
+                    datasets: [{ 
+                        data: Object.values(expenses), 
+                        backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'], 
+                        borderWidth: 0 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '75%', 
+                    plugins: { legend: { display: false } } 
                 } 
             }); 
-            const sorted = Object.values(people).sort((a,b) => b.last.localeCompare(a.last)); 
-            if(sorted.length === 0) { document.getElementById('no-udhar-msg').classList.remove('hidden'); return; } 
-            document.getElementById('no-udhar-msg').classList.add('hidden'); 
             
-            sorted.forEach(p => { 
-                const bal = p.bal; 
-                const color = bal > 0 ? 'text-rose-600' : (bal < 0 ? 'text-emerald-600' : 'text-slate-400'); 
-                const subtext = bal > 0 ? 'You will get' : (bal < 0 ? 'You will give' : 'Settled'); 
-                const initial = p.name.charAt(0).toUpperCase(); 
-                list.innerHTML += `<div onclick="openPersonDetails('${p.name}')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center active:scale-95 transition-transform"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold border border-slate-200">${initial}</div><div><h4 class="font-bold text-slate-800 text-sm">${p.name}</h4><p class="text-[10px] text-slate-400">${timeAgo(p.last)}</p></div></div><div class="text-right"><span class="block font-black text-sm ${color}">${formatter.format(Math.abs(bal))}</span><span class="text-[9px] font-bold text-slate-400 uppercase">${subtext}</span></div></div>`; 
+            legendContainer.innerHTML = ''; 
+            Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { 
+                const percent = totalExpense > 0 ? ((amount / totalExpense) * 100).toFixed(1) : 0; 
+                const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; 
+                legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; 
             }); 
         }
-        
-        // --- NEW & UPDATED UDHAR LOGIC ---
-        function openPersonDetails(name) { 
-            recalculateRepayments();
-            lastOpenedPerson = name; 
-            const modal = document.getElementById('person-history-modal'); 
-            document.getElementById('ph-name').innerText = name; 
-            
-            let totalPending = 0;
-            const personTx = transactions.filter(t => t.person === name);
-            
-            personTx.forEach(t => {
-                if (t.type === 'udhar') {
-                    if (t.loanType === 'taken') totalPending -= t.amount;
-                    else totalPending += t.amount;
-                } else if (t.isWusool) {
-                    totalPending -= t.amount; 
-                }
-            });
-            
-            const balanceEl = document.getElementById('ph-balance');
-            balanceEl.innerText = formatter.format(Math.abs(totalPending));
-            const receiveBtnText = document.getElementById('btn-receive-text');
-
-            if(totalPending > 0) {
-                balanceEl.className = "text-3xl font-bold text-rose-600 mb-1";
-                receiveBtnText.innerText = "Receive";
-            } else if(totalPending < 0) {
-                balanceEl.className = "text-3xl font-bold text-emerald-600 mb-1";
-                receiveBtnText.innerText = "Pay Back"; 
-            } else {
-                balanceEl.className = "text-3xl font-bold text-slate-400 mb-1";
-                receiveBtnText.innerText = "Receive";
-            }
-            
-            document.getElementById('btn-give-more').onclick = () => giveMoreUdhar(name); 
-            document.getElementById('btn-receive-money').onclick = () => openWusoolForPerson(name); 
-            document.getElementById('btn-settle-all').onclick = () => openWusoolForPerson(name, true);
-            document.getElementById('btn-whatsapp').onclick = () => sendStatement(name, totalPending);
-
-            modal.classList.remove('hidden'); 
-            
-            const content = document.getElementById('ph-content'); 
-            content.innerHTML = ''; 
-            const related = transactions.filter(t => (t.type === 'udhar' && t.person === name) || (t.type === 'income' && t.desc === `Recovery: ${name}`)).sort((a,b) => b.id - a.id); 
-            if(related.length === 0) content.innerHTML = '<p class="text-center text-xs text-slate-400">No history.</p>'; 
-            else { 
-                related.forEach(t => { 
-                    let isRecovery = t.type === 'income'; 
-                    let color = '';
-                    let icon = '';
-                    let label = '';
-                    
-                    if (isRecovery) {
-                        color = 'text-green-600';
-                        icon = 'fa-check';
-                        label = 'Settled/Recv';
-                    } else if (t.loanType === 'taken') {
-                        color = 'text-emerald-600';
-                        icon = 'fa-arrow-down';
-                        label = 'Taken (Liya)';
-                    } else {
-                        color = 'text-rose-600';
-                        icon = 'fa-arrow-up';
-                        label = 'Given (Diya)';
-                    }
-
-                    let editBtn = ''; 
-                    if(t.type === 'udhar') editBtn = `<button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500 text-[10px] mr-2"><i class="fas fa-pencil-alt"></i></button>`; 
-                    content.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg relative"><div class="flex items-center gap-3"><i class="fas ${icon} text-xs text-slate-400"></i><div><p class="font-bold text-xs text-slate-700">${label}</p><p class="text-[10px] text-slate-400">${t.date}</p></div></div><div class="text-right"><span class="font-bold text-sm ${color} block">${formatter.format(t.amount)}</span><div class="flex justify-end mt-1">${editBtn}<button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500 text-[10px]"><i class="fas fa-trash"></i></button></div></div></div>`; 
-                }); 
-            } 
-        }
-
-        function openWusoolForPerson(name, autoSettle = false) { 
-            document.getElementById('person-history-modal').classList.add('hidden'); 
-            let totalPending = 0;
-            const personTx = transactions.filter(t => t.person === name);
-            personTx.forEach(t => {
-                if (t.type === 'udhar') {
-                    if (t.loanType === 'taken') totalPending -= t.amount;
-                    else totalPending += t.amount;
-                } else if (t.isWusool) {
-                    totalPending -= t.amount;
-                }
-            });
-            
-            if(Math.abs(totalPending) <= 0.1 && !autoSettle) return alert("No pending balance."); 
-            
-            document.getElementById('wusool-person-name').value = name; 
-            document.getElementById('wusool-msg').innerText = `Balance: ${formatter.format(totalPending)}`; 
-            document.getElementById('wusool-amount').dataset.pending = totalPending; 
-            
-            if(autoSettle) {
-                 document.getElementById('wusool-amount').value = Math.abs(totalPending);
-            } else {
-                 document.getElementById('wusool-amount').value = ''; 
-            }
-            
-            document.getElementById('wusool-modal').classList.remove('hidden'); 
-        }
-
-        function settleFull() {
-            const pending = document.getElementById('wusool-amount').dataset.pending;
-            if(pending && Math.abs(parseFloat(pending)) > 0) {
-                document.getElementById('wusool-amount').value = Math.abs(parseFloat(pending));
-            } else {
-                alert("Nothing to settle.");
-            }
-        }
-
-        function confirmWusool() { 
-            const person = document.getElementById('wusool-person-name').value; 
-            const enteredAmount = parseFloat(document.getElementById('wusool-amount').value); 
-            const targetAcc = document.getElementById('wusool-account').value; 
-            
-            if (!enteredAmount || enteredAmount <= 0) return alert("Enter valid amount"); 
-            
-            const pending = parseFloat(document.getElementById('wusool-amount').dataset.pending || 0);
-            
-            let txType = 'income';
-            let desc = `Recovery: ${person}`;
-            
-            if (pending < 0) {
-                txType = 'expense'; 
-                desc = `Payment to: ${person}`;
-            }
-
-            const recoveryEntry = { 
-                id: Date.now(), 
-                date: new Date().toISOString().split('T')[0], 
-                amount: enteredAmount, 
-                type: txType, 
-                desc: desc, 
-                account: targetAcc, 
-                note: 'Settlement/Payment', 
-                isWusool: true, 
-                person: person 
-            }; 
-            
-            transactions.push(recoveryEntry); 
-            saveData(); 
-            document.getElementById('wusool-modal').classList.add('hidden'); 
-            
-            if(lastOpenedPerson) openPersonDetails(lastOpenedPerson); 
-            renderCustomerList(); 
-            
-            const lastTx = transactions.slice().reverse().find(tx => tx.person === person && tx.phone); 
-            if (lastTx && lastTx.phone) { 
-                const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
-                const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
-                const amountFormatted = formatter.format(enteredAmount).replace('₹', '').trim();
-                let msg = "";
-                
-                if (txType === 'expense') {
-                    msg = `Assalamualaikum ${person},%0AMaine aapko ₹${amountFormatted} wapas kiye hain (Payment).%0AShukriya.`;
-                } else {
-                    msg = `Assalamualaikum ${person},%0AAap ki taraf se ₹${amountFormatted} receive hue hain.%0AShukriya.`;
-                }
-                
-                window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
-            } 
-        }
-
-        function sendStatement(person, amount) {
-             const lastTx = transactions.slice().reverse().find(tx => tx.person === person && tx.phone); 
-             if (lastTx && lastTx.phone) {
-                 const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
-                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
-                 const amountFormatted = formatter.format(Math.abs(amount)).replace('₹', '').trim();
-                 let msg = "";
-                 
-                 if (amount > 0) {
-                     msg = `Assalamualaikum ${person},%0AYeh aapka Udhar statement hai.%0ATotal Pending (Aap denge): ₹${amountFormatted}.`;
-                 } else {
-                     msg = `Assalamualaikum ${person},%0AYeh aapka Udhar statement hai.%0ATotal Pending (Maine dena hai): ₹${amountFormatted}.`;
-                 }
-                 
-                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
-             } else {
-                 alert("Phone number not found for this person.");
-             }
-        }
-        
-        function renderFullList() {
-            const list = document.getElementById('full-list');
-            list.innerHTML = '';
-            const data = getFilteredTransactions().sort((a,b) => b.id - a.id);
-            
-            if(data.length === 0) {
-                list.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">No records found.</p>';
-                return;
-            }
-            
-            data.forEach(t => {
-                let color = t.type === 'income' ? 'text-emerald-600' : (t.type === 'udhar' ? 'text-orange-500' : 'text-rose-600');
-                let sign = t.type === 'income' ? '+' : '-';
-                
-                if (t.type === 'udhar') {
-                     if (t.loanType === 'taken') {
-                         color = 'text-emerald-600'; 
-                         sign = '+';
-                     } else {
-                         color = 'text-orange-500'; 
-                         sign = '-';
-                     }
-                }
-                
-                const dateObj = new Date(t.id);
-                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const category = t.desc;
-                const note = t.note ? t.note : '-';
-                const noteClass = t.note ? 'text-slate-500' : 'text-slate-300';
-
-                const actions = `<div class="flex gap-3 ml-3 border-l border-slate-100 pl-3">
-                        <button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500"><i class="fas fa-pencil-alt"></i></button>
-                        <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
-                     </div>`;
-
-                const li = document.createElement('li');
-                li.className = "p-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50 transition-colors";
-                li.innerHTML = `
-                    <div class="flex flex-col w-full">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-bold text-sm text-slate-800">${category}</span>
-                                    <span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded uppercase">${t.type}</span>
-                                </div>
-                                <p class="text-xs ${noteClass} font-medium">${note}</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="font-bold text-base ${color} block">${sign}${formatter.format(t.amount)}</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center pt-2 border-t border-dashed border-slate-100 mt-1">
-                            <div class="text-[10px] text-slate-400 flex items-center gap-3 font-semibold">
-                                <span class="flex items-center gap-1"><i class="far fa-calendar"></i> ${t.date}</span>
-                                <span class="flex items-center gap-1"><i class="far fa-clock"></i> ${timeStr}</span>
-                            </div>
-                            <div class="flex items-center">
-                                ${actions}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                list.appendChild(li);
-            });
-        }
-
-        function updateChart() { if(document.getElementById('view-home').classList.contains('hidden')) return; const ctx = document.getElementById('expenseChart').getContext('2d'); const legendContainer = document.getElementById('analysis-legend'); const expenses = {}; 
-        
-        // CHART FILTER LOGIC - UPDATED TO MATCH HOME FILTER
-        const today = new Date().toISOString().split('T')[0];
-        const currentMonth = today.slice(0, 7);
-        const currentYear = new Date().getFullYear().toString();
-        
-        const expenseTx = transactions.filter(t => {
-            if (t.type !== 'expense') return false;
-            if (homeFilterState.period === 'day') return t.date === today;
-            if (homeFilterState.period === 'month') return t.date.startsWith(currentMonth);
-            if (homeFilterState.period === 'year') return t.date.startsWith(currentYear);
-            return true;
-        });
-
-        const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0); expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; }); document.getElementById('chart-total-center').innerText = formatter.format(totalExpense); if(chartInstance) chartInstance.destroy(); chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(expenses), datasets: [{ data: Object.values(expenses), backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } }); legendContainer.innerHTML = ''; Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { const percent = ((amount / totalExpense) * 100).toFixed(1); const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; }); }
-        
-        // Remove Excel Download
-        function downloadExcel() { alert("Excel export has been removed. Please use PDF."); }
-        
-        function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions)); const a = document.createElement('a'); a.href = dataStr; a.download = "backup.json"; a.click(); }
-        function importData(input) { const reader = new FileReader(); reader.onload = function(e) { if(confirm("This will replace all current data. Are you sure?")) { transactions = JSON.parse(e.target.result); saveData(); alert("Data Restored!"); } }; reader.readAsText(input.files[0]); }
-        function clearAll() { if(confirm("⚠️ Critical Warning:\nReset App?")) { transactions = []; saveData(); updateUI(); alert("Reset Done."); } }
-        function exitApp() { if(confirm("Exit App?")) { window.close(); if(!window.closed) alert("Close tab manually."); } }
 
         // --- UPDATED PDF EXPORT (Improved Font & Layout) ---
         function downloadPDF() {
@@ -1326,70 +1187,72 @@
             
             // Header
             doc.setFontSize(22);
-            doc.setTextColor(13, 148, 136); // Teal color
+            doc.setTextColor(30, 41, 59); // Slate-800
             doc.setFont("helvetica", "bold");
-            doc.text("Madani Exp Tracker", 105, 20, null, null, "center");
+            doc.text("Madani Exp Tracker", 14, 20); // Left aligned
             
-            // Sub-header
             doc.setFontSize(10);
             doc.setTextColor(100);
             doc.setFont("helvetica", "normal");
-            doc.text(`Generated: ${new Date().toLocaleString()}`, 105, 28, null, null, "center");
-            
-            // Summary Box in PDF
-            const currentBal = document.getElementById('total-balance').innerText.replace('₹', 'Rs. ');
-            doc.setFillColor(240, 253, 250); // Teal-50
-            doc.roundedRect(14, 35, 182, 15, 3, 3, 'F');
-            doc.setFontSize(12);
-            doc.setTextColor(13, 148, 136);
-            doc.setFont("helvetica", "bold");
-            doc.text(`Net Worth: ${currentBal}`, 105, 44, null, null, "center");
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 26);
 
             const data = getFilteredTransactions();
             const rows = data.map(t => {
-                // Replace Symbol for PDF compatibility
+                const datePart = new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timePart = new Date(t.id).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
+                
+                const dateStr = `${datePart}\n${timePart}`;
+                const details = `${t.desc}\n${t.note || ''}`;
+                
+                let typeStr = "DEBIT";
+                if (t.type === 'income' || (t.type === 'udhar' && t.loanType === 'taken')) {
+                    typeStr = "CREDIT";
+                }
+                
                 const cleanAmount = formatter.format(t.amount).replace('₹', 'Rs. ');
-                return [
-                    t.date,
-                    t.desc,
-                    t.type.toUpperCase(),
-                    cleanAmount
-                ];
+                
+                return [dateStr, details, typeStr, cleanAmount];
             });
 
             doc.autoTable({
-                head: [['Date', 'Category', 'Type', 'Amount']],
+                head: [['Date', 'Transaction Details', 'Type', 'Amount']],
                 body: rows,
-                startY: 55,
-                theme: 'striped',
+                startY: 35,
+                theme: 'plain', // Cleaner look like the image
                 styles: { 
-                    fontSize: 10, 
-                    cellPadding: 5, 
+                    fontSize: 9, 
+                    cellPadding: 4, 
                     font: "helvetica",
-                    valign: 'middle'
+                    valign: 'top',
+                    textColor: 50
                 },
                 headStyles: { 
-                    fillColor: [13, 148, 136], // Teal Header
-                    textColor: 255,   
+                    fillColor: [241, 245, 249], // Very light gray header
+                    textColor: [100, 116, 139], // Slate-500 text
                     fontStyle: 'bold',
-                    halign: 'center'
+                    halign: 'left',
+                    lineWidth: 0 // No border on header
                 },
                 columnStyles: {
-                    0: { cellWidth: 35, halign: 'center' },
-                    1: { cellWidth: 'auto' },
-                    2: { cellWidth: 30, halign: 'center', fontStyle: 'bold' },
-                    3: { cellWidth: 40, halign: 'right', fontStyle: 'bold' }
+                    0: { cellWidth: 35 }, // Date
+                    1: { cellWidth: 'auto' }, // Details
+                    2: { cellWidth: 25, fontStyle: 'bold' }, // Type
+                    3: { cellWidth: 35, halign: 'right', fontStyle: 'bold' } // Amount
                 },
                 didParseCell: function(data) {
-                    // Colorize Rows based on Type
+                    // Add bottom border to body rows to match "separator" look
+                    if (data.section === 'body') {
+                        data.cell.styles.lineWidth = {bottom: 0.1};
+                        data.cell.styles.lineColor = [226, 232, 240]; // Slate-200
+                    }
+                    
+                    // Colorize Type
                     if (data.section === 'body' && data.column.index === 2) {
                         const type = data.cell.raw;
-                        if (type === 'INCOME') {
+                        if (type === 'CREDIT') {
                             data.cell.styles.textColor = [16, 185, 129]; // Emerald Green
-                        } else if (type === 'EXPENSE') {
-                            data.cell.styles.textColor = [225, 29, 72]; // Rose Red
-                        } else if (type === 'UDHAR') {
-                            data.cell.styles.textColor = [249, 115, 22]; // Orange
+                        } else {
+                            data.cell.styles.textColor = [30, 41, 59]; // Dark Slate (Standard for Debit)
                         }
                     }
                 }
@@ -1397,6 +1260,14 @@
 
             doc.save('Madani_Report.pdf');
         }
+        
+        // Remove Excel Download
+        function downloadExcel() { alert("Excel export has been removed. Please use PDF."); }
+        
+        function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions)); const a = document.createElement('a'); a.href = dataStr; a.download = "backup.json"; a.click(); }
+        function importData(input) { const reader = new FileReader(); reader.onload = function(e) { if(confirm("This will replace all current data. Are you sure?")) { transactions = JSON.parse(e.target.result); saveData(); alert("Data Restored!"); } }; reader.readAsText(input.files[0]); }
+        function clearAll() { if(confirm("⚠️ Critical Warning:\nReset App?")) { transactions = []; saveData(); updateUI(); alert("Reset Done."); } }
+        function exitApp() { if(confirm("Exit App?")) { window.close(); if(!window.closed) alert("Close tab manually."); } }
     </script>
 </body>
 </html>
