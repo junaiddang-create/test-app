@@ -480,6 +480,17 @@
             }); 
         }
 
+        function populateCats(cats) { 
+            const sel = document.getElementById('tx-category'); 
+            sel.innerHTML = ''; 
+            cats.forEach(c => { 
+                const opt = document.createElement('option'); 
+                opt.value = c; 
+                opt.innerText = c; 
+                sel.appendChild(opt); 
+            }); 
+        }
+
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
             if(params.get('guest') === 'true') {
@@ -513,14 +524,7 @@
             const currentYear = new Date().getFullYear();
             for(let i=0; i<5; i++) { const opt = document.createElement('option'); opt.value = currentYear - i; opt.text = currentYear - i; yrSelect.appendChild(opt); }
             
-            // Set Constraints
-            const dateInputs = document.querySelectorAll('input[type="date"]');
-            const maxDate = new Date(); maxDate.setDate(maxDate.getDate() + 7);
-            const minDate = new Date(); minDate.setMonth(minDate.getMonth() - 1);
-            dateInputs.forEach(inp => {
-                inp.max = maxDate.toISOString().split('T')[0];
-                inp.min = minDate.toISOString().split('T')[0];
-            });
+            // Constraints removed as requested (Ab koi limit nahi hai)
         }
 
         function setToday(inputId) {
@@ -857,7 +861,6 @@
         }
 
         function setTxType(type) { document.getElementById('tx-type').value = type; const btns = { expense: document.getElementById('btn-expense'), income: document.getElementById('btn-income') }; Object.values(btns).forEach(b => { b.className = 'flex-1 py-3 rounded-lg text-slate-400 transition-all hover:text-slate-600'; }); const activeClass = "flex-1 py-3 rounded-lg font-bold transition-all shadow-sm bg-white"; if(type === 'expense') { btns.expense.className = `${activeClass} text-rose-600`; populateCats(expenseCats); } else { btns.income.className = `${activeClass} text-emerald-600`; populateCats(incomeCats); } }
-        function populateCats(cats) { const sel = document.getElementById('tx-category'); sel.innerHTML = ''; cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); }); }
         
         function saveTransaction() {
             const type = document.getElementById('tx-type').value;
@@ -1268,6 +1271,79 @@
         function importData(input) { const reader = new FileReader(); reader.onload = function(e) { if(confirm("This will replace all current data. Are you sure?")) { transactions = JSON.parse(e.target.result); saveData(); alert("Data Restored!"); } }; reader.readAsText(input.files[0]); }
         function clearAll() { if(confirm("⚠️ Critical Warning:\nReset App?")) { transactions = []; saveData(); updateUI(); alert("Reset Done."); } }
         function exitApp() { if(confirm("Exit App?")) { window.close(); if(!window.closed) alert("Close tab manually."); } }
+        
+        // --- NEW & UPDATED UDHAR LOGIC ---
+        function openPersonDetails(name) { 
+            recalculateRepayments();
+            lastOpenedPerson = name; 
+            const modal = document.getElementById('person-history-modal'); 
+            document.getElementById('ph-name').innerText = name; 
+            
+            let totalPending = 0;
+            const personTx = transactions.filter(t => t.person === name);
+            
+            personTx.forEach(t => {
+                if (t.type === 'udhar') {
+                    if (t.loanType === 'taken') totalPending -= t.amount;
+                    else totalPending += t.amount;
+                } else if (t.isWusool) {
+                    totalPending -= t.amount; 
+                }
+            });
+            
+            const balanceEl = document.getElementById('ph-balance');
+            balanceEl.innerText = formatter.format(Math.abs(totalPending));
+            const receiveBtnText = document.getElementById('btn-receive-text');
+
+            if(totalPending > 0) {
+                balanceEl.className = "text-3xl font-bold text-rose-600 mb-1";
+                receiveBtnText.innerText = "Receive";
+            } else if(totalPending < 0) {
+                balanceEl.className = "text-3xl font-bold text-emerald-600 mb-1";
+                receiveBtnText.innerText = "Pay Back"; 
+            } else {
+                balanceEl.className = "text-3xl font-bold text-slate-400 mb-1";
+                receiveBtnText.innerText = "Receive";
+            }
+            
+            document.getElementById('btn-give-more').onclick = () => giveMoreUdhar(name); 
+            document.getElementById('btn-receive-money').onclick = () => openWusoolForPerson(name); 
+            document.getElementById('btn-settle-all').onclick = () => openWusoolForPerson(name, true);
+            document.getElementById('btn-whatsapp').onclick = () => sendStatement(name, totalPending);
+
+            modal.classList.remove('hidden'); 
+            
+            const content = document.getElementById('ph-content'); 
+            content.innerHTML = ''; 
+            const related = transactions.filter(t => (t.type === 'udhar' && t.person === name) || (t.type === 'income' && t.desc === `Recovery: ${name}`)).sort((a,b) => b.id - a.id); 
+            if(related.length === 0) content.innerHTML = '<p class="text-center text-xs text-slate-400">No history.</p>'; 
+            else { 
+                related.forEach(t => { 
+                    let isRecovery = t.type === 'income'; 
+                    let color = '';
+                    let icon = '';
+                    let label = '';
+                    
+                    if (isRecovery) {
+                        color = 'text-green-600';
+                        icon = 'fa-check';
+                        label = 'Settled/Recv';
+                    } else if (t.loanType === 'taken') {
+                        color = 'text-emerald-600';
+                        icon = 'fa-arrow-down';
+                        label = 'Taken (Liya)';
+                    } else {
+                        color = 'text-rose-600';
+                        icon = 'fa-arrow-up';
+                        label = 'Given (Diya)';
+                    }
+
+                    let editBtn = ''; 
+                    if(t.type === 'udhar') editBtn = `<button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500 text-[10px] mr-2"><i class="fas fa-pencil-alt"></i></button>`; 
+                    content.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg relative"><div class="flex items-center gap-3"><i class="fas ${icon} text-xs text-slate-400"></i><div><p class="font-bold text-xs text-slate-700">${label}</p><p class="text-[10px] text-slate-400">${t.date}</p></div></div><div class="text-right"><span class="font-bold text-sm ${color} block">${formatter.format(t.amount)}</span><div class="flex justify-end mt-1">${editBtn}<button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500 text-[10px]"><i class="fas fa-trash"></i></button></div></div></div>`; 
+                }); 
+            } 
+        }
     </script>
 </body>
 </html>
