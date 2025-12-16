@@ -29,26 +29,6 @@
 </head>
 <body class="text-slate-800 bg-slate-50">
 
-    <!-- === GUEST VIEW === -->
-    <div id="guest-container" class="w-full max-w-md mx-auto min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center fade-in">
-        <div class="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-teal-100">
-            <i class="fas fa-file-invoice-dollar text-3xl text-teal-600"></i>
-        </div>
-        <h1 class="text-2xl font-bold text-slate-800 mb-1">Madani Exp Tracker</h1>
-        <p class="text-xs text-teal-600 font-semibold mb-8 tracking-widest uppercase">Junaid Madani</p>
-        <div class="w-full bg-slate-50 p-8 rounded-3xl border border-slate-200 mb-6 shadow-sm">
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Account Name</p>
-            <h2 class="text-2xl font-bold text-slate-800 mb-6" id="guest-name">---</h2>
-            <div class="w-full border-t border-dashed border-slate-300 mb-6"></div>
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Total Pending Balance</p>
-            <h1 class="text-5xl font-black text-rose-600" id="guest-balance">₹0</h1>
-        </div>
-        <div class="p-4 w-full flex-1 overflow-y-auto">
-             <h3 class="font-bold text-left text-sm mb-3">History</h3>
-             <div id="guest-history-list" class="space-y-3"></div>
-        </div>
-    </div>
-
     <!-- === MAIN APP CONTAINER === -->
     <div id="main-container" class="w-full max-w-md mx-auto min-h-screen relative bg-white sm:shadow-xl overflow-hidden pb-[90px]">
         
@@ -136,7 +116,7 @@
                 </div>
                 <div id="custom-date-range" class="hidden flex gap-2"><input type="date" id="filter-start-date" class="w-1/2 p-2 text-xs rounded-lg border border-slate-300"><input type="date" id="filter-end-date" class="w-1/2 p-2 text-xs rounded-lg border border-slate-300"></div>
             </div>
-            <button onclick="window.downloadPDF()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 mb-4 hover:bg-slate-900"><i class="fas fa-file-pdf text-red-400"></i> Download Premium Statement</button>
+            <button onclick="window.downloadPDF()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 mb-4 hover:bg-slate-900"><i class="fas fa-file-pdf text-red-400"></i> Download Bank Statement</button>
             <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"><ul id="full-list" class="divide-y divide-slate-50"></ul></div>
         </section>
 
@@ -209,7 +189,7 @@
                 <button onclick="window.clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div><div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div></button>
                 <button onclick="window.exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div><div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div></button>
             </div>
-            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v32.0 (Summary Fixed)</p>
+            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v32.0</p>
         </section>
 
         <!-- NAV -->
@@ -830,7 +810,6 @@
                 }
             });
             
-            // Separation Logic
             const receivables = [];
             const payables = [];
             const settled = [];
@@ -1132,6 +1111,24 @@
         window.importData = function(input) { const reader = new FileReader(); reader.onload = function(e) { if(confirm("This will replace all current data. Are you sure?")) { transactions = JSON.parse(e.target.result); window.saveData(); alert("Data Restored!"); } }; reader.readAsText(input.files[0]); }
         window.clearAll = function() { if(confirm("⚠️ Critical Warning:\nReset App?")) { transactions = []; window.saveData(); window.updateUI(); alert("Reset Done."); } }
         window.exitApp = function() { if(confirm("Exit App?")) { window.close(); if(!window.closed) alert("Close tab manually."); } }
+
+        window.settleFull = function() {
+            const pending = document.getElementById('wusool-amount').dataset.pending;
+            if(pending && Math.abs(parseFloat(pending)) > 0) { document.getElementById('wusool-amount').value = Math.abs(parseFloat(pending)); } 
+            else { alert("Nothing to settle."); }
+        }
+
+        window.openWusoolForPerson = function(name, autoSettle = false) { 
+            document.getElementById('person-history-modal').classList.add('hidden'); 
+            let totalPending = window.calculateBalance(name);
+            if(Math.abs(totalPending) <= 0.1 && !autoSettle) return alert("No pending balance."); 
+            document.getElementById('wusool-person-name').value = name; 
+            document.getElementById('wusool-msg').innerText = `Balance: ${formatter.format(totalPending)}`; 
+            document.getElementById('wusool-amount').dataset.pending = totalPending; 
+            if(autoSettle) { document.getElementById('wusool-amount').value = Math.abs(totalPending); } 
+            else { document.getElementById('wusool-amount').value = ''; }
+            document.getElementById('wusool-modal').classList.remove('hidden'); 
+        }
 
         // --- INITIALIZATION ---
         window.onload = function() {
