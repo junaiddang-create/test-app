@@ -25,30 +25,9 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         select { -webkit-appearance: none; appearance: none; }
         #guest-container { display: none; }
-        .progress-bar { transition: width 0.5s ease-in-out; }
     </style>
 </head>
 <body class="text-slate-800 bg-slate-50">
-
-    <!-- === GUEST VIEW === -->
-    <div id="guest-container" class="w-full max-w-md mx-auto min-h-screen bg-white p-6 flex flex-col items-center justify-center text-center fade-in">
-        <div class="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-6 shadow-sm border border-teal-100">
-            <i class="fas fa-file-invoice-dollar text-3xl text-teal-600"></i>
-        </div>
-        <h1 class="text-2xl font-bold text-slate-800 mb-1">Madani Exp Tracker</h1>
-        <p class="text-xs text-teal-600 font-semibold mb-8 tracking-widest uppercase">Junaid Madani</p>
-        <div class="w-full bg-slate-50 p-8 rounded-3xl border border-slate-200 mb-6 shadow-sm">
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Account Name</p>
-            <h2 class="text-2xl font-bold text-slate-800 mb-6" id="guest-name">---</h2>
-            <div class="w-full border-t border-dashed border-slate-300 mb-6"></div>
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Total Pending Balance</p>
-            <h1 class="text-5xl font-black text-rose-600" id="guest-balance">₹0</h1>
-        </div>
-        <div class="p-4 w-full flex-1 overflow-y-auto">
-             <h3 class="font-bold text-left text-sm mb-3">History</h3>
-             <div id="guest-history-list" class="space-y-3"></div>
-        </div>
-    </div>
 
     <!-- === MAIN APP CONTAINER === -->
     <div id="main-container" class="w-full max-w-md mx-auto min-h-screen relative bg-white sm:shadow-xl overflow-hidden pb-[90px]">
@@ -60,410 +39,314 @@
                 <p class="text-[10px] text-teal-600 font-bold ml-7 -mt-1 tracking-wide">Junaid Madani</p>
             </div>
             <div class="text-right">
-                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Net Worth</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold" id="net-balance-label">Net Balance</p>
                 <h2 class="text-xl font-bold text-slate-800" id="total-balance">₹0</h2>
             </div>
         </header>
 
         <!-- === 1. HOME VIEW === -->
         <section id="view-home" class="p-4 fade-in block pb-24">
+            <!-- HOME FILTERS -->
+            <div class="flex p-1 bg-slate-200/60 rounded-xl mb-5 mx-1">
+                <button onclick="window.setHomeFilter('day')" id="hf-day" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Daily</button>
+                <button onclick="window.setHomeFilter('month')" id="hf-month" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white shadow-sm text-teal-700">Monthly</button>
+                <button onclick="window.setHomeFilter('year')" id="hf-year" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Yearly</button>
+            </div>
+
+            <!-- Assets Cards -->
             <div class="grid grid-cols-3 gap-3 mb-5">
-                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Cash</p>
-                    <p class="text-sm font-bold text-slate-800" id="cash-balance">₹0</p>
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center relative overflow-hidden group">
+                    <i class="fas fa-money-bill-wave absolute -bottom-2 -right-2 text-4xl text-blue-100 opacity-50"></i>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold relative z-10">Cash</p>
+                    <p class="text-sm font-bold text-slate-800 relative z-10" id="cash-balance">₹0</p>
                 </div>
-                <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-center">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Bank</p>
-                    <p class="text-sm font-bold text-slate-800" id="bank-balance">₹0</p>
+                <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-center relative overflow-hidden group">
+                    <i class="fas fa-university absolute -bottom-2 -right-2 text-4xl text-indigo-100 opacity-50"></i>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold relative z-10">Bank</p>
+                    <p class="text-sm font-bold text-slate-800 relative z-10" id="bank-balance">₹0</p>
                 </div>
-                <div class="bg-orange-50 p-3 rounded-xl border border-orange-100 text-center relative">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Udhar</p>
-                    <p class="text-sm font-bold text-orange-600" id="udhar-balance">₹0</p>
+                <div class="bg-orange-50 p-3 rounded-xl border border-orange-100 text-center relative overflow-hidden group">
+                    <i class="fas fa-hand-holding-usd absolute -bottom-2 -right-2 text-4xl text-orange-100 opacity-50"></i>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold relative z-10">Udhar</p>
+                    <p class="text-sm font-bold text-orange-600 relative z-10" id="udhar-balance">₹0</p>
                 </div>
             </div>
 
+            <!-- Opening Balance Info -->
+            <div id="opening-balance-container" class="mb-3 px-1 flex justify-between items-center text-xs text-slate-400 font-semibold hidden">
+                <span><i class="fas fa-history mr-1"></i> Carry Forward (Opening):</span>
+                <span id="opening-balance-val" class="text-slate-600 font-bold">₹0</span>
+            </div>
+
+            <!-- Flow Cards (Clickable for Breakdown) -->
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div onclick="showSummary('income')" class="cursor-pointer bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex justify-between items-center active:scale-95 transition-transform">
-                    <div><p class="text-[10px] text-emerald-600 font-bold uppercase">Income</p><p class="text-lg font-bold text-emerald-700" id="total-income">₹0</p></div>
+                <div onclick="window.showSummary('income')" class="cursor-pointer bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex justify-between items-center active:scale-95 transition-transform">
+                    <div><p class="text-[10px] text-emerald-600 font-bold uppercase" id="lbl-income">Income</p><p class="text-lg font-bold text-emerald-700" id="total-income">₹0</p></div>
                     <div class="bg-emerald-200/50 w-8 h-8 rounded-full flex items-center justify-center text-emerald-700"><i class="fas fa-arrow-down"></i></div>
                 </div>
-                <div onclick="showSummary('expense')" class="cursor-pointer bg-rose-50 p-4 rounded-xl border border-rose-100 flex justify-between items-center active:scale-95 transition-transform">
-                    <div><p class="text-[10px] text-rose-600 font-bold uppercase">Expense</p><p class="text-lg font-bold text-rose-700" id="total-expense">₹0</p></div>
+                <div onclick="window.showSummary('expense')" class="cursor-pointer bg-rose-50 p-4 rounded-xl border border-rose-100 flex justify-between items-center active:scale-95 transition-transform">
+                    <div><p class="text-[10px] text-rose-600 font-bold uppercase" id="lbl-expense">Expense</p><p class="text-lg font-bold text-rose-700" id="total-expense">₹0</p></div>
                     <div class="bg-rose-200/50 w-8 h-8 rounded-full flex items-center justify-center text-rose-700"><i class="fas fa-arrow-up"></i></div>
                 </div>
             </div>
 
-            <h3 class="font-bold text-slate-700 text-sm mb-3">Expense Analysis</h3>
+            <h3 class="font-bold text-slate-700 text-sm mb-3">Expense Analysis <span id="analysis-period-lbl" class="text-[10px] font-normal text-slate-400 ml-1"></span></h3>
             <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 mb-4">
                 <div class="flex justify-center mb-6 relative">
                     <div class="h-48 w-48 relative z-10"><canvas id="expenseChart"></canvas></div>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Total</p>
-                        <p class="text-lg font-bold text-slate-800" id="chart-total-center">₹0</p>
-                    </div>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><p class="text-[10px] text-slate-400 uppercase font-bold">Total</p><p class="text-lg font-bold text-slate-800" id="chart-total-center">₹0</p></div>
                 </div>
                 <div id="analysis-legend" class="space-y-3"></div>
             </div>
         </section>
 
-        <!-- === 2. REPORT VIEW (Updated Filters) === -->
+        <!-- === 2. REPORT VIEW === -->
         <section id="view-report" class="p-4 fade-in hidden pb-24">
             <h2 class="text-lg font-bold mb-4">Reports & History</h2>
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4 space-y-3">
-                <div class="flex gap-2">
+            <div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs mb-4">
+                <button onclick="window.setHistoryFilter('all')" id="hf-all" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-slate-800 transition-all">All</button>
+                <button onclick="window.setHistoryFilter('expense')" id="hf-expense" class="flex-1 py-2 rounded-lg text-slate-500 transition-all hover:text-rose-600">Debit</button>
+                <button onclick="window.setHistoryFilter('income')" id="hf-income" class="flex-1 py-2 rounded-lg text-slate-500 transition-all hover:text-emerald-600">Credit</button>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4">
+                <div class="flex gap-2 mb-2">
                     <select id="filter-type" class="w-1/3 p-2 text-xs rounded-lg border border-slate-300"><option value="month">Monthly</option><option value="year">Yearly</option><option value="custom">Custom</option><option value="all">All Time</option></select>
                     <input type="month" id="filter-month-input" class="w-2/3 p-2 text-xs rounded-lg border border-slate-300">
                     <select id="filter-year-input" class="hidden w-2/3 p-2 text-xs rounded-lg border border-slate-300"></select>
                 </div>
-                <div id="custom-date-range" class="hidden flex gap-2">
-                    <input type="date" id="filter-start-date" class="w-1/2 p-2 text-xs rounded-lg border border-slate-300">
-                    <input type="date" id="filter-end-date" class="w-1/2 p-2 text-xs rounded-lg border border-slate-300">
-                </div>
-                <!-- CREDIT / DEBIT FILTER -->
-                <div class="flex bg-white rounded-lg border border-slate-200 overflow-hidden">
-                    <button onclick="setTxFilter('all')" id="filter-btn-all" class="flex-1 py-2 text-[10px] font-bold bg-slate-800 text-white">ALL</button>
-                    <button onclick="setTxFilter('credit')" id="filter-btn-credit" class="flex-1 py-2 text-[10px] font-bold text-slate-500 hover:bg-slate-50">CREDIT (IN)</button>
-                    <button onclick="setTxFilter('debit')" id="filter-btn-debit" class="flex-1 py-2 text-[10px] font-bold text-slate-500 hover:bg-slate-50">DEBIT (OUT)</button>
-                </div>
+                <div id="custom-date-range" class="hidden flex gap-2"><input type="date" id="filter-start-date" class="w-1/2 p-2 text-xs rounded-lg border border-slate-300"><input type="date" id="filter-end-date" class="w-1/2 p-2 text-xs rounded-lg border border-slate-300"></div>
             </div>
-            <div class="flex gap-2 mb-4">
-                <button onclick="downloadPDF()" class="w-full bg-slate-800 text-white py-2.5 rounded-lg text-xs font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95"><i class="fas fa-file-pdf"></i> Download Premium PDF</button>
-            </div>
+            <button onclick="window.downloadPDF()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 mb-4 hover:bg-slate-900"><i class="fas fa-file-pdf text-red-400"></i> Download Premium Statement</button>
             <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"><ul id="full-list" class="divide-y divide-slate-50"></ul></div>
         </section>
 
-        <!-- === NEW BUDGET VIEW (50/30/20) === -->
+        <!-- === 3. BUDGET VIEW === -->
         <section id="view-budget" class="p-4 fade-in hidden pb-24">
-            <h2 class="text-lg font-bold mb-2">Budget Planner</h2>
-            <p class="text-xs text-slate-400 mb-6">Based on 50/30/20 Rule from Salary</p>
-            
-            <div id="budget-content" class="space-y-6">
-                <!-- Content injected by JS -->
+            <h2 class="text-lg font-bold mb-4">Budget Planning (50/30/20)</h2>
+            <div class="bg-gradient-to-r from-teal-500 to-teal-700 p-5 rounded-2xl shadow-lg border border-teal-600 mb-6 text-white relative overflow-hidden">
+                <div class="absolute right-0 top-0 opacity-10"><i class="fas fa-wallet text-9xl"></i></div>
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-80">This Month's Salary</p>
+                <h1 class="text-3xl font-black mb-1" id="budget-salary-display">₹0</h1>
+                <p class="text-[9px] font-medium opacity-80 flex items-center gap-1"><i class="fas fa-sync-alt"></i> Auto-detected from Income entries</p>
             </div>
+            <div id="budget-content" class="space-y-4 mb-8">
+                <!-- Needs -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-home text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Needs (50%)</h3><p class="text-[10px] text-slate-400 font-bold" id="budget-needs-limit">Limit: ₹0</p></div></div>
+                        <div class="text-right"><p class="font-bold text-sm text-blue-600" id="budget-needs-val">₹0</p><p class="text-[10px] text-slate-400">Spent</p><p class="text-[10px] font-bold" id="budget-needs-rem">Baqi: ₹0</p></div>
+                    </div>
+                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div id="bar-needs" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                    <p id="alert-needs" class="text-[10px] text-rose-500 font-bold mt-1 hidden"><i class="fas fa-exclamation-circle"></i> Over Limit!</p>
+                    <div id="list-needs" class="mt-3 pt-2 border-t border-slate-50 space-y-2"></div>
+                </div>
+                <!-- Wants -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fas fa-shopping-bag text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Wants (30%)</h3><p class="text-[10px] text-slate-400 font-bold" id="budget-wants-limit">Limit: ₹0</p></div></div>
+                        <div class="text-right"><p class="font-bold text-sm text-purple-600" id="budget-wants-val">₹0</p><p class="text-[10px] text-slate-400">Spent</p><p class="text-[10px] font-bold" id="budget-wants-rem">Baqi: ₹0</p></div>
+                    </div>
+                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div id="bar-wants" class="h-full bg-purple-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                    <p id="alert-wants" class="text-[10px] text-rose-500 font-bold mt-1 hidden"><i class="fas fa-exclamation-circle"></i> Over Limit!</p>
+                    <div id="list-wants" class="mt-3 pt-2 border-t border-slate-50 space-y-2"></div>
+                </div>
+                <!-- Savings -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fas fa-piggy-bank text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Savings (20%)</h3><p class="text-[10px] text-slate-400 font-bold" id="budget-savings-limit">Target: ₹0</p></div></div>
+                        <div class="text-right"><p class="font-bold text-sm text-emerald-600" id="budget-savings-val">₹0</p><p class="text-[10px] text-slate-400">Saved</p><p class="text-[10px] font-bold" id="budget-savings-rem">Baqi: ₹0</p></div>
+                    </div>
+                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div id="bar-savings" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                    <div id="list-savings" class="mt-3 pt-2 border-t border-slate-50 space-y-2"></div>
+                </div>
+            </div>
+            <div class="mb-4 flex justify-between items-center">
+                <h3 class="font-bold text-sm text-slate-700">Category Wise Limits</h3>
+                <button onclick="document.getElementById('cat-budget-modal').classList.remove('hidden')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95"><i class="fas fa-plus"></i> Add Limit</button>
+            </div>
+            <div id="custom-budgets-list" class="space-y-3"></div>
         </section>
 
-        <!-- === 3. UDHAR VIEW === -->
+        <!-- === 4. UDHAR VIEW === -->
         <section id="view-udhar" class="p-4 fade-in hidden pb-24">
             <div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold text-slate-800">Udhar Manager</h2></div>
             <div class="bg-orange-50 p-5 rounded-xl border border-orange-100 mb-4 text-center">
                 <p class="text-xs text-orange-800 uppercase font-bold tracking-wider mb-1">Total Udhar Market Mein</p>
                 <h1 class="text-3xl font-bold text-orange-600" id="udhar-total-display">₹0</h1>
-                <button onclick="openNewUdharModal()" class="mt-4 w-full bg-orange-600 text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 shadow-md"><i class="fas fa-user-plus"></i> Naya Udhar (New Contact)</button>
+                <button onclick="window.openNewUdharModal()" class="mt-4 w-full bg-orange-600 text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 shadow-md"><i class="fas fa-user-plus"></i> Naya Udhar (New Contact)</button>
             </div>
-            <h3 class="font-bold text-slate-700 text-sm mb-3">Logon pe Baqaya</h3>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden" id="udhar-list-container">
-                <ul id="udhar-list" class="divide-y divide-slate-50"></ul>
-            </div>
+            <div id="udhar-list-container" class="space-y-6"></div>
             <p id="no-udhar-msg" class="text-center text-slate-400 text-xs py-10 hidden">No active loans.</p>
         </section>
 
-        <!-- === 4. SETTINGS VIEW === -->
+        <!-- === 5. SETTINGS VIEW === -->
         <section id="view-settings" class="p-4 fade-in hidden pb-24">
             <h2 class="text-lg font-bold mb-4">Settings</h2>
             <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                <button onclick="exportData()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50">
-                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-save"></i></div>
-                    <div><p class="text-sm font-bold text-slate-700">Backup Data</p><p class="text-[10px] text-slate-400">Save to device</p></div>
-                </button>
-                <button onclick="document.getElementById('import-file').click()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50">
-                    <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><i class="fas fa-file-import"></i></div>
-                    <div><p class="text-sm font-bold text-slate-700">Restore Data</p><p class="text-[10px] text-slate-400">Import backup file</p></div>
-                </button>
-                <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(this)">
-                <button onclick="clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50">
-                    <div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div>
-                    <div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div>
-                </button>
-                <button onclick="exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div>
-                    <div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div>
-                </button>
+                <button onclick="window.exportData()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-save"></i></div><div><p class="text-sm font-bold text-slate-700">Backup Data</p><p class="text-[10px] text-slate-400">Save to device</p></div></button>
+                <button onclick="document.getElementById('import-file').click()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><i class="fas fa-file-import"></i></div><div><p class="text-sm font-bold text-slate-700">Restore Data</p><p class="text-[10px] text-slate-400">Replace current data with backup</p></div></button>
+                <input type="file" id="import-file" class="hidden" accept=".json" onchange="window.importData(this)">
+                <button onclick="window.clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div><div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div></button>
+                <button onclick="window.exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div><div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div></button>
             </div>
-            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v6.1</p>
+            <p class="text-center text-[10px] text-slate-300 mt-8 font-semibold tracking-wide">Madani Exp Tracker v27.0 (Final)</p>
         </section>
 
         <!-- NAV -->
         <nav class="fixed bottom-0 w-full max-w-md bg-white border-t border-slate-100 flex justify-between items-end px-4 pb-2 pt-2 z-40 shadow-lg" style="left: 50%; transform: translateX(-50%);">
-            <button onclick="switchView('home')" class="nav-item active flex flex-col items-center gap-1" id="nav-home"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold">Home</span></button>
-            <button onclick="switchView('report')" class="nav-item flex flex-col items-center gap-1" id="nav-report"><i class="fas fa-file-alt text-lg"></i><span class="text-[9px] font-bold">Report</span></button>
-            <div class="relative w-12 flex justify-center z-50">
-                <button onclick="openEntryModal()" class="absolute -top-10 bg-teal-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl fab-shadow transition-transform active:scale-90 border-[4px] border-slate-50 shadow-lg shadow-teal-100"><i class="fas fa-plus"></i></button>
-            </div>
-            <button onclick="switchView('budget')" class="nav-item flex flex-col items-center gap-1" id="nav-budget"><i class="fas fa-wallet text-lg"></i><span class="text-[9px] font-bold">Budget</span></button>
-            <button onclick="switchView('udhar')" class="nav-item flex flex-col items-center gap-1" id="nav-udhar"><i class="fas fa-hand-holding-usd text-lg"></i><span class="text-[9px] font-bold">Udhar</span></button>
-            <button onclick="switchView('settings')" class="nav-item flex flex-col items-center gap-1" id="nav-settings"><i class="fas fa-cog text-lg"></i><span class="text-[9px] font-bold">Settings</span></button>
+            <button onclick="window.switchView('home')" class="nav-item active flex flex-col items-center gap-1" id="nav-home"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold">Home</span></button>
+            <button onclick="window.switchView('report')" class="nav-item flex flex-col items-center gap-1" id="nav-report"><i class="fas fa-chart-pie text-lg"></i><span class="text-[9px] font-bold">History</span></button>
+            <div class="relative w-12 flex justify-center z-50"><button onclick="window.openEntryModal()" class="absolute -top-10 bg-teal-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl fab-shadow transition-transform active:scale-90 border-[4px] border-slate-50 shadow-lg shadow-teal-100"><i class="fas fa-plus"></i></button></div>
+            <button onclick="window.switchView('budget')" class="nav-item flex flex-col items-center gap-1" id="nav-budget"><i class="fas fa-wallet text-lg"></i><span class="text-[9px] font-bold">Budget</span></button>
+            <button onclick="window.switchView('udhar')" class="nav-item flex flex-col items-center gap-1" id="nav-udhar"><i class="fas fa-hand-holding-usd text-lg"></i><span class="text-[9px] font-bold">Udhar</span></button>
+            <button onclick="window.switchView('settings')" class="nav-item flex flex-col items-center gap-1" id="nav-settings"><i class="fas fa-cog text-lg"></i><span class="text-[9px] font-bold">Setting</span></button>
         </nav>
     </div>
 
     <!-- ENTRY MODAL -->
-    <div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg text-slate-800" id="entry-modal-title">New Entry</h3>
-                <button onclick="closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs" id="type-tabs-wrapper">
-                    <button onclick="setTxType('expense')" id="btn-expense" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600">Expense</button>
-                    <button onclick="setTxType('income')" id="btn-income" class="flex-1 py-3 rounded-lg text-slate-400">Income</button>
-                    <button onclick="setTxType('transfer')" id="btn-transfer" class="flex-1 py-3 rounded-lg text-slate-400">Transfer</button>
-                </div>
-                <input type="hidden" id="tx-type" value="expense">
-                
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label>
-                    <input type="number" id="tx-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-teal-500">
-                </div>
-
-                <!-- Standard Fields (Inc/Exp) -->
-                <div id="standard-fields" class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label>
-                        <select id="tx-category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Wallet</label>
-                        <select id="tx-account" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select>
-                    </div>
-                </div>
-
-                <!-- Transfer Fields -->
-                <div id="transfer-fields" class="grid grid-cols-2 gap-3 hidden">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">From</label>
-                        <select id="tx-from" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">To</label>
-                        <select id="tx-to" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Bank">Bank Account</option><option value="Cash">Cash</option></select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label>
-                        <input type="date" id="tx-date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Note</label>
-                        <input type="text" id="tx-note" placeholder="Details..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none">
-                    </div>
-                </div>
-                <button onclick="saveTransaction()" class="w-full bg-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-check"></i> <span id="save-btn-text">Save Transaction</span></button>
-            </div>
-        </div>
-    </div>
+    <div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="entry-modal-title">New Entry</h3><button onclick="window.closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs" id="type-tabs-wrapper"><button onclick="window.setTxType('expense')" id="btn-expense" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600">Expense</button><button onclick="window.setTxType('income')" id="btn-income" class="flex-1 py-3 rounded-lg text-slate-400">Income</button><button onclick="window.setTxType('transfer')" id="btn-transfer" class="flex-1 py-3 rounded-lg text-slate-400">Transfer</button></div><input type="hidden" id="tx-type" value="expense"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="tx-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-teal-500"></div><div id="cat-wrapper" class="grid grid-cols-1 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><select id="tx-category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"></select></div></div><div id="account-wrapper"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Wallet</label><select id="tx-account" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div><div id="transfer-wrapper" class="hidden grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">From</label><select id="transfer-from" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank</option></select></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">To</label><select id="transfer-to" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Bank">Bank</option><option value="Cash">Cash</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><input type="date" id="tx-date" onchange="window.highlightDate(this)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Note</label><input type="text" id="tx-note" placeholder="Details..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div></div><button onclick="window.saveTransaction()" class="w-full bg-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-check"></i> <span id="save-btn-text">Save Transaction</span></button></div></div></div>
 
     <!-- UDHAR MODAL -->
-    <div id="udhar-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-bold text-lg text-slate-800" id="udhar-modal-title">New Udhar Entry</h3>
-                <button onclick="closeUdharModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label>
-                    <input type="number" id="udhar-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-orange-500">
-                </div>
-                <button onclick="pickContact()" class="w-full py-3 bg-orange-50 border border-dashed border-orange-200 rounded-xl text-orange-600 font-bold text-xs flex items-center justify-center gap-2 hover:bg-orange-100"><i class="fas fa-address-book text-lg"></i> Select from Contacts</button>
-                <div>
-                    <label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Person Name</label>
-                    <input type="text" id="udhar-person" list="udhar-names-list" placeholder="Enter Name" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500">
-                    <datalist id="udhar-names-list"></datalist>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Mobile (WA)</label>
-                        <input type="tel" id="udhar-phone" placeholder="91..." class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">From Wallet</label>
-                        <select id="udhar-source" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Date Given</label>
-                        <input type="date" id="udhar-date" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Due Date</label>
-                        <input type="date" id="udhar-return-date" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none">
-                    </div>
-                </div>
-                <button onclick="saveUdharTransaction()" class="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-orange-700 active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-save"></i> <span id="save-udhar-btn-text">Save Loan Record</span></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- UTILITY MODALS -->
-    <div id="summary-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
-                <h3 class="font-bold text-lg text-slate-800" id="summary-title">Summary</h3>
-                <button onclick="document.getElementById('summary-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="summary-content" class="space-y-3 max-h-96 overflow-y-auto no-scrollbar"></div>
-        </div>
-    </div>
-    
-    <!-- UPDATED WUSOOL MODAL -->
-    <div id="wusool-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in">
-        <div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-2">
-                <h3 class="font-bold text-lg text-slate-800" id="wusool-modal-title">Receive Money</h3>
-                <button onclick="document.getElementById('wusool-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button>
-            </div>
-            <p class="text-xs text-slate-500 mb-2 font-bold" id="wusool-msg">Settling...</p>
-            <input type="hidden" id="wusool-person-name">
-            <label class="block text-[10px] font-bold text-emerald-600 uppercase mb-2 ml-1">Received Amount</label>
-            <div class="flex gap-2 mb-3">
-                <input type="number" id="wusool-amount" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-lg font-bold text-slate-800 focus:outline-none focus:border-teal-500">
-                <button onclick="settleFull()" class="bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap active:scale-95">Full Settle</button>
-            </div>
-            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">Deposit To</label>
-            <select id="wusool-account" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold mb-4"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select>
-            <div class="flex gap-2">
-                <button onclick="document.getElementById('wusool-modal').classList.add('hidden')" class="flex-1 py-2 text-slate-500 font-bold text-xs bg-slate-100 rounded-lg">Cancel</button>
-                <button onclick="confirmWusool()" class="flex-1 py-2 text-white font-bold text-xs bg-emerald-600 rounded-lg">Confirm</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- UPDATED PERSON HISTORY MODAL (ACTION CENTER) -->
-    <div id="person-history-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 fade-in">
-        <div class="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center p-4 pb-2 border-b border-slate-50 shrink-0">
-                <div>
-                    <h3 class="font-bold text-lg text-slate-800" id="ph-name">Name</h3>
-                    <p class="text-[10px] text-slate-400">Transaction History</p>
-                </div>
-                <button onclick="document.getElementById('person-history-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="bg-slate-50 p-4 text-center border-b border-slate-100">
-                <h2 id="ph-balance" class="text-3xl font-bold text-slate-800 mb-1">₹0</h2>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Current Balance</p>
-            </div>
-            <div class="grid grid-cols-3 gap-2 p-4 pb-0">
-                <button id="btn-give-more" class="bg-rose-50 hover:bg-rose-100 border border-rose-100 text-rose-700 p-3 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition-transform"><i class="fas fa-minus-circle text-lg"></i> <span class="text-xs font-bold">Give</span></button>
-                <button id="btn-receive-money" class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-emerald-700 p-3 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition-transform"><i class="fas fa-plus-circle text-lg"></i> <span class="text-xs font-bold">Receive</span></button>
-                <button id="btn-settle-all" class="bg-blue-50 hover:bg-blue-100 border border-blue-100 text-blue-700 p-3 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition-transform"><i class="fas fa-check-circle text-lg"></i> <span class="text-xs font-bold">Settle</span></button>
-            </div>
-            <div class="px-4 pt-2">
-                <button id="btn-whatsapp" class="w-full py-2.5 bg-green-50 text-green-700 border border-green-100 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 hover:bg-green-100 transition-colors"><i class="fab fa-whatsapp text-lg"></i> Send Reminder / Statement</button>
-            </div>
-            <div class="p-4 pt-4 overflow-y-auto space-y-4 flex-1" id="ph-content"></div>
-        </div>
-    </div>
-    
-    <div id="contacts-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 fade-in">
-        <div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl">
-            <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2">
-                <h3 class="font-bold text-slate-800">Select Contact</h3>
-                <button onclick="document.getElementById('contacts-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="contacts-list-content" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar"></div>
-        </div>
-    </div>
+    <div id="udhar-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="udhar-modal-title">New Udhar Entry</h3><button onclick="window.closeUdharModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div class="bg-orange-50 p-1 rounded-xl flex font-bold text-xs mb-4"><button onclick="window.setLoanType('given')" id="btn-loan-given" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-orange-600 transition-all">Maine Diye (Given)</button><button onclick="window.setLoanType('taken')" id="btn-loan-taken" class="flex-1 py-3 rounded-lg text-slate-400 transition-all">Maine Liye (Taken)</button></div><input type="hidden" id="loan-type" value="given"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="udhar-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-orange-500"></div><button onclick="window.pickContact()" class="w-full py-3 bg-orange-50 border border-dashed border-orange-200 rounded-xl text-orange-600 font-bold text-xs flex items-center justify-center gap-2 hover:bg-orange-100"><i class="fas fa-address-book text-lg"></i> Select from Contacts</button><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Person Name</label><input type="text" id="udhar-person" list="udhar-names-list" placeholder="Enter Name" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"><datalist id="udhar-names-list"></datalist></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Mobile (WA)</label><input type="tel" id="udhar-phone" placeholder="91..." class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"></div><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">From Wallet</label><select id="udhar-source" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Date</label><input type="date" id="udhar-date" onchange="window.highlightDate(this)" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div><div><label class="block text-[10px] font-bold text-orange-700 uppercase mb-1 ml-1">Due Date</label><input type="date" id="udhar-return-date" class="w-full p-3 bg-white border border-orange-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div></div><button onclick="window.saveUdharTransaction()" class="w-full bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-orange-700 active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-save"></i> <span id="save-udhar-btn-text">Save Loan Record</span></button></div></div></div>
+    <div id="cat-budget-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-2"><h3 class="font-bold text-lg text-slate-800" id="cat-budget-title">Add Budget Limit</h3><button onclick="document.getElementById('cat-budget-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Select Category</label><select id="budget-cat-select" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold outline-none"></select></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Monthly Limit (Rs.)</label><input type="number" id="budget-cat-limit" placeholder="e.g. 5000" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-800 outline-none focus:border-teal-500"></div><button onclick="window.saveCategoryLimit()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-xs font-bold mt-2">Save Limit</button></div></div></div>
+    <div id="summary-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2"><h3 class="font-bold text-lg text-slate-800" id="summary-title">Summary</h3><button onclick="document.getElementById('summary-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div id="summary-content" class="space-y-3 max-h-96 overflow-y-auto no-scrollbar"></div></div></div>
+    <div id="wusool-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-2"><h3 class="font-bold text-lg text-slate-800" id="wusool-modal-title">Receive Money</h3><button onclick="document.getElementById('wusool-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><p class="text-xs text-slate-500 mb-2 font-bold" id="wusool-msg">Settling...</p><input type="hidden" id="wusool-person-name"><label class="block text-[10px] font-bold text-emerald-600 uppercase mb-2 ml-1">Received Amount</label><div class="flex gap-2 mb-3"><input type="number" id="wusool-amount" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-lg font-bold text-slate-800 focus:outline-none focus:border-teal-500"><button onclick="window.settleFull()" class="bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap active:scale-95">Full Settle</button></div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">Deposit To</label><select id="wusool-account" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold mb-4"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select><div class="flex gap-2"><button onclick="document.getElementById('wusool-modal').classList.add('hidden')" class="flex-1 py-2 text-slate-500 font-bold text-xs bg-slate-100 rounded-lg">Cancel</button><button onclick="window.confirmWusool()" class="flex-1 py-2 text-white font-bold text-xs bg-emerald-600 rounded-lg">Confirm</button></div></div></div>
+    <div id="person-history-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[85vh]"><div class="flex justify-between items-center p-4 pb-2 border-b border-slate-50 shrink-0"><div><h3 class="font-bold text-lg text-slate-800" id="ph-name">Name</h3><p class="text-[10px] text-slate-400">Transaction History</p></div><button onclick="document.getElementById('person-history-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="bg-slate-50 p-4 text-center border-b border-slate-100"><h2 id="ph-balance" class="text-3xl font-bold text-slate-800 mb-1">₹0</h2><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Current Balance</p></div><div class="grid grid-cols-3 gap-2 p-4 pb-0"><button id="btn-give-more" class="bg-rose-50 hover:bg-rose-100 border border-rose-100 text-rose-700 p-3 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition-transform"><i class="fas fa-minus-circle text-lg"></i> <span class="text-xs font-bold">Give</span></button><button id="btn-receive-money" class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-emerald-700 p-3 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition-transform"><i class="fas fa-plus-circle text-lg"></i> <span class="text-xs font-bold" id="btn-receive-text">Receive</span></button><button id="btn-settle-all" class="bg-blue-50 hover:bg-blue-100 border border-blue-100 text-blue-700 p-3 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition-transform"><i class="fas fa-check-circle text-lg"></i> <span class="text-xs font-bold">Settle</span></button></div><div class="px-4 pt-2"><button id="btn-whatsapp" class="w-full py-2.5 bg-green-50 text-green-700 border border-green-100 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 hover:bg-green-100 transition-colors"><i class="fab fa-whatsapp text-lg"></i> Send Reminder / Statement</button></div><div class="p-4 pt-4 overflow-y-auto space-y-4 flex-1" id="ph-content"></div></div></div>
+    <div id="contacts-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2"><h3 class="font-bold text-slate-800">Select Contact</h3><button onclick="document.getElementById('contacts-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button></div><div id="contacts-list-content" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar"></div></div></div>
 
     <script>
-        // --- DATA & CONFIG ---
+        // --- 1. STATE & CONFIG ---
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let categoryLimits = JSON.parse(localStorage.getItem('categoryLimits')) || {};
         let chartInstance = null;
         let editingTransactionId = null;
         let lastOpenedPerson = null;
         let currentView = 'home';
         let filterState = { type: 'month', month: new Date().toISOString().slice(0,7), year: new Date().getFullYear(), start: '', end: '', txType: 'all' };
+        let homeFilterState = { period: 'month' }; 
 
         const catConfig = {
-            "Food": { icon: "fa-utensils", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50" },
-            "Rent": { icon: "fa-home", color: "bg-blue-500", text: "text-blue-500", bgLight: "bg-blue-50" },
-            "Bills": { icon: "fa-file-invoice-dollar", color: "bg-red-500", text: "text-red-500", bgLight: "bg-red-50" },
-            "Transport": { icon: "fa-bus", color: "bg-yellow-500", text: "text-yellow-500", bgLight: "bg-yellow-50" },
-            "Shopping": { icon: "fa-shopping-bag", color: "bg-purple-500", text: "text-purple-500", bgLight: "bg-purple-50" },
-            "Medical": { icon: "fa-briefcase-medical", color: "bg-green-500", text: "text-green-500", bgLight: "bg-green-50" },
-            "Education": { icon: "fa-graduation-cap", color: "bg-indigo-500", text: "text-indigo-500", bgLight: "bg-indigo-50" },
-            "Charity": { icon: "fa-hand-holding-heart", color: "bg-pink-500", text: "text-pink-500", bgLight: "bg-pink-50" },
-            "Other": { icon: "fa-shapes", color: "bg-slate-500", text: "text-slate-500", bgLight: "bg-slate-50" },
+            "Food & Groceries": { icon: "fa-utensils", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50", type: "needs" },
+            "Utilities": { icon: "fa-lightbulb", color: "bg-yellow-500", text: "text-yellow-600", bgLight: "bg-yellow-50", type: "needs" },
+            "Mobile & Recharge": { icon: "fa-mobile-alt", color: "bg-blue-400", text: "text-blue-500", bgLight: "bg-blue-50", type: "needs" },
+            "Transportation": { icon: "fa-bus", color: "bg-indigo-500", text: "text-indigo-500", bgLight: "bg-indigo-50", type: "needs" },
+            "Medical & Health": { icon: "fa-briefcase-medical", color: "bg-green-500", text: "text-green-500", bgLight: "bg-green-50", type: "needs" },
+            "Personal Care": { icon: "fa-pump-soap", color: "bg-teal-500", text: "text-teal-500", bgLight: "bg-teal-50", type: "needs" },
+            "Family Shopping": { icon: "fa-shopping-bag", color: "bg-purple-500", text: "text-purple-500", bgLight: "bg-purple-50", type: "wants" },
+            "Eating Out": { icon: "fa-hamburger", color: "bg-rose-500", text: "text-rose-500", bgLight: "bg-rose-50", type: "wants" },
+            "EMI / Loan": { icon: "fa-percentage", color: "bg-slate-600", text: "text-slate-600", bgLight: "bg-slate-100", type: "needs" },
+            "Family Support": { icon: "fa-hands-helping", color: "bg-pink-500", text: "text-pink-500", bgLight: "bg-pink-50", type: "needs" },
+            "Donations & Charity": { icon: "fa-hand-holding-heart", color: "bg-red-400", text: "text-red-500", bgLight: "bg-red-50", type: "wants" },
+            "Savings & Investment": { icon: "fa-piggy-bank", color: "bg-emerald-600", text: "text-emerald-700", bgLight: "bg-emerald-50", type: "savings" },
+            "Repair & Maintenance": { icon: "fa-tools", color: "bg-gray-500", text: "text-gray-500", bgLight: "bg-gray-100", type: "needs" },
+            "Travel & Tour": { icon: "fa-plane", color: "bg-sky-500", text: "text-sky-500", bgLight: "bg-sky-50", type: "wants" },
+            "Unexpected / Emergency": { icon: "fa-exclamation-triangle", color: "bg-red-600", text: "text-red-600", bgLight: "bg-red-50", type: "savings" },
             "Salary": { icon: "fa-money-bill", color: "bg-emerald-500", text: "text-emerald-500", bgLight: "bg-emerald-50" },
             "Business": { icon: "fa-briefcase", color: "bg-blue-600", text: "text-blue-600", bgLight: "bg-blue-50" },
             "Gift": { icon: "fa-gift", color: "bg-pink-500", text: "text-pink-500", bgLight: "bg-pink-50" },
             "Bonus": { icon: "fa-star", color: "bg-yellow-500", text: "text-yellow-500", bgLight: "bg-yellow-50" },
-            "Loan Taken": { icon: "fa-hand-holding-usd", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50" }
+            "Loan Taken": { icon: "fa-hand-holding-usd", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50" },
+            "Other": { icon: "fa-shapes", color: "bg-slate-500", text: "text-slate-500", bgLight: "bg-slate-50" }
         };
-        const expenseCats = Object.keys(catConfig).filter(k => !["Salary","Business","Gift","Bonus","Loan Taken"].includes(k));
+
+        const expenseCats = Object.keys(catConfig).filter(k => catConfig[k].type);
         const incomeCats = ["Salary", "Business", "Gift", "Bonus", "Loan Taken", "Other"];
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            setupDates();
-            initFilterUI();
-            recalculateRepayments();
-            switchView('home');
-            updateUI();
-        });
+        // --- 2. GLOBAL UTILITIES ---
+        window.saveData = function() { localStorage.setItem('transactions', JSON.stringify(transactions)); window.updateUI(); }
+        
+        window.getLocalDate = function() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
-        // --- FILTERS & SETUP ---
-        function setupDates() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('tx-date').value = today;
-            document.getElementById('udhar-date').value = today;
+        window.setupDates = function() {
+            const today = window.getLocalDate();
+            const txDate = document.getElementById('tx-date');
+            const udharDate = document.getElementById('udhar-date');
+            if(txDate) { txDate.value = today; window.highlightDate(txDate); }
+            if(udharDate) { udharDate.value = today; window.highlightDate(udharDate); }
             const yrSelect = document.getElementById('filter-year-input');
             const currentYear = new Date().getFullYear();
-            for(let i=0; i<5; i++) { const opt = document.createElement('option'); opt.value = currentYear - i; opt.text = currentYear - i; yrSelect.appendChild(opt); }
+            if(yrSelect) {
+                yrSelect.innerHTML = '';
+                for(let i=0; i<5; i++) { 
+                    const opt = document.createElement('option'); 
+                    opt.value = currentYear - i; 
+                    opt.text = currentYear - i; 
+                    yrSelect.appendChild(opt); 
+                }
+            }
+        }
+        
+        window.setToday = function(inputId) { const today = window.getLocalDate(); const el = document.getElementById(inputId); if(el) { el.value = today; window.highlightDate(el); } }
+        
+        window.highlightDate = function(el) { 
+            if(!el) return; 
+            const today = window.getLocalDate();
+            const isUdhar = el.id.includes('udhar'); 
+            const activeColor = isUdhar?'border-orange-500':'border-teal-500'; 
+            const activeBg = isUdhar?'bg-orange-50':'bg-teal-50'; 
+            const baseBorder = isUdhar?'border-orange-200':'border-slate-200'; 
+            const baseBg = isUdhar?'bg-white':'bg-slate-50'; 
+            if(el.value === today) { el.classList.add(activeColor, activeBg); el.classList.remove(baseBorder, baseBg); } 
+            else { el.classList.remove(activeColor, activeBg); el.classList.add(baseBorder, baseBg); } 
         }
 
-        function initFilterUI() {
-            document.getElementById('filter-month-input').value = filterState.month;
-            document.getElementById('filter-year-input').value = filterState.year;
-            document.getElementById('filter-type').addEventListener('change', (e) => {
-                const type = e.target.value; filterState.type = type;
-                document.getElementById('filter-month-input').classList.toggle('hidden', type !== 'month');
-                document.getElementById('filter-year-input').classList.toggle('hidden', type !== 'year');
-                document.getElementById('custom-date-range').classList.toggle('hidden', type !== 'custom');
-                renderFullList();
-            });
-            document.getElementById('filter-month-input').addEventListener('change', (e) => { filterState.month = e.target.value; renderFullList(); });
-            document.getElementById('filter-year-input').addEventListener('change', (e) => { filterState.year = e.target.value; renderFullList(); });
-            document.getElementById('filter-start-date').addEventListener('change', (e) => { filterState.start = e.target.value; renderFullList(); });
-            document.getElementById('filter-end-date').addEventListener('change', (e) => { filterState.end = e.target.value; renderFullList(); });
-        }
-
-        function setTxFilter(type) {
-            filterState.txType = type;
-            document.getElementById('filter-btn-all').className = `flex-1 py-2 text-[10px] font-bold ${type === 'all' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`;
-            document.getElementById('filter-btn-credit').className = `flex-1 py-2 text-[10px] font-bold ${type === 'credit' ? 'bg-emerald-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`;
-            document.getElementById('filter-btn-debit').className = `flex-1 py-2 text-[10px] font-bold ${type === 'debit' ? 'bg-rose-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`;
-            renderFullList();
-        }
-
-        function getFilteredTransactions() {
+        window.populateBudgetCatSelect = function() { const sel = document.getElementById('budget-cat-select'); if(!sel) return; sel.innerHTML = ''; expenseCats.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.innerText = cat; sel.appendChild(opt); }); }
+        window.populateCats = function(cats) { const sel = document.getElementById('tx-category'); if(!sel) return; sel.innerHTML = ''; cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); }); }
+        window.calculateBalance = function(person) { let bal = 0; transactions.forEach(t => { if(t.person !== person) return; if(t.type === 'udhar') { if(t.loanType === 'taken') bal -= t.amount; else bal += t.amount; } else if (t.isWusool) { if(t.type === 'income') bal -= t.amount; else if(t.type === 'expense') bal += t.amount; } }); return bal; }
+        
+        window.getFilteredTransactions = function() {
             return transactions.filter(t => {
-                let dateMatch = true;
-                if (filterState.type === 'month') dateMatch = t.date.startsWith(filterState.month);
-                else if (filterState.type === 'year') dateMatch = new Date(t.date).getFullYear() == filterState.year;
-                else if (filterState.type === 'custom' && filterState.start && filterState.end) dateMatch = t.date >= filterState.start && t.date <= filterState.end;
-                
-                if (!dateMatch) return false;
-
-                // Credit = Income, Recovery, Loan Taken. Debit = Expense, Udhar Given.
-                // Simplified: Credit = Money In, Debit = Money Out.
-                // Transfer is neutral but shows as line item.
-                if (filterState.txType === 'credit') {
-                    return t.type === 'income' || (t.type === 'transfer' && false); // Transfers are tricky, hide for now in strict filter
-                }
-                if (filterState.txType === 'debit') {
-                    return t.type === 'expense' || t.type === 'udhar';
-                }
+                if(filterState.txType === 'expense' && t.type !== 'expense') return false;
+                if(filterState.txType === 'income' && t.type !== 'income') return false;
+                if(filterState.type === 'month') return t.date.startsWith(filterState.month);
+                if(filterState.type === 'year') return t.date.startsWith(filterState.year.toString());
                 return true;
             });
         }
 
-        // ... [Standard App Logic] ...
-        function saveData() { localStorage.setItem('transactions', JSON.stringify(transactions)); updateUI(); }
-        
-        function switchView(view) {
+        window.initFilterUI = function() {
+            const mInput = document.getElementById('filter-month-input');
+            const yInput = document.getElementById('filter-year-input');
+            const typeInput = document.getElementById('filter-type');
+            if(mInput) mInput.value = filterState.month;
+            if(yInput) yInput.value = filterState.year;
+            if(typeInput) {
+                typeInput.addEventListener('change', (e) => {
+                    const type = e.target.value; filterState.type = type;
+                    if(document.getElementById('filter-month-input')) document.getElementById('filter-month-input').classList.toggle('hidden', type !== 'month');
+                    if(document.getElementById('filter-year-input')) document.getElementById('filter-year-input').classList.toggle('hidden', type !== 'year');
+                    if(document.getElementById('custom-date-range')) document.getElementById('custom-date-range').classList.toggle('hidden', type !== 'custom');
+                    window.renderFullList();
+                });
+            }
+            if(mInput) mInput.addEventListener('change', (e) => { filterState.month = e.target.value; window.renderFullList(); });
+            if(yInput) yInput.addEventListener('change', (e) => { filterState.year = e.target.value; window.renderFullList(); });
+            const sDate = document.getElementById('filter-start-date');
+            const eDate = document.getElementById('filter-end-date');
+            if(sDate) sDate.addEventListener('change', (e) => { filterState.start = e.target.value; window.renderFullList(); });
+            if(eDate) eDate.addEventListener('change', (e) => { filterState.end = e.target.value; window.renderFullList(); });
+        }
+
+        window.setHistoryFilter = function(type) {
+            filterState.txType = type;
+            const btnAll = document.getElementById('hf-all');
+            const btnExp = document.getElementById('hf-expense');
+            const btnInc = document.getElementById('hf-income');
+            if(btnAll) btnAll.className = `flex-1 py-2 rounded-lg transition-all ${type === 'all' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`;
+            if(btnExp) btnExp.className = `flex-1 py-2 rounded-lg transition-all ${type === 'expense' ? 'bg-white shadow-sm text-rose-600' : 'text-slate-500 hover:text-rose-600'}`;
+            if(btnInc) btnInc.className = `flex-1 py-2 rounded-lg transition-all ${type === 'income' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-emerald-600'}`;
+            window.renderFullList();
+        }
+
+        // --- 3. CORE LOGIC (UI UPDATES) ---
+        window.switchView = function(view) {
             ['home', 'report', 'udhar', 'settings', 'budget'].forEach(v => {
                 document.getElementById('view-'+v).classList.add('hidden');
                 document.getElementById('nav-'+v).classList.remove('active', 'text-teal-600');
@@ -474,258 +357,718 @@
             nav.classList.add('active', 'text-teal-600');
             nav.classList.remove('text-slate-300');
             currentView = view;
-            if(view === 'home') updateChart();
-            if(view === 'report') renderFullList();
-            if(view === 'udhar') renderCustomerList();
-            if(view === 'budget') renderBudget();
+            if(view === 'home') window.updateChart();
+            if(view === 'report') window.renderFullList();
+            if(view === 'udhar') window.renderCustomerList();
+            if(view === 'budget') window.calculateBudget();
         }
 
-        function setTxType(type) { 
-            document.getElementById('tx-type').value = type; 
-            const btns = { expense: document.getElementById('btn-expense'), income: document.getElementById('btn-income'), transfer: document.getElementById('btn-transfer') }; 
-            Object.values(btns).forEach(b => { b.className = 'flex-1 py-3 rounded-lg text-slate-400 transition-all hover:text-slate-600'; }); 
-            const activeClass = "flex-1 py-3 rounded-lg font-bold transition-all shadow-sm bg-white"; 
-            
-            const stdFields = document.getElementById('standard-fields');
-            const trfFields = document.getElementById('transfer-fields');
-
-            if(type === 'expense') { 
-                btns.expense.className = `${activeClass} text-rose-600`; 
-                populateCats(expenseCats); 
-                stdFields.classList.remove('hidden');
-                trfFields.classList.add('hidden');
-            } else if(type === 'income') { 
-                btns.income.className = `${activeClass} text-emerald-600`; 
-                populateCats(incomeCats); 
-                stdFields.classList.remove('hidden');
-                trfFields.classList.add('hidden');
-            } else {
-                btns.transfer.className = `${activeClass} text-blue-600`;
-                stdFields.classList.add('hidden');
-                trfFields.classList.remove('hidden');
-            }
-        }
-        function populateCats(cats) { const sel = document.getElementById('tx-category'); sel.innerHTML = ''; cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); }); }
-
-        // --- BUDGET LOGIC ---
-        function renderBudget() {
-            const container = document.getElementById('budget-content');
-            const currentMonth = new Date().toISOString().slice(0,7);
-            const monthName = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-            
-            // 1. Calculate Salary Income for Month
-            const salaryIncome = transactions
-                .filter(t => t.type === 'income' && t.date.startsWith(currentMonth) && t.desc === 'Salary')
-                .reduce((s, t) => s + t.amount, 0);
-
-            if(salaryIncome === 0) {
-                container.innerHTML = `<div class="text-center py-10"><div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400"><i class="fas fa-money-bill-wave text-2xl"></i></div><h3 class="font-bold text-slate-700">No Salary Found</h3><p class="text-xs text-slate-400 mt-2">Add an Income entry with category "Salary" for ${monthName} to generate your 50/30/20 budget.</p></div>`;
-                return;
-            }
-
-            // 2. Define Buckets
-            const buckets = {
-                needs: { limit: salaryIncome * 0.5, spent: 0, color: 'bg-blue-500', cats: ['Food', 'Rent', 'Bills', 'Medical', 'Education'] },
-                wants: { limit: salaryIncome * 0.3, spent: 0, color: 'bg-purple-500', cats: ['Shopping', 'Transport', 'Other', 'Gift'] },
-                savings: { limit: salaryIncome * 0.2, spent: 0, color: 'bg-emerald-500', cats: ['Charity', 'Loan Taken'] } // Treating Loan repayment/Charity as savings/debt service
-            };
-
-            // 3. Calculate Spend
-            transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth)).forEach(t => {
-                if(buckets.needs.cats.includes(t.desc)) buckets.needs.spent += t.amount;
-                else if(buckets.wants.cats.includes(t.desc)) buckets.wants.spent += t.amount;
-                else buckets.savings.spent += t.amount; // Catch all others as savings/debt
+        window.updateUI = function() {
+            let cash = 0, bank = 0, udhar = 0;
+            transactions.forEach(t => {
+                if(t.type === 'income') t.account === 'Cash' ? cash += t.amount : bank += t.amount;
+                else if(t.type === 'expense') t.account === 'Cash' ? cash -= t.amount : bank -= t.amount;
+                else if(t.type === 'transfer') {
+                     if(t.desc === 'Cash' && t.account === 'Bank') { bank -= t.amount; cash += t.amount; } 
+                     else if(t.desc === 'Bank' && t.account === 'Cash') { cash -= t.amount; bank += t.amount; }
+                }
+                else if(t.type === 'udhar') {
+                    if (t.loanType === 'taken') t.account === 'Cash' ? cash += t.amount : bank += t.amount;
+                    else { 
+                        if (t.status !== 'settled') udhar += t.amount; 
+                        t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; 
+                    }
+                }
             });
 
-            // 4. Render
-            let html = `<div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Salary</p><h2 class="text-2xl font-bold text-slate-800">${formatter.format(salaryIncome)}</h2><p class="text-[10px] text-teal-600 font-bold mt-1">${monthName}</p></div>`;
+            let flowIncome = 0, flowExpense = 0, openingBalance = 0;
+            const today = window.getLocalDate();
+            const currentMonth = today.slice(0, 7);
+            const currentYear = new Date().getFullYear().toString();
+            let start = "";
+            if (homeFilterState.period === 'day') start = today;
+            if (homeFilterState.period === 'month') start = currentMonth + "-01";
+            if (homeFilterState.period === 'year') start = currentYear + "-01-01";
 
-            const renderBucket = (title, key, label) => {
-                const b = buckets[key];
-                const pct = Math.min((b.spent / b.limit) * 100, 100);
-                const remaining = b.limit - b.spent;
-                const isOver = remaining < 0;
-                
-                return `
-                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                    <div class="flex justify-between items-end mb-2">
-                        <div>
-                            <h4 class="font-bold text-slate-700 text-sm">${title} <span class="text-[10px] text-slate-400 font-normal">(${label})</span></h4>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Limit: ${formatter.format(b.limit)}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="block font-bold text-sm ${isOver ? 'text-rose-600' : 'text-slate-800'}">${formatter.format(b.spent)}</span>
-                            <span class="text-[9px] font-bold ${isOver ? 'text-rose-500' : 'text-slate-400'}">${isOver ? 'Over Limit!' : 'Spent'}</span>
-                        </div>
-                    </div>
-                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-2">
-                        <div class="h-full ${isOver ? 'bg-rose-500' : b.color} progress-bar" style="width: ${pct}%"></div>
-                    </div>
-                    <div class="flex justify-between text-[10px] font-bold">
-                        <span class="text-slate-400">Remaining</span>
-                        <span class="${remaining < 0 ? 'text-rose-600' : 'text-emerald-600'}">${formatter.format(remaining)}</span>
-                    </div>
-                </div>`;
+            transactions.forEach(t => {
+                const isBefore = t.date < start;
+                const isInPeriod = (homeFilterState.period === 'day' && t.date === today) || 
+                                   (homeFilterState.period === 'month' && t.date.startsWith(currentMonth)) || 
+                                   (homeFilterState.period === 'year' && t.date.startsWith(currentYear));
+
+                if (isBefore) {
+                     if (t.type === 'income') openingBalance += t.amount;
+                     if (t.type === 'expense') openingBalance -= t.amount;
+                     if (t.type === 'udhar') { if (t.loanType === 'taken') openingBalance += t.amount; else openingBalance -= t.amount; }
+                }
+
+                if (isInPeriod) {
+                    if (t.type === 'income' && !t.isWusool) flowIncome += t.amount;
+                    if (t.type === 'expense') flowExpense += t.amount;
+                }
+            });
+
+            const net = flowIncome - flowExpense;
+            const tbEl = document.getElementById('total-balance');
+            if(tbEl) {
+                tbEl.innerText = formatter.format(net);
+                tbEl.className = net >= 0 ? "text-xl font-bold text-emerald-600" : "text-xl font-bold text-rose-600";
+            }
+            if(document.getElementById('cash-balance')) document.getElementById('cash-balance').innerText = formatter.format(cash);
+            if(document.getElementById('bank-balance')) document.getElementById('bank-balance').innerText = formatter.format(bank);
+            if(document.getElementById('udhar-balance')) document.getElementById('udhar-balance').innerText = formatter.format(udhar);
+            
+            if(document.getElementById('total-income')) document.getElementById('total-income').innerText = formatter.format(flowIncome);
+            if(document.getElementById('total-expense')) document.getElementById('total-expense').innerText = formatter.format(flowExpense);
+            
+            const obContainer = document.getElementById('opening-balance-container');
+            if(obContainer) {
+                if(homeFilterState.period === 'month') {
+                    obContainer.classList.remove('hidden');
+                    document.getElementById('opening-balance-val').innerText = formatter.format(openingBalance);
+                } else {
+                    obContainer.classList.add('hidden');
+                }
+            }
+            if(currentView === 'home') window.updateChart();
+        }
+
+        window.setHomeFilter = function(period) {
+            homeFilterState.period = period;
+            ['day', 'month', 'year'].forEach(p => {
+                const btn = document.getElementById(`hf-${p}`);
+                if(btn) btn.className = p === period ? "flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white shadow-sm text-teal-700" : "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500";
+            });
+            const map = { 'day': 'Today', 'month': 'Mo', 'year': 'Yr' };
+            if(document.getElementById('lbl-income')) document.getElementById('lbl-income').innerText = `Income (${map[period]})`;
+            if(document.getElementById('lbl-expense')) document.getElementById('lbl-expense').innerText = `Expense (${map[period]})`;
+            if(document.getElementById('analysis-period-lbl')) document.getElementById('analysis-period-lbl').innerText = period === 'day' ? '(Today)' : (period === 'month' ? '(This Month)' : '(This Year)');
+            const balMap = { 'day': 'Net (Today)', 'month': 'Net (Month)', 'year': 'Net (Year)' };
+            if(document.getElementById('net-balance-label')) document.getElementById('net-balance-label').innerText = balMap[period];
+            window.updateUI();
+        }
+
+        // --- 4. FEATURE: BUDGET ---
+        window.calculateBudget = function() {
+            const currentMonth = new Date().toISOString().slice(0,7);
+            const salary = transactions.filter(t => t.type === 'income' && t.desc === 'Salary' && t.date.startsWith(currentMonth)).reduce((sum, t) => sum + t.amount, 0);
+            
+            const disp = document.getElementById('budget-salary-display');
+            if(disp) disp.innerText = formatter.format(salary);
+            
+            const sectionTotals = { needs: 0, wants: 0, savings: 0 };
+            const catTotals = {};
+
+            transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth)).forEach(t => {
+                const conf = catConfig[t.desc];
+                if(conf && conf.type) {
+                    sectionTotals[conf.type] += t.amount;
+                    if(!catTotals[t.desc]) catTotals[t.desc] = 0;
+                    catTotals[t.desc] += t.amount;
+                }
+            });
+
+            // 50/30/20 Rule
+            const limits = {
+                needs: salary * 0.50,
+                wants: salary * 0.30,
+                savings: salary * 0.20
             };
 
-            html += renderBucket("Needs", "needs", "50%");
-            html += renderBucket("Wants", "wants", "30%");
-            html += renderBucket("Savings & Debt", "savings", "20%");
-            
-            container.innerHTML = html;
-        }
-        
-        // --- TRANSACTIONS ---
-        function saveTransaction() {
-            const type = document.getElementById('tx-type').value;
-            const amount = parseFloat(document.getElementById('tx-amount').value);
-            const date = document.getElementById('tx-date').value;
-            const note = document.getElementById('tx-note').value;
-            let cat = '', acc = '', dest = '';
+            ['needs', 'wants', 'savings'].forEach(type => {
+                const spent = sectionTotals[type];
+                const limit = limits[type];
+                const bar = document.getElementById(`bar-${type}`);
+                const valEl = document.getElementById(`budget-${type}-val`);
+                const limEl = document.getElementById(`budget-${type}-limit`);
+                const remEl = document.getElementById(`budget-${type}-rem`);
+                const listEl = document.getElementById(`list-${type}`);
+                const alertEl = document.getElementById(`alert-${type}`);
 
-            if(!amount || amount <= 0) return alert("Enter valid amount");
+                if(valEl) valEl.innerText = formatter.format(spent);
+                
+                if(limEl) {
+                    if (type === 'savings') {
+                         limEl.innerText = `Target: ${formatter.format(limit)}`;
+                    } else {
+                         limEl.innerText = `Limit: ${formatter.format(limit)}`;
+                    }
+                }
+                
+                if(remEl) {
+                     const remaining = limit - spent;
+                     if (type === 'savings') {
+                         remEl.innerText = `Baqi: ${formatter.format(remaining)}`; 
+                         remEl.className = "text-[10px] font-bold text-slate-400";
+                     } else {
+                         if (remaining >= 0) {
+                             remEl.innerText = `Baqi: ${formatter.format(remaining)}`;
+                             remEl.className = "text-[10px] font-bold text-emerald-600";
+                         } else {
+                             remEl.innerText = `Extra: ${formatter.format(Math.abs(remaining))}`;
+                             remEl.className = "text-[10px] font-bold text-rose-500";
+                         }
+                     }
+                }
 
-            if (type === 'transfer') {
-                const src = document.getElementById('tx-from').value;
-                const to = document.getElementById('tx-to').value;
-                if(src === to) return alert("From and To accounts cannot be same.");
-                acc = src; dest = to; cat = 'Transfer';
-            } else {
-                cat = document.getElementById('tx-category').value;
-                acc = document.getElementById('tx-account').value;
-            }
+                if(bar) {
+                    let pct = limit > 0 ? (spent/limit)*100 : 0;
+                    if(pct > 100) pct = 100;
+                    bar.style.width = `${pct}%`;
+                    if(type !== 'savings' && limit > 0 && spent > limit) {
+                        bar.classList.add('bg-rose-500');
+                        if(alertEl) alertEl.classList.remove('hidden');
+                    } else {
+                        bar.classList.remove('bg-rose-500');
+                        if(alertEl) alertEl.classList.add('hidden');
+                    }
+                }
 
-            if (editingTransactionId) {
-                const idx = transactions.findIndex(t => t.id === editingTransactionId);
-                if (idx !== -1) {
-                    transactions[idx] = { ...transactions[idx], amount, date, note, type, desc: cat, account: acc, destination: dest };
-                    saveData(); closeEntryModal(); return;
+                if(listEl) {
+                    listEl.innerHTML = '';
+                    Object.keys(catTotals).filter(c => catConfig[c].type === type).forEach(c => {
+                         listEl.innerHTML += `<div class="flex justify-between text-xs text-slate-600 mt-1"><span>${c}</span><span>${formatter.format(catTotals[c])}</span></div>`;
+                    });
+                }
+            });
+
+            // Custom Budgets
+            const customList = document.getElementById('custom-budgets-list');
+            if(customList) {
+                customList.innerHTML = '';
+                for(const [cat, limit] of Object.entries(categoryLimits)) {
+                    const spent = transactions.filter(t => t.type === 'expense' && t.desc === cat && t.date.startsWith(currentMonth)).reduce((sum,t)=>sum+t.amount,0);
+                    const rem = limit - spent;
+                    let pct = limit > 0 ? (spent/limit)*100 : 0; if(pct>100) pct=100;
+                    let status = rem >= 0 ? `<span class="text-emerald-600">Baqi: ${formatter.format(rem)}</span>` : `<span class="text-rose-500">Extra: ${formatter.format(Math.abs(rem))}</span>`;
+                    
+                    customList.innerHTML += `
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm relative">
+                        <button onclick="window.removeCategoryLimit('${cat}')" class="absolute top-2 right-2 text-slate-300"><i class="fas fa-times"></i></button>
+                        <div class="flex justify-between items-center mb-1"><span class="font-bold text-xs">${cat}</span><span class="font-bold text-xs">${formatter.format(spent)} / ${formatter.format(limit)}</span></div>
+                        <div class="w-full h-1.5 bg-slate-100 rounded-full"><div class="h-full ${rem<0?'bg-rose-500':'bg-teal-500'}" style="width:${pct}%"></div></div>
+                        <p class="text-[9px] text-right mt-1 font-bold">${status}</p>
+                    </div>`;
                 }
             }
-            transactions.push({ id: Date.now(), date, amount, type, note, desc: cat, account: acc, destination: dest });
-            saveData(); closeEntryModal();
         }
 
-        // --- UDHAR TRANSACTIONS (Updated with New Templates) ---
-        function saveUdharTransaction() {
-            const amount = parseFloat(document.getElementById('udhar-amount').value);
-            const person = document.getElementById('udhar-person').value;
+        // --- 5. FEATURE: UDHAR & WUSOOL ---
+        
+        window.saveUdharTransaction = function() {
+            const amt = parseFloat(document.getElementById('udhar-amount').value);
+            const name = document.getElementById('udhar-person').value;
             const phone = document.getElementById('udhar-phone').value;
-            const source = document.getElementById('udhar-source').value;
+            const acc = document.getElementById('udhar-source').value;
             const date = document.getElementById('udhar-date').value;
             const rDate = document.getElementById('udhar-return-date').value;
+            const type = document.getElementById('loan-type').value; 
 
-            if(!amount || amount <= 0) return alert("Enter valid amount");
-            if(!person) return alert("Person name required");
-
-            // Calculate Old Balance for Message Logic (Before adding new)
-            recalculateRepayments();
-            const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === person);
-            const totalPendingOld = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0);
-
-            if (editingTransactionId) {
-                const idx = transactions.findIndex(t => t.id === editingTransactionId);
-                if (idx !== -1) {
-                      transactions[idx] = { ...transactions[idx], amount, person, phone, account: source, date, returnDate: rDate, desc: `Loan to ${person}` };
-                      saveData(); closeUdharModal();
-                      if(lastOpenedPerson) openPersonDetails(lastOpenedPerson);
-                      renderCustomerList(); return;
+            if(!amt || !name) return alert("Amount and Name required");
+            
+            // Logic for Messages
+            const oldBal = window.calculateBalance(name);
+            const amtFmt = formatter.format(amt).replace('₹','').trim();
+            const totFmt = formatter.format(Math.abs(oldBal) + amt).replace('₹','').trim();
+            const oldFmt = formatter.format(Math.abs(oldBal)).replace('₹','').trim();
+            
+            let msg = "";
+            if (type === 'taken') {
+                if (oldBal < 0) { // Scenario 2
+                     msg = `${name}, Pehle se ₹${oldFmt} udhaar the. Aaj ₹${amtFmt} aur udhaar liye gaye hain. Ab total udhaar ₹${totFmt} ho gaya hai. Jald hi wapas kar diya jayega. Thank you.`;
+                } else { // Scenario 1
+                    msg = `${name}, Aaj aap se ₹${amtFmt} udhaar liye gaye hain. Jald hi wapas karne ki koshish ki jayegi. Thank you.`;
+                }
+            } else { // given
+                if (oldBal > 0) { // Scenario 4
+                    msg = `${name}, Aapne pehle se ₹${oldFmt} liye hue the. Aaj ₹${amtFmt} aur udhaar liye hain. Ab total udhaar ₹${totFmt} ho gaye hain. Jald hi wapas karne ki koshish karein. Thank you.`;
+                } else { // Scenario 3
+                    msg = `${name}, Aapne ₹${amtFmt} udhaar liye hain. Please ${rDate?rDate:'jald'} tak wapas karne ki koshish karein. Thank you.`;
                 }
             }
 
-            const entry = { id: Date.now(), date, amount, type: 'udhar', note: '', desc: `Loan to ${person}`, person, phone, account: source, returnDate: rDate, isUdhar: true, status: 'active', repaid: 0 };
+            const entry = {
+                id: Date.now(),
+                date: date,
+                amount: amt,
+                type: 'udhar',
+                loanType: type,
+                person: name,
+                phone: phone,
+                account: acc,
+                returnDate: rDate,
+                desc: type === 'taken' ? `Loan taken from ${name}` : `Loan to ${name}`,
+                status: 'active'
+            };
+            
             transactions.push(entry);
-            saveData();
-            closeUdharModal();
-            if(lastOpenedPerson === person) openPersonDetails(person);
-            renderCustomerList();
-
+            window.saveData();
+            window.closeUdharModal();
+            window.renderCustomerList();
+            
+            // Clear inputs
+            document.getElementById('udhar-amount').value = '';
+            
             if(phone) {
                 const cleanPhone = phone.replace(/\D/g, '');
-                const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
-                const amtFmt = formatter.format(amount).replace('₹', '').trim();
-                let msg = "";
-
-                if(totalPendingOld <= 0) {
-                     // Template 3: Udhaar Diya Gaya
-                     msg = `${person},%0AAapne ₹${amtFmt} udhaar liye hain.%0APlease ${rDate || 'jald'} tak wapas karne ki koshish karein.%0AThank you.`;
-                } else {
-                     // Template 4: Pehle Se + Aaj Aur
-                     const oldFmt = formatter.format(totalPendingOld).replace('₹', '').trim();
-                     const totalFmt = formatter.format(totalPendingOld + amount).replace('₹', '').trim();
-                     msg = `${person},%0AAapne pehle se ₹${oldFmt} liye hue the.%0AAaj ₹${amtFmt} aur udhaar liye hain.%0AAb total udhaar ₹${totalFmt} ho gaye hain.%0AJald hi wapas karne ki koshish karein.%0AThank you.`;
-                }
-                window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank');
+                const finalPhone = cleanPhone.length === 10 ? '91'+cleanPhone : cleanPhone;
+                window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank');
             }
         }
 
-        // --- WUSOOL CONFIRM (Updated with New Templates) ---
-        function confirmWusool() { 
-            const person = document.getElementById('wusool-person-name').value; 
-            const receivedAmount = parseFloat(document.getElementById('wusool-amount').value); 
-            const targetAcc = document.getElementById('wusool-account').value; 
+        window.confirmWusool = function() {
+            const name = document.getElementById('wusool-person-name').value;
+            const amt = parseFloat(document.getElementById('wusool-amount').value);
+            const acc = document.getElementById('wusool-account').value;
             
-            if (!receivedAmount || receivedAmount <= 0) return alert("Enter valid amount"); 
+            if(!amt) return alert("Amount required");
             
-            // Check remaining before transaction logic
             const pending = parseFloat(document.getElementById('wusool-amount').dataset.pending || 0);
-            const remaining = pending - receivedAmount;
-            const isSettlement = remaining < 1;
             
-            const recoveryEntry = { 
-                id: Date.now(), date: new Date().toISOString().split('T')[0], amount: receivedAmount, type: 'income', 
-                desc: `Recovery: ${person}`, account: targetAcc, note: isSettlement ? 'Full Settlement' : 'Part Payment', 
-                isWusool: true, person: person 
-            }; 
-            
-            transactions.push(recoveryEntry); 
-            saveData(); 
-            document.getElementById('wusool-modal').classList.add('hidden'); 
-            if(lastOpenedPerson) openPersonDetails(lastOpenedPerson); 
-            renderCustomerList(); 
-            recalculateRepayments(); 
-            
-            const lastTx = transactions.slice().reverse().find(tx => tx.person === person && tx.phone); 
-            if (lastTx && lastTx.phone) { 
-                const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
-                const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
-                const paidFmt = formatter.format(receivedAmount).replace('₹', '').trim();
-                const remFmt = formatter.format(remaining > 0 ? remaining : 0).replace('₹', '').trim();
+            let type = pending > 0 ? 'income' : 'expense';
+            let desc = pending > 0 ? `Recovery: ${name}` : `Payment to: ${name}`;
 
+            const entry = {
+                id: Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                amount: amt,
+                type: type,
+                isWusool: true,
+                person: name,
+                account: acc,
+                desc: desc
+            };
+            
+            transactions.push(entry);
+            window.saveData();
+            document.getElementById('wusool-modal').classList.add('hidden');
+            if(lastOpenedPerson) window.openPersonDetails(lastOpenedPerson);
+            window.renderCustomerList();
+
+            // Clear inputs
+            document.getElementById('wusool-amount').value = '';
+
+            const remaining = Math.abs(pending) - amt;
+            const amtFmt = formatter.format(amt).replace('₹','').trim();
+            const remFmt = formatter.format(remaining > 0 ? remaining : 0).replace('₹','').trim();
+            
+            const lastTx = transactions.slice().reverse().find(t => t.person === name && t.phone);
+            if(lastTx && lastTx.phone) {
+                const cleanPhone = lastTx.phone.replace(/\D/g, '');
+                const finalPhone = cleanPhone.length === 10 ? '91'+cleanPhone : cleanPhone;
                 let msg = "";
-                if(isSettlement) {
-                    // Template 6: Aakhri Payment
-                    msg = `${person},%0AAaj aap ne ₹${paidFmt} wapas kiye hain.%0AIs ke sath hi aapka poora hisaab clear ho gaya hai.%0AAb koi raqam baqi nahi rahi.%0AThank you.`;
-                } else {
-                    // Template 5: Part Payment
-                    msg = `${person},%0AAaj aap ne ₹${paidFmt} wapas kiye hain.%0AAbhi baqi ₹${remFmt} reh gaye hain.%0AUnko bhi jald wapas karne ki koshish karein.%0AThank you.`;
+
+                if (type === 'income') { 
+                    if (remaining <= 1) { // Scenario 6
+                         msg = `${name}, Aaj aap ne ₹${amtFmt} wapas kiye hain. Is ke sath hi aapka poora hisaab clear ho gaya hai. Ab koi raqam baqi nahi rahi. Thank you.`;
+                    } else { // Scenario 5
+                         msg = `${name}, Aaj aap ne ₹${amtFmt} wapas kiye hain. Abhi baqi ₹${remFmt} reh gaye hain. Unko bhi jald wapas karne ki koshish karein. Thank you.`;
+                    }
+                } else { 
+                    if (remaining <= 1) { // Scenario 8
+                         msg = `${name}, Aaj maine aapko ₹${amtFmt} wapas kiye hain. Ab koi bhi raqam baqi nhi hai aap ka hisab clear ho gya hai. Thank you.`;
+                    } else { // Scenario 7
+                         msg = `${name}, Aaj maine aapko ₹${amtFmt} wapas kiye hain. Abhi baqi ₹${remFmt} reh gaye hain. Unko bhi jald wapas karne ki koshish karunga. Thank you.`;
+                    }
                 }
-                window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
-            } 
+                window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            }
         }
 
-        // --- HELPERS & COMMON ---
-        function openEntryModal() {
+        // --- 6. SETUP & HELPERS ---
+        
+        window.openEntryModal = function() {
             editingTransactionId = null;
             document.getElementById('entry-modal-title').innerText = "New Entry";
             document.getElementById('save-btn-text').innerText = "Save Transaction";
-            setTxType('expense');
+            window.setTxType('expense');
             document.getElementById('tx-amount').value = '';
             document.getElementById('tx-note').value = '';
+            window.setToday('tx-date');
             document.getElementById('entry-modal').classList.remove('hidden');
         }
-        function closeEntryModal() { document.getElementById('entry-modal').classList.add('hidden'); }
-        function openNewUdharModal() { document.getElementById('person-history-modal').classList.add('hidden'); document.getElementById('udhar-modal').classList.remove('hidden'); document.getElementById('udhar-amount').value = ''; document.getElementById('udhar-person').value = ''; document.getElementById('udhar-phone').value = ''; updateDatalist(); }
-        function closeUdharModal() { document.getElementById('udhar-modal').classList.add('hidden'); }
+        window.closeEntryModal = function() { document.getElementById('entry-modal').classList.add('hidden'); }
         
+        window.openNewUdharModal = function() {
+            window.setToday('udhar-date');
+            window.setLoanType('given');
+            window.updateDatalist();
+            document.getElementById('udhar-amount').value = ''; 
+            document.getElementById('udhar-modal').classList.remove('hidden');
+        }
+        window.closeUdharModal = function() { document.getElementById('udhar-modal').classList.add('hidden'); }
+
+        window.setTxType = function(type) {
+            document.getElementById('tx-type').value = type;
+            const btnExp = document.getElementById('btn-expense');
+            const btnInc = document.getElementById('btn-income');
+            const btnTrans = document.getElementById('btn-transfer'); 
+            
+            const allBtns = [btnExp, btnInc, btnTrans];
+            allBtns.forEach(b => { if(b) b.className = "flex-1 py-3 rounded-lg text-slate-400"; });
+
+            if(type==='expense'){ 
+                if(btnExp) btnExp.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600"; 
+                window.populateCats(expenseCats);
+                document.getElementById('cat-wrapper').classList.remove('hidden');
+                document.getElementById('account-wrapper').classList.remove('hidden');
+                document.getElementById('transfer-wrapper').classList.add('hidden');
+            } else if (type==='income') {
+                if(btnInc) btnInc.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-emerald-600";
+                window.populateCats(incomeCats);
+                document.getElementById('cat-wrapper').classList.remove('hidden');
+                document.getElementById('account-wrapper').classList.remove('hidden');
+                document.getElementById('transfer-wrapper').classList.add('hidden');
+            } else { 
+                if(btnTrans) btnTrans.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-blue-600";
+                document.getElementById('cat-wrapper').classList.add('hidden');
+                document.getElementById('account-wrapper').classList.add('hidden');
+                document.getElementById('transfer-wrapper').classList.remove('hidden');
+                document.getElementById('transfer-wrapper').classList.add('grid');
+            }
+        }
+        window.setLoanType = function(type) { document.getElementById('loan-type').value = type; const btnGiven = document.getElementById('btn-loan-given'); const btnTaken = document.getElementById('btn-loan-taken'); if (type === 'given') { btnGiven.className = "flex-1 py-3 rounded-lg shadow-sm bg-white text-orange-600 transition-all"; btnTaken.className = "flex-1 py-3 rounded-lg text-slate-400 transition-all"; document.getElementById('save-udhar-btn-text').innerText = "Save Loan Given"; } else { btnTaken.className = "flex-1 py-3 rounded-lg shadow-sm bg-white text-emerald-600 transition-all"; btnGiven.className = "flex-1 py-3 rounded-lg text-slate-400 transition-all"; document.getElementById('save-udhar-btn-text').innerText = "Save Loan Taken"; } }
+
+        window.saveTransaction = function() {
+            const type = document.getElementById('tx-type').value;
+            const amt = parseFloat(document.getElementById('tx-amount').value);
+            const date = document.getElementById('tx-date').value;
+            const note = document.getElementById('tx-note').value;
+            
+            if(!amt) return alert("Amount required");
+            
+            let entry = { id: Date.now(), date, amount: amt, type, note };
+
+            if (type === 'transfer') {
+                const fromAcc = document.getElementById('transfer-from').value;
+                const toAcc = document.getElementById('transfer-to').value;
+                if (fromAcc === toAcc) return alert("Source and Destination accounts cannot be the same.");
+                entry.account = fromAcc; 
+                entry.desc = toAcc; // Stored in desc for simplicity
+                entry.category = "Transfer";
+            } else {
+                entry.desc = document.getElementById('tx-category').value;
+                entry.account = document.getElementById('tx-account').value;
+            }
+            
+            if (editingTransactionId) {
+                const idx = transactions.findIndex(t => t.id === editingTransactionId);
+                if (idx !== -1) { 
+                    transactions[idx] = { ...transactions[idx], ...entry };
+                }
+            } else {
+                transactions.push(entry);
+            }
+            
+            window.saveData();
+            window.closeEntryModal();
+            
+            // Clear Inputs for Next Use
+            document.getElementById('tx-amount').value = '';
+            document.getElementById('tx-note').value = '';
+        }
+
+        // ... (Remaining Helper Functions for Lists, PDF, etc. maintained for completeness) ...
+        window.renderFullList = function() {
+            const list = document.getElementById('full-list');
+            if(!list) return;
+            list.innerHTML = '';
+            const data = window.getFilteredTransactions().sort((a,b) => b.id - a.id);
+            if(data.length === 0) { list.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">No records.</p>'; return; }
+            data.forEach(t => {
+                let color = t.type === 'income' ? 'text-emerald-600' : (t.type === 'udhar' ? 'text-orange-500' : (t.type === 'transfer' ? 'text-blue-500' : 'text-rose-600'));
+                let sign = t.type === 'income' ? '+' : (t.type === 'transfer' ? '⇄' : '-');
+                if (t.type === 'udhar') { if (t.loanType === 'taken') { color = 'text-emerald-600'; sign = '+'; } else { color = 'text-orange-500'; sign = '-'; } }
+                
+                const dateObj = new Date(t.id);
+                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let category = t.desc;
+                if(t.type === 'transfer') category = `Transfer: ${t.account} -> ${t.desc}`;
+
+                const note = t.note ? t.note : '-';
+                const noteClass = t.note ? 'text-slate-500' : 'text-slate-300';
+                const actions = `<div class="flex gap-3 ml-3 border-l border-slate-100 pl-3"><button onclick="window.editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500"><i class="fas fa-pencil-alt"></i></button><button onclick="window.deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`;
+                list.innerHTML += `<li class="p-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50 transition-colors"><div class="flex flex-col w-full"><div class="flex justify-between items-start mb-2"><div><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-slate-800">${category}</span><span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded uppercase">${t.type}</span></div><p class="text-xs ${noteClass} font-medium">${note}</p></div><div class="text-right"><span class="font-bold text-base ${color} block">${sign}${formatter.format(t.amount)}</span></div></div><div class="flex justify-between items-center pt-2 border-t border-dashed border-slate-100 mt-1"><div class="text-[10px] text-slate-400 flex items-center gap-3 font-semibold"><span class="flex items-center gap-1"><i class="far fa-calendar"></i> ${t.date}</span><span class="flex items-center gap-1"><i class="far fa-clock"></i> ${timeStr}</span></div><div class="flex items-center">${actions}</div></div></div></li>`;
+            });
+        }
+        
+        window.renderCustomerList = function() {
+            const container = document.getElementById('udhar-list-container');
+            if(!container) return;
+            container.innerHTML = '';
+            const people = {};
+            transactions.forEach(t => {
+                if(t.person) {
+                    if(!people[t.person]) people[t.person] = { name: t.person, bal: 0, last: t.date };
+                    if(t.type === 'udhar') {
+                         if(t.loanType === 'taken') people[t.person].bal -= t.amount;
+                         else people[t.person].bal += t.amount;
+                    } else if (t.isWusool) {
+                         if(t.type === 'income') people[t.person].bal -= t.amount;
+                         else people[t.person].bal += t.amount;
+                    }
+                }
+            });
+            
+            // Separation Logic
+            const receivables = [];
+            const payables = [];
+            const settled = [];
+            
+            Object.values(people).forEach(p => {
+                if(p.bal > 1) receivables.push(p);
+                else if(p.bal < -1) payables.push(p);
+                else settled.push(p);
+            });
+            
+            const createCard = (p, color, subtitle) => `
+                <div onclick="window.openPersonDetails('${p.name}')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center mb-2 active:scale-95 transition-transform">
+                    <div><h4 class="font-bold text-slate-800 text-sm">${p.name}</h4><p class="text-[10px] text-slate-400">${subtitle}</p></div>
+                    <span class="font-black text-sm ${color}">${formatter.format(Math.abs(p.bal))}</span>
+                </div>`;
+            
+            if(receivables.length > 0) {
+                container.innerHTML += `<h4 class="font-bold text-xs text-rose-600 uppercase mb-2 ml-1">🔴 Lene Hain (Receivables)</h4>`;
+                receivables.forEach(p => container.innerHTML += createCard(p, 'text-rose-600', 'You will get'));
+            }
+            if(payables.length > 0) {
+                container.innerHTML += `<h4 class="font-bold text-xs text-emerald-600 uppercase mb-2 ml-1 mt-4">🟢 Dene Hain (Payables)</h4>`;
+                payables.forEach(p => container.innerHTML += createCard(p, 'text-emerald-600', 'You will give'));
+            }
+            if(settled.length > 0) {
+                 container.innerHTML += `<h4 class="font-bold text-xs text-slate-400 uppercase mb-2 ml-1 mt-4">⚪ Settled</h4>`;
+                 settled.forEach(p => container.innerHTML += createCard(p, 'text-slate-400', 'Settled'));
+            }
+        }
+        
+        window.openPersonDetails = function(name) {
+            lastOpenedPerson = name;
+            document.getElementById('person-history-modal').classList.remove('hidden');
+            document.getElementById('ph-name').innerText = name;
+            const bal = window.calculateBalance(name);
+            const el = document.getElementById('ph-balance');
+            el.innerText = formatter.format(Math.abs(bal));
+            const btnText = document.getElementById('btn-receive-text');
+            
+            if(bal > 0) { el.className="text-3xl font-bold text-rose-600 mb-1"; btnText.innerText="Receive"; }
+            else if (bal < 0) { el.className="text-3xl font-bold text-emerald-600 mb-1"; btnText.innerText="Pay Back"; }
+            else { el.className="text-3xl font-bold text-slate-400 mb-1"; btnText.innerText="Receive"; }
+            
+            document.getElementById('btn-give-more').onclick = () => { window.giveMoreUdhar(name); };
+            document.getElementById('btn-receive-money').onclick = () => { window.openWusoolForPerson(name); };
+            
+            // Render specific history
+            const content = document.getElementById('ph-content');
+            content.innerHTML = '';
+            transactions.filter(t => (t.person === name)).sort((a,b)=>b.id-a.id).forEach(t => {
+                let col = 'text-slate-500';
+                if(t.type === 'udhar') col = t.loanType === 'taken' ? 'text-emerald-600' : 'text-rose-600';
+                if(t.isWusool) col = 'text-green-600';
+                content.innerHTML += `<div class="flex justify-between p-2 border-b border-slate-50 text-xs"><span>${t.date}</span><span class="${col} font-bold">${formatter.format(t.amount)}</span></div>`;
+            });
+        }
+        
+        window.updateDatalist = function() {
+            const dl = document.getElementById('udhar-names-list');
+            if(!dl) return;
+            dl.innerHTML = '';
+            const unique = [...new Set(transactions.filter(t=>t.person).map(t=>t.person))];
+            unique.forEach(n => { const o = document.createElement('option'); o.value=n; dl.appendChild(o); });
+            const inp = document.getElementById('udhar-person');
+            if(inp) inp.onchange = function() {
+                const ex = transactions.find(t=>t.person===this.value && t.phone);
+                if(ex) document.getElementById('udhar-phone').value = ex.phone;
+            }
+        }
+        
+        window.pickContact = async function() {
+             try {
+                if ('contacts' in navigator && 'ContactsManager' in window) {
+                    const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+                    if (contacts.length) {
+                        document.getElementById('udhar-person').value = contacts[0].name[0];
+                        if (contacts[0].tel) document.getElementById('udhar-phone').value = contacts[0].tel[0];
+                    }
+                } else { alert("Contact picker not supported on this browser."); }
+            } catch (e) {}
+        }
+        
+        window.downloadPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Header
+            doc.setFillColor(13, 148, 136); // Teal color
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.setFont("helvetica", "bold");
+            doc.text("Madani Exp Tracker", 14, 20);
+            
+            doc.setFontSize(10);
+            doc.text(`Statement Generated: ${new Date().toLocaleString()}`, 130, 20);
+
+            // Summary Box
+            const currentBal = document.getElementById('total-balance').innerText.replace('₹', 'Rs. ');
+            const inc = document.getElementById('total-income').innerText.replace('₹', 'Rs. ');
+            const exp = document.getElementById('total-expense').innerText.replace('₹', 'Rs. ');
+
+            doc.setTextColor(50);
+            doc.setFontSize(12);
+            doc.text(`Net Balance: ${currentBal}`, 14, 40);
+            doc.setFontSize(10);
+            doc.text(`Total Income: ${inc}`, 14, 46);
+            doc.text(`Total Expense: ${exp}`, 80, 46);
+
+            doc.autoTable({
+                head: [['Date', 'Category / Details', 'Type', 'Amount']],
+                body: window.getFilteredTransactions().map(t => {
+                     let displayDesc = t.desc;
+                     if(t.type === 'transfer') displayDesc = `${t.account} -> ${t.desc}`;
+                     if(t.note) displayDesc += ` (${t.note})`;
+                     
+                     return [
+                         t.date, 
+                         displayDesc, 
+                         t.type.toUpperCase(), 
+                         formatter.format(t.amount).replace('₹','Rs.')
+                     ];
+                }),
+                startY: 55,
+                theme: 'grid',
+                headStyles: { fillColor: [200, 200, 200], textColor: 50, fontStyle: 'bold' },
+                styles: { fontSize: 9, cellPadding: 3 },
+                columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 'auto' }, 2: { cellWidth: 25 }, 3: { cellWidth: 35, halign: 'right' } },
+                didParseCell: function(data) {
+                    if (data.section === 'body' && data.column.index === 3) {
+                        const type = data.row.raw[2]; // Get Type
+                        if (type === 'INCOME' || type === 'UDHAR' && data.row.raw[1].includes('taken')) {
+                            data.cell.styles.textColor = [0, 128, 0]; // Green
+                        } else {
+                            data.cell.styles.textColor = [200, 0, 0]; // Red
+                        }
+                    }
+                }
+            });
+            doc.save('Madani_Statement.pdf');
+        }
+        
+        window.saveCategoryLimit = function() {
+            const cat = document.getElementById('budget-cat-select').value;
+            const lim = parseFloat(document.getElementById('budget-cat-limit').value);
+            if (!cat || isNaN(lim)) return alert("Invalid Input");
+            categoryLimits[cat] = lim;
+            localStorage.setItem('categoryLimits', JSON.stringify(categoryLimits));
+            document.getElementById('cat-budget-modal').classList.add('hidden');
+            window.calculateBudget();
+        }
+
+        window.removeCategoryLimit = function(cat) {
+            if(confirm("Remove limit for " + cat + "?")) { delete categoryLimits[cat]; localStorage.setItem('categoryLimits', JSON.stringify(categoryLimits)); window.calculateBudget(); }
+        }
+        
+        window.updateChart = function() { 
+            if(document.getElementById('view-home').classList.contains('hidden')) return; 
+            const ctx = document.getElementById('expenseChart').getContext('2d'); 
+            const legendContainer = document.getElementById('analysis-legend'); 
+            const expenses = {}; 
+            const today = window.getLocalDate();
+            const currentMonth = today.slice(0, 7);
+            const currentYear = new Date().getFullYear().toString();
+            
+            const expenseTx = transactions.filter(t => {
+                if (t.type !== 'expense') return false;
+                if (homeFilterState.period === 'day') return t.date === today;
+                if (homeFilterState.period === 'month') return t.date.startsWith(currentMonth);
+                if (homeFilterState.period === 'year') return t.date.startsWith(currentYear);
+                return true;
+            });
+    
+            const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0); 
+            expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; }); 
+            if(document.getElementById('chart-total-center')) document.getElementById('chart-total-center').innerText = formatter.format(totalExpense); 
+            
+            if(chartInstance) chartInstance.destroy(); 
+            chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(expenses), datasets: [{ data: Object.values(expenses), backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } }); 
+            
+            if(legendContainer) {
+                legendContainer.innerHTML = ''; 
+                Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { 
+                    const percent = totalExpense > 0 ? ((amount / totalExpense) * 100).toFixed(1) : 0; 
+                    const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; 
+                    legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; 
+                }); 
+            }
+        }
+
+        window.showSummary = function(type) {
+            const modal = document.getElementById('summary-modal');
+            const title = document.getElementById('summary-title');
+            const content = document.getElementById('summary-content');
+            if(!modal || !title || !content) return;
+            
+            const today = window.getLocalDate();
+            const currentMonth = today.slice(0, 7);
+            const currentYear = new Date().getFullYear().toString();
+            
+            const filtered = transactions.filter(t => {
+                if (t.type !== type) return false;
+                if (homeFilterState.period === 'day') return t.date === today;
+                if (homeFilterState.period === 'month') return t.date.startsWith(currentMonth);
+                if (homeFilterState.period === 'year') return t.date.startsWith(currentYear);
+                return true;
+            });
+            
+            const total = filtered.reduce((sum, t) => sum + t.amount, 0);
+            const categories = {};
+            filtered.forEach(t => { 
+                const catName = t.desc || 'Other';
+                categories[catName] = (categories[catName] || 0) + t.amount; 
+            });
+            
+            title.innerText = type === 'income' ? 'Income Breakdown' : 'Expense Breakdown';
+            title.className = `font-bold text-lg ${type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`;
+            
+            if (filtered.length === 0) {
+                content.innerHTML = '<p class="text-center text-xs text-slate-400 py-8">No records found for this period.</p>';
+            } else {
+                let html = `<div class="mb-4 text-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Total (${homeFilterState.period})</p>
+                    <h2 class="text-3xl font-bold ${type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">${formatter.format(total)}</h2>
+                </div><ul class="space-y-3">`;
+                
+                Object.entries(categories).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => {
+                    const percent = total > 0 ? ((amount / total) * 100).toFixed(1) : 0;
+                    const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"};
+                    html += `
+                    <li class="flex justify-between items-center text-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center text-xs shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div>
+                            <div>
+                                <span class="font-bold text-slate-700 text-xs block">${cat}</span>
+                                <div class="w-16 h-1 bg-slate-100 rounded-full mt-1"><div class="h-full ${cfg.color}" style="width:${percent}%"></div></div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p>
+                            <p class="text-[10px] text-slate-400 font-bold">${percent}%</p>
+                        </div>
+                    </li>`;
+                });
+                html += '</ul>';
+                content.innerHTML = html;
+            }
+            modal.classList.remove('hidden');
+        }
+
         window.editTransaction = function(id) {
             const t = transactions.find(tx => tx.id === id);
             if (!t) return;
-            if(t.type === 'udhar' || t.type.includes('Recovery')) {
-                 openNewUdharModal(); 
+            if(t.type === 'udhar' || t.type.includes('Recovery') || t.isWusool) {
+                 window.openNewUdharModal(); 
                  editingTransactionId = id; 
                  document.getElementById('udhar-modal-title').innerText = "Edit Loan";
-                 document.getElementById('save-udhar-btn-text').innerText = "Update Loan";
+                 if (t.loanType === 'taken') window.setLoanType('taken'); else window.setLoanType('given');
                  document.getElementById('udhar-amount').value = t.amount;
                  document.getElementById('udhar-person').value = t.person;
                  document.getElementById('udhar-phone').value = t.phone || '';
@@ -737,236 +1080,38 @@
             editingTransactionId = id;
             document.getElementById('entry-modal-title').innerText = "Edit Entry";
             document.getElementById('save-btn-text').innerText = "Update Transaction";
-            setTxType(t.type);
+            window.setTxType(t.type);
             document.getElementById('tx-amount').value = t.amount;
             document.getElementById('tx-date').value = t.date;
             document.getElementById('tx-note').value = t.note || '';
-            if(t.type === 'transfer') {
-                document.getElementById('tx-from').value = t.account;
-                document.getElementById('tx-to').value = t.destination;
-            } else {
-                document.getElementById('tx-category').value = t.desc;
-                document.getElementById('tx-account').value = t.account;
-            }
+            document.getElementById('tx-category').value = t.desc;
+            document.getElementById('tx-account').value = t.account;
             document.getElementById('entry-modal').classList.remove('hidden');
-        };
+        }
 
         window.deleteTransaction = function(id) {
             if(!confirm("Delete this entry?")) return;
             transactions = transactions.filter(t => t.id !== id);
-            saveData();
-            if(currentView === 'report') renderFullList();
-            if(currentView === 'udhar' && lastOpenedPerson) openPersonDetails(lastOpenedPerson);
-            updateUI();
+            window.saveData();
+            if(currentView === 'report') window.renderFullList();
+            if(currentView === 'udhar' && lastOpenedPerson) window.openPersonDetails(lastOpenedPerson);
+            window.updateUI();
+        }
+
+        window.exportData = function() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions)); const a = document.createElement('a'); a.href = dataStr; a.download = "backup.json"; a.click(); }
+        window.importData = function(input) { const reader = new FileReader(); reader.onload = function(e) { if(confirm("This will replace all current data. Are you sure?")) { transactions = JSON.parse(e.target.result); window.saveData(); alert("Data Restored!"); } }; reader.readAsText(input.files[0]); }
+        window.clearAll = function() { if(confirm("⚠️ Critical Warning:\nReset App?")) { transactions = []; window.saveData(); window.updateUI(); alert("Reset Done."); } }
+        window.exitApp = function() { if(confirm("Exit App?")) { window.close(); if(!window.closed) alert("Close tab manually."); } }
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            window.setupDates();
+            window.initFilterUI();
+            if(document.getElementById('budget-cat-select')) window.populateBudgetCatSelect();
+            window.switchView('home');
+            window.calculateBudget();
+            window.updateUI();
         };
-
-        function updateDatalist() { const names = [...new Set(transactions.filter(t => t.type === 'udhar').map(t => t.person))]; const datalist = document.getElementById('udhar-names-list'); datalist.innerHTML = ''; names.forEach(name => { const opt = document.createElement('option'); opt.value = name; datalist.appendChild(opt); }); document.getElementById('udhar-person').onchange = function() { const existing = transactions.find(t => t.person === this.value && t.phone); if(existing) document.getElementById('udhar-phone').value = existing.phone; } }
-        async function pickContact() { try { if ('contacts' in navigator && 'ContactsManager' in window) { const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false }); if (contacts.length) { document.getElementById('udhar-person').value = contacts[0].name[0]; if (contacts[0].tel && contacts[0].tel.length) document.getElementById('udhar-phone').value = contacts[0].tel[0].replace(/\D/g, ''); return; } } } catch(e) {} showAppContactList(); }
-        function showAppContactList() { const names = [...new Set(transactions.filter(t => t.type === 'udhar').map(t => t.person))]; const listDiv = document.getElementById('contacts-list-content'); listDiv.innerHTML = names.length ? '' : '<p class="text-xs text-slate-400 text-center">No contacts saved.</p>'; names.forEach(name => { const btn = document.createElement('button'); btn.className = "w-full text-left p-3 bg-slate-50 rounded-lg text-sm font-bold text-slate-700 flex items-center gap-3 hover:bg-slate-100"; btn.innerHTML = `<div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-xs">${name.charAt(0)}</div> ${name}`; btn.onclick = () => { document.getElementById('udhar-person').value = name; const existing = transactions.find(t => t.person === name && t.phone); if(existing) document.getElementById('udhar-phone').value = existing.phone; document.getElementById('contacts-modal').classList.add('hidden'); }; listDiv.appendChild(btn); }); document.getElementById('contacts-modal').classList.remove('hidden'); }
-        function timeAgo(dateStr) { const diffDays = Math.ceil(Math.abs(new Date() - new Date(dateStr)) / (1000 * 60 * 60 * 24)); if (diffDays <= 1) return 'Today'; if (diffDays === 2) return 'Yesterday'; return `${diffDays} days ago`; }
-
-        // Added back missing updateChart function
-        function updateChart() { if(document.getElementById('view-home').classList.contains('hidden')) return; const ctx = document.getElementById('expenseChart').getContext('2d'); const legendContainer = document.getElementById('analysis-legend'); const expenses = {}; const currentMonth = new Date().toISOString().slice(0,7); const expenseTx = transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth)); const totalExpense = expenseTx.reduce((sum, t) => sum + t.amount, 0); expenseTx.forEach(t => { expenses[t.desc] = (expenses[t.desc] || 0) + t.amount; }); document.getElementById('chart-total-center').innerText = formatter.format(totalExpense); if(chartInstance) chartInstance.destroy(); chartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(expenses), datasets: [{ data: Object.values(expenses), backgroundColor: ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } } }); legendContainer.innerHTML = ''; Object.entries(expenses).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => { const percent = ((amount / totalExpense) * 100).toFixed(1); const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"}; legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center ${cfg.text} shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; }); }
-
-        // Added back missing showSummary function
-        window.showSummary = function(type) {
-            const modal = document.getElementById('summary-modal');
-            const title = document.getElementById('summary-title');
-            const content = document.getElementById('summary-content');
-            const filtered = transactions.filter(t => t.type === type);
-            const total = filtered.reduce((sum, t) => sum + t.amount, 0);
-            const categories = {};
-            filtered.forEach(t => { categories[t.desc] = (categories[t.desc] || 0) + t.amount; });
-            title.innerText = type === 'income' ? 'Income Breakdown' : 'Expense Breakdown';
-            title.className = `font-bold text-lg ${type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`;
-            if (filtered.length === 0) content.innerHTML = '<p class="text-center text-xs text-slate-400 py-8">No records found.</p>';
-            else {
-                let html = `<div class="mb-4 text-center bg-slate-50 p-4 rounded-xl border border-slate-100"><p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Total</p><h2 class="text-3xl font-bold ${type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">${formatter.format(total)}</h2></div><ul class="space-y-3">`;
-                Object.entries(categories).sort((a,b) => b[1] - a[1]).forEach(([cat, amount]) => {
-                    const percent = ((amount / total) * 100).toFixed(1);
-                    const cfg = catConfig[cat] || {icon: "fa-circle", color: "bg-slate-400", text: "text-slate-400", bgLight: "bg-slate-100"};
-                    html += `<li class="flex justify-between items-center text-sm"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center text-xs shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><span class="font-bold text-slate-700 text-xs block">${cat}</span><div class="w-16 h-1 bg-slate-100 rounded-full mt-1"><div class="h-full ${cfg.color}" style="width:${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></li>`;
-                });
-                html += '</ul>';
-                content.innerHTML = html;
-            }
-            modal.classList.remove('hidden');
-        };
-
-        function recalculateRepayments() {
-            transactions.forEach(t => { 
-                if(t.type === 'udhar') { t.repaid = 0; t.status = 'active'; }
-            });
-            const recoveries = transactions.filter(t => t.type === 'income' && t.desc && t.desc.startsWith('Recovery:'));
-            const recoveriesByPerson = {};
-            recoveries.forEach(r => { const name = r.desc.replace('Recovery: ', ''); if(!recoveriesByPerson[name]) recoveriesByPerson[name] = []; recoveriesByPerson[name].push(r); });
-            for(const person in recoveriesByPerson) {
-                const loans = transactions.filter(t => t.type === 'udhar' && t.person === person).sort((a,b) => a.id - b.id);
-                let totalRecovered = recoveriesByPerson[person].reduce((sum, r) => sum + r.amount, 0);
-                for(const loan of loans) {
-                    if(totalRecovered <= 0) break;
-                    const allocation = Math.min(loan.amount, totalRecovered);
-                    loan.repaid += allocation;
-                    totalRecovered -= allocation;
-                    if(loan.repaid >= loan.amount - 0.1) loan.status = 'settled';
-                }
-            }
-        }
-        
-        function updateUI() { 
-            recalculateRepayments(); 
-            let cash = 0, bank = 0, udhar = 0, income = 0, expense = 0; 
-            transactions.forEach(t => { 
-                if(t.type === 'income') { 
-                    if(!t.isWusool) income += t.amount; 
-                    t.account === 'Cash' ? cash += t.amount : bank += t.amount; 
-                } 
-                else if(t.type === 'expense') { 
-                    expense += t.amount; 
-                    t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; 
-                } 
-                else if(t.type === 'udhar') { 
-                    const rem = t.amount - t.repaid; 
-                    if (t.status === 'active' || rem > 0.1) udhar += rem; 
-                    t.account === 'Cash' ? cash -= t.amount : bank -= t.amount; 
-                }
-                else if(t.type === 'transfer') {
-                    t.account === 'Cash' ? cash -= t.amount : bank -= t.amount;
-                    t.destination === 'Cash' ? cash += t.amount : bank += t.amount;
-                }
-            }); 
-            document.getElementById('total-balance').innerText = formatter.format(cash + bank + udhar); 
-            document.getElementById('cash-balance').innerText = formatter.format(cash); 
-            document.getElementById('bank-balance').innerText = formatter.format(bank); 
-            document.getElementById('udhar-balance').innerText = formatter.format(udhar); 
-            document.getElementById('udhar-total-display').innerText = formatter.format(udhar); 
-            document.getElementById('total-income').innerText = formatter.format(income); 
-            document.getElementById('total-expense').innerText = formatter.format(expense); 
-            if(currentView === 'home') updateChart(); 
-            if(currentView === 'report') renderFullList(); 
-            if(currentView === 'udhar') renderCustomerList(); 
-            if(currentView === 'budget') renderBudget(); 
-        }
-        
-        function renderCustomerList() { const list = document.getElementById('udhar-list-container'); list.innerHTML = ''; const people = {}; transactions.forEach(t => { if(t.person) { if(!people[t.person]) people[t.person] = { name: t.person, bal: 0, last: t.date, phone: t.phone }; if(t.type === 'udhar') people[t.person].bal += t.amount; else if(t.isWusool) people[t.person].bal -= t.amount; if(t.date > people[t.person].last) people[t.person].last = t.date; } }); const sorted = Object.values(people).sort((a,b) => b.last.localeCompare(a.last)); if(sorted.length === 0) { document.getElementById('no-udhar-msg').classList.remove('hidden'); return; } document.getElementById('no-udhar-msg').classList.add('hidden'); sorted.forEach(p => { const bal = p.bal; const color = bal > 0 ? 'text-rose-600' : (bal < 0 ? 'text-emerald-600' : 'text-slate-400'); const subtext = bal > 0 ? 'You will get' : (bal < 0 ? 'You will give' : 'Settled'); const initial = p.name.charAt(0).toUpperCase(); list.innerHTML += `<div onclick="openPersonDetails('${p.name}')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center active:scale-95 transition-transform"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold border border-slate-200">${initial}</div><div><h4 class="font-bold text-slate-800 text-sm">${p.name}</h4><p class="text-[10px] text-slate-400">${timeAgo(p.last)}</p></div></div><div class="text-right"><span class="block font-black text-sm ${color}">${formatter.format(Math.abs(bal))}</span><span class="text-[9px] font-bold text-slate-400 uppercase">${subtext}</span></div></div>`; }); }
-        
-        function openPersonDetails(name) { 
-            recalculateRepayments(); lastOpenedPerson = name; 
-            const modal = document.getElementById('person-history-modal'); 
-            document.getElementById('ph-name').innerText = name; 
-            const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === name);
-            const totalPending = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0);
-            const balanceEl = document.getElementById('ph-balance');
-            balanceEl.innerText = formatter.format(totalPending);
-            if(totalPending > 0) balanceEl.className = "text-3xl font-bold text-rose-600 mb-1";
-            else if(totalPending < 0) balanceEl.className = "text-3xl font-bold text-emerald-600 mb-1";
-            else balanceEl.className = "text-3xl font-bold text-slate-400 mb-1";
-            
-            document.getElementById('btn-give-more').onclick = () => giveMoreUdhar(name); 
-            document.getElementById('btn-receive-money').onclick = () => openWusoolForPerson(name); 
-            document.getElementById('btn-settle-all').onclick = () => openWusoolForPerson(name, true);
-            document.getElementById('btn-whatsapp').onclick = () => sendStatement(name, totalPending);
-            modal.classList.remove('hidden'); 
-            
-            const content = document.getElementById('ph-content'); 
-            content.innerHTML = ''; 
-            const related = transactions.filter(t => (t.type === 'udhar' && t.person === name) || (t.type === 'income' && t.desc === `Recovery: ${name}`)).sort((a,b) => b.id - a.id); 
-            if(related.length === 0) content.innerHTML = '<p class="text-center text-xs text-slate-400">No history.</p>'; 
-            else { 
-                related.forEach(t => { 
-                    let isRecovery = t.type === 'income'; 
-                    let color = isRecovery ? 'text-green-600' : 'text-orange-600'; 
-                    let icon = isRecovery ? 'fa-arrow-down' : 'fa-arrow-up'; 
-                    let label = isRecovery ? 'Received' : 'Given'; 
-                    let editBtn = ''; 
-                    if(t.type === 'udhar') editBtn = `<button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500 text-[10px] mr-2"><i class="fas fa-pencil-alt"></i></button>`; 
-                    content.innerHTML += `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg relative"><div class="flex items-center gap-3"><i class="fas ${icon} text-xs text-slate-400"></i><div><p class="font-bold text-xs text-slate-700">${label}</p><p class="text-[10px] text-slate-400">${t.date}</p></div></div><div class="text-right"><span class="font-bold text-sm ${color} block">${formatter.format(t.amount)}</span><div class="flex justify-end mt-1">${editBtn}<button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500 text-[10px]"><i class="fas fa-trash"></i></button></div></div></div>`; 
-                }); 
-            } 
-        }
-
-        function openWusoolForPerson(name, autoSettle = false) { 
-            document.getElementById('person-history-modal').classList.add('hidden'); 
-            recalculateRepayments(); 
-            const personLoans = transactions.filter(tx => tx.type === 'udhar' && tx.person === name); 
-            const totalPending = personLoans.reduce((sum, tx) => sum + (tx.amount - (tx.repaid || 0)), 0); 
-            if(totalPending <= 0.1 && !autoSettle) return alert("No pending balance to receive."); 
-            document.getElementById('wusool-person-name').value = name; 
-            document.getElementById('wusool-msg').innerText = `Total Pending: ${formatter.format(totalPending)}`; 
-            document.getElementById('wusool-amount').dataset.pending = totalPending; 
-            if(autoSettle) document.getElementById('wusool-amount').value = totalPending > 0 ? totalPending : ''; else document.getElementById('wusool-amount').value = ''; 
-            document.getElementById('wusool-modal').classList.remove('hidden'); 
-        }
-
-        function settleFull() {
-            const pending = document.getElementById('wusool-amount').dataset.pending;
-            if(pending && parseFloat(pending) > 0) document.getElementById('wusool-amount').value = pending;
-            else alert("Nothing to settle.");
-        }
-
-        function sendStatement(person, amount) {
-             const lastTx = transactions.slice().reverse().find(tx => tx.person === person && tx.phone); 
-             if (lastTx && lastTx.phone) {
-                 const cleanPhone = lastTx.phone.replace(/\D/g, ''); 
-                 const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone; 
-                 const amountFormatted = formatter.format(amount).replace('₹', '').trim();
-                 const msg = `Salam ${person},%0AYeh aapka Udhar statement hai.%0ATotal Pending: ₹${amountFormatted}.`;
-                 window.open(`https://wa.me/${finalPhone}?text=${msg}`, '_blank'); 
-             } else {
-                 alert("Phone number not found for this person.");
-             }
-        }
-        
-        function renderFullList() {
-            const list = document.getElementById('full-list');
-            list.innerHTML = '';
-            const data = getFilteredTransactions().sort((a,b) => b.id - a.id);
-            if(data.length === 0) { list.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">No records.</p>'; return; }
-            data.forEach(t => {
-                let color = 'text-slate-600';
-                let sign = '';
-                let catText = t.desc;
-                if (t.type === 'income') { color = 'text-emerald-600'; sign = '+'; }
-                else if (t.type === 'expense') { color = 'text-rose-600'; sign = '-'; }
-                else if (t.type === 'udhar') { color = 'text-orange-500'; sign = '-'; }
-                else if (t.type === 'transfer') { color = 'text-blue-600'; sign = '⇄'; catText = `${t.account} ➝ ${t.destination}`; }
-                const dateObj = new Date(t.id);
-                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const note = t.note ? t.note : '-';
-                const actions = `<div class="flex gap-3 ml-3 border-l border-slate-100 pl-3"><button onclick="editTransaction(${t.id})" class="text-slate-400 hover:text-blue-500"><i class="fas fa-pencil-alt"></i></button><button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`;
-                list.innerHTML += `<li class="p-4 border-b border-slate-50 last:border-b-0 hover:bg-slate-50 transition-colors"><div class="flex flex-col w-full"><div class="flex justify-between items-start mb-2"><div><div class="flex items-center gap-2 mb-1"><span class="font-bold text-sm text-slate-800">${catText}</span><span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded uppercase">${t.type}</span></div><p class="text-xs text-slate-400 font-medium">${note}</p></div><div class="text-right"><span class="font-bold text-base ${color} block">${sign}${formatter.format(t.amount)}</span></div></div><div class="flex justify-between items-center pt-2 border-t border-dashed border-slate-100 mt-1"><div class="text-[10px] text-slate-400 flex items-center gap-3 font-semibold"><span class="flex items-center gap-1"><i class="far fa-calendar"></i> ${t.date}</span><span class="flex items-center gap-1"><i class="far fa-clock"></i> ${timeStr}</span></div><div class="flex items-center">${actions}</div></div></div></li>`;
-            });
-        }
-
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.setFillColor(13, 148, 136); doc.rect(0, 0, 210, 40, 'F');
-            doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.text("Madani Exp Tracker", 105, 18, { align: 'center' });
-            doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.text("STATEMENT OF ACCOUNT", 105, 26, { align: 'center' }); doc.text(`Generated: ${new Date().toLocaleString()}`, 105, 32, { align: 'center' });
-            const data = getFilteredTransactions();
-            const totalInc = data.filter(t => t.type === 'income' && !t.isWusool).reduce((s, t) => s + t.amount, 0);
-            const totalExp = data.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-            const net = totalInc - totalExp;
-            doc.setDrawColor(220); doc.setFillColor(250, 250, 250); doc.roundedRect(14, 45, 182, 25, 3, 3, 'FD');
-            doc.setFontSize(9); doc.setTextColor(100); doc.text("TOTAL INCOME", 40, 52, { align: 'center' }); doc.text("TOTAL EXPENSE", 105, 52, { align: 'center' }); doc.text("NET SAVINGS", 170, 52, { align: 'center' });
-            doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-            doc.setTextColor(16, 185, 129); doc.text(formatter.format(totalInc).replace('₹', 'Rs. '), 40, 62, { align: 'center' });
-            doc.setTextColor(244, 63, 94); doc.text(formatter.format(totalExp).replace('₹', 'Rs. '), 105, 62, { align: 'center' });
-            doc.setTextColor(59, 130, 246); doc.text(formatter.format(net).replace('₹', 'Rs. '), 170, 62, { align: 'center' });
-            const rows = data.map(t => {
-                const dateObj = new Date(t.id); const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                let typeClean = t.type.toUpperCase(); let descClean = t.desc; if(t.type === 'transfer') descClean = `${t.account} -> ${t.destination}`;
-                return [{ content: `${t.date}\n${timeStr}`, styles: { valign: 'middle' } }, descClean, t.note || '-', typeClean, t.account, { content: formatter.format(t.amount).replace('₹', ''), styles: { halign: 'right', fontStyle: 'bold' } }];
-            });
-            doc.autoTable({ head: [['Date', 'Category/Desc', 'Note', 'Type', 'Account', 'Amount']], body: rows, startY: 80, theme: 'striped', headStyles: { fillColor: [13, 148, 136], textColor: 255, fontStyle: 'bold', halign: 'center', minCellHeight: 12, valign: 'middle' }, bodyStyles: { fontSize: 9, cellPadding: 4, valign: 'middle' }, columnStyles: { 0: { cellWidth: 30 }, 5: { halign: 'right', fontStyle: 'bold' } }, alternateRowStyles: { fillColor: [240, 253, 250] }, margin: { top: 80 } });
-            doc.save('Madani_Premium_Statement.pdf');
-        }
-
-        function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions)); const a = document.createElement('a'); a.href = dataStr; a.download = "backup.json"; a.click(); }
-        function importData(input) { const reader = new FileReader(); reader.onload = function(e) { transactions = JSON.parse(e.target.result); saveData(); alert("Data Restored!"); }; reader.readAsText(input.files[0]); }
-        function clearAll() { if(confirm("⚠️ Critical Warning:\nReset App?")) { transactions = []; saveData(); updateUI(); alert("Reset Done."); } }
-        function exitApp() { if(confirm("Exit App?")) { window.close(); if(!window.closed) alert("Close tab manually."); } }
     </script>
 </body>
 </html>
