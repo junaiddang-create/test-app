@@ -408,11 +408,9 @@
                     else bal -= t.amount; // Taken
                 } 
                 // Settlement/Wusool Logic
-                // If I received money (income), it reduces what I gave (Receivable decreases)
-                // If I paid money (expense), it reduces what I took (Payable decreases)
                 else if (t.isWusool) { 
-                    if(t.type === 'income') bal -= t.amount; // Received cash
-                    else if(t.type === 'expense') bal += t.amount; // Paid cash
+                    if(t.type === 'income') bal -= t.amount; // Received cash (Decreases Receivable)
+                    else if(t.type === 'expense') bal += t.amount; // Paid cash (Decreases Payable, moves towards 0 from negative)
                 } 
             }); 
             return bal; 
@@ -793,19 +791,6 @@
             }
 
             // Determine entry type details
-            // If type is 'taken' (I GOT), if oldBal > 0 it is income (recovery), else it is loan taken (income)
-            // Actually simplistically:
-            // I Give Money -> Expense (or Asset Inc)
-            // I Take Money -> Income (or Liability Inc)
-            // But for tracking flow:
-            // If I give money to someone who owes me -> Loan Given (Asset Increase) -> Expense flow for wallet
-            // If I give money to someone I owe -> Loan Repayment (Liability Decrease) -> Expense flow for wallet
-            // In both cases "Maine Diye" reduces my wallet -> Expense type logic for cashflow
-            
-            // If I take money from someone I owe -> Loan Taken (Liability Increase) -> Income flow
-            // If I take money from someone who owes me -> Loan Recovery (Asset Decrease) -> Income flow
-            // In both cases "Maine Liye" increases my wallet -> Income type logic for cashflow
-
             const isRecovery = (type === 'taken' && oldBal > 0);
             const isRepayment = (type === 'given' && oldBal < 0);
             
@@ -819,7 +804,7 @@
                 phone: phone,
                 account: acc,
                 returnDate: rDate,
-                desc: type === 'taken' ? (isRecovery ? `Udhar Wapas Mila: ${name}` : `Loan taken: ${name}`) : (isRepayment ? `Repayment: ${name}` : `Loan given: ${name}`),
+                desc: type === 'taken' ? (isRecovery ? `Udhar Wapas Mila: ${name}` : `Loan taken: ${name}`) : (isRepayment ? `Udhar Wapas Diya: ${name}` : `Loan given: ${name}`),
                 status: 'active',
                 isWusool: isRecovery || isRepayment // Mark as settlement/wusool if applicable
             };
@@ -836,6 +821,86 @@
                 const cleanPhone = phone.replace(/\D/g, '');
                 const finalPhone = cleanPhone.length === 10 ? '91'+cleanPhone : cleanPhone;
                 window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            }
+        }
+        
+        // --- MODIFIED CONFIRM WUSOOL FUNCTION ---
+        function confirmWusool() {
+            try {
+                const name = document.getElementById('wusool-person-name').value;
+                const amtVal = document.getElementById('wusool-amount').value;
+                const amt = parseFloat(amtVal);
+                const acc = document.getElementById('wusool-account').value;
+                
+                if(!amt || isNaN(amt) || amt <= 0) return alert("Please enter a valid amount.");
+                
+                const pending = parseFloat(document.getElementById('wusool-amount').dataset.pending || 0);
+                
+                // Determine flow based on pending balance
+                // Pending > 0 means I am owed money (Receivable). Settle means I get money (Income).
+                // Pending < 0 means I owe money (Payable). Settle means I give money (Expense).
+                let type = pending > 0 ? 'income' : 'expense';
+                
+                // Description as requested: "wapas mile" or similar
+                let desc = pending > 0 ? `Udhar Wapas Mila: ${name}` : `Udhar Wapas Diya: ${name}`;
+
+                // Find phone from history to preserve it
+                const lastTx = transactions.slice().reverse().find(t => t.person === name && t.phone);
+                const phone = lastTx ? lastTx.phone : '';
+
+                const entry = {
+                    id: Date.now(),
+                    date: new Date().toISOString().split('T')[0], // Use local date helper ideally, but this is safe enough for sorting
+                    amount: amt,
+                    type: type,
+                    isWusool: true,
+                    person: name,
+                    account: acc,
+                    desc: desc,
+                    phone: phone // Preserve phone
+                };
+                
+                transactions.push(entry);
+                saveData();
+                
+                // Close Modals
+                document.getElementById('wusool-modal').classList.add('hidden');
+                
+                // Refresh UI
+                if(lastOpenedPerson) openPersonDetails(lastOpenedPerson);
+                renderCustomerList();
+
+                // Clear input
+                document.getElementById('wusool-amount').value = '';
+
+                // WhatsApp Logic
+                const remaining = Math.abs(pending) - amt;
+                // Formatting helper for message
+                const formatNum = (n) => new Intl.NumberFormat('en-IN').format(n);
+                
+                if(phone) {
+                    const cleanPhone = phone.replace(/\D/g, '');
+                    const finalPhone = cleanPhone.length === 10 ? '91'+cleanPhone : cleanPhone;
+                    let msg = "";
+
+                    if (type === 'income') { // I Received
+                        if (remaining <= 1) { 
+                             msg = `Salam ${name}, Aaj aap ne ₹${formatNum(amt)} wapas kiye hain. Is ke sath hi aapka poora hisaab clear ho gaya hai. Ab koi raqam baqi nahi rahi. Thank you.`;
+                        } else { 
+                             msg = `Salam ${name}, Aaj aap ne ₹${formatNum(amt)} wapas kiye hain. Abhi baqi ₹${formatNum(remaining)} reh gaye hain. Unko bhi jald wapas karne ki koshish karein. Thank you.`;
+                        }
+                    } else { // I Paid
+                        if (remaining <= 1) { 
+                             msg = `Salam ${name}, Aaj maine aapko ₹${formatNum(amt)} wapas kiye hain. Ab koi bhi raqam baqi nhi hai aap ka hisab clear ho gya hai. Thank you.`;
+                        } else { 
+                             msg = `Salam ${name}, Aaj maine aapko ₹${formatNum(amt)} wapas kiye hain. Abhi baqi ₹${formatNum(remaining)} reh gaye hain. Unko bhi jald wapas karne ki koshish karunga. Thank you.`;
+                        }
+                    }
+                    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Error saving transaction. Check console.");
             }
         }
 
@@ -1299,7 +1364,7 @@
             
             // Find phone
             const personTx = transactions.filter(t => t.person === name);
-            const lastTx = personTx.find(t => t.phone) || {};
+            const lastTx = personTx.slice().reverse().find(t => t.phone) || {};
             document.getElementById('ph-phone').innerText = lastTx.phone || "No Phone";
 
             // Configure Header Buttons (Reminder / Settle)
