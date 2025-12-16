@@ -27,7 +27,8 @@
         #guest-container { display: none; }
         
         /* Khata Book Specific Styles */
-        .khata-card { background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); }
+        .khata-gradient { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); }
+        .glass-panel { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
 <body class="text-slate-800 bg-slate-50">
@@ -181,18 +182,21 @@
         <section id="view-udhar" class="p-4 fade-in hidden pb-24">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-bold text-slate-800">Khata Book</h2>
-                <button onclick="openNewUdharModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md active:scale-95"><i class="fas fa-user-plus mr-1"></i> Add Customer</button>
+                <button onclick="openNewUdharModal()" class="bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg hover:bg-slate-900 active:scale-95 flex items-center gap-2"><i class="fas fa-user-plus"></i> Add Customer</button>
             </div>
             
-            <!-- Summary Dashboard -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex justify-between text-center divide-x divide-slate-100">
-                <div class="flex-1 px-1">
-                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Lene Hain (You Get)</p>
-                    <p class="text-lg font-bold text-emerald-600 mt-1" id="total-lene-hai">₹0</p>
-                </div>
-                <div class="flex-1 px-1">
-                    <p class="text-[10px] text-rose-600 font-bold uppercase">Dene Hain (You Give)</p>
-                    <p class="text-lg font-bold text-rose-600 mt-1" id="total-dene-hai">₹0</p>
+            <!-- Summary Dashboard (Premium Look) -->
+            <div class="khata-gradient p-5 rounded-2xl shadow-lg border border-slate-700 mb-6 text-white relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 text-white opacity-5"><i class="fas fa-book text-9xl"></i></div>
+                <div class="flex justify-between items-center relative z-10 divide-x divide-slate-600">
+                    <div class="flex-1 pr-4 text-center">
+                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1 text-emerald-300">Kul Lene Hain</p>
+                        <p class="text-xl font-bold text-emerald-400" id="total-lene-hai">₹0</p>
+                    </div>
+                    <div class="flex-1 pl-4 text-center">
+                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1 text-rose-300">Kul Dene Hain</p>
+                        <p class="text-xl font-bold text-rose-400" id="total-dene-hai">₹0</p>
+                    </div>
                 </div>
             </div>
 
@@ -274,6 +278,9 @@
     <div class="p-4 bg-white border-t border-slate-100 grid grid-cols-2 gap-3"><button id="btn-ledger-give" class="py-3 bg-rose-50 text-rose-600 font-bold rounded-xl border border-rose-100 flex items-center justify-center gap-2 active:scale-95"> <i class="fas fa-arrow-up"></i> MAINE DIYE </button><button id="btn-ledger-get" class="py-3 bg-emerald-50 text-emerald-600 font-bold rounded-xl border border-emerald-100 flex items-center justify-center gap-2 active:scale-95"> <i class="fas fa-arrow-down"></i> MAINE LIYE </button></div></div></div>
     
     <div id="contacts-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2"><h3 class="font-bold text-slate-800">Select Contact</h3><button onclick="document.getElementById('contacts-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button></div><div id="contacts-list-content" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar"></div></div></div>
+    
+    <!-- WUSOOL / SETTLE MODAL -->
+    <div id="wusool-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-2"><h3 class="font-bold text-lg text-slate-800" id="wusool-modal-title">Receive Money</h3><button onclick="document.getElementById('wusool-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><p class="text-xs text-slate-500 mb-2 font-bold" id="wusool-msg">Settling...</p><input type="hidden" id="wusool-person-name"><label class="block text-[10px] font-bold text-emerald-600 uppercase mb-2 ml-1">Received Amount</label><div class="flex gap-2 mb-3"><input type="number" id="wusool-amount" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-lg font-bold text-slate-800 focus:outline-none focus:border-teal-500"><button onclick="settleFull()" class="bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap active:scale-95">Full Settle</button></div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">Deposit To</label><select id="wusool-account" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold mb-4"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select><div class="flex gap-2"><button onclick="document.getElementById('wusool-modal').classList.add('hidden')" class="flex-1 py-2 text-slate-500 font-bold text-xs bg-slate-100 rounded-lg">Cancel</button><button onclick="confirmWusool()" class="flex-1 py-2 text-white font-bold text-xs bg-emerald-600 rounded-lg">Confirm</button></div></div></div>
 
     <script>
         // --- 1. STATE & CONFIG ---
@@ -377,9 +384,20 @@
         function populateBudgetCatSelect() { const sel = document.getElementById('budget-cat-select'); if(!sel) return; sel.innerHTML = ''; expenseCats.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.innerText = cat; sel.appendChild(opt); }); }
         function populateCats(cats) { const sel = document.getElementById('tx-category'); if(!sel) return; sel.innerHTML = ''; cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); }); }
         
+        // --- ADDED THIS FUNCTION TO FIX "ADD CUSTOMER" CLICK ISSUE ---
+        function updateDatalist() {
+             const dl = document.getElementById('udhar-names-list');
+             if(!dl) return;
+             dl.innerHTML = '';
+             const uniqueNames = [...new Set(transactions.filter(t=>t.person).map(t=>t.person))];
+             uniqueNames.forEach(n => {
+                 const opt = document.createElement('option');
+                 opt.value = n;
+                 dl.appendChild(opt);
+             });
+        }
+
         // --- UPDATED BALANCE CALCULATION FOR KHATA BOOK ---
-        // Positive Balance = I have given (Receivable)
-        // Negative Balance = I have taken (Payable)
         function calculateBalance(person) { 
             let bal = 0; 
             transactions.forEach(t => { 
@@ -393,8 +411,8 @@
                 // If I received money (income), it reduces what I gave (Receivable decreases)
                 // If I paid money (expense), it reduces what I took (Payable decreases)
                 else if (t.isWusool) { 
-                    if(t.type === 'income') bal -= t.amount; // Received cash, so receivable decreases
-                    else if(t.type === 'expense') bal += t.amount; // Paid cash, so payable decreases (less negative, more positive)
+                    if(t.type === 'income') bal -= t.amount; // Received cash
+                    else if(t.type === 'expense') bal += t.amount; // Paid cash
                 } 
             }); 
             return bal; 
@@ -801,7 +819,7 @@
                 phone: phone,
                 account: acc,
                 returnDate: rDate,
-                desc: type === 'taken' ? (isRecovery ? `Recovery: ${name}` : `Loan taken: ${name}`) : (isRepayment ? `Repayment: ${name}` : `Loan given: ${name}`),
+                desc: type === 'taken' ? (isRecovery ? `Udhar Wapas Mila: ${name}` : `Loan taken: ${name}`) : (isRepayment ? `Repayment: ${name}` : `Loan given: ${name}`),
                 status: 'active',
                 isWusool: isRecovery || isRepayment // Mark as settlement/wusool if applicable
             };
