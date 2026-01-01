@@ -25,10 +25,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         select { -webkit-appearance: none; appearance: none; }
         #guest-container { display: none; }
-        
-        /* Khata Book Specific Styles */
         .khata-gradient { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); }
-        .glass-panel { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
 <body class="text-slate-800 bg-slate-50">
@@ -40,7 +37,6 @@
         <header class="bg-white p-4 sticky top-0 z-30 shadow-sm border-b border-slate-100 flex justify-between items-center">
             <div>
                 <h1 class="text-lg font-bold text-teal-700 flex items-center gap-2"><i class="fas fa-wallet"></i> Madani Exp Tracker</h1>
-                <p class="text-[10px] text-teal-600 font-bold ml-7 -mt-1 tracking-wide">Junaid Madani</p>
             </div>
             <div class="text-right">
                 <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold" id="net-balance-label">Net Balance</p>
@@ -49,7 +45,7 @@
         </header>
 
         <!-- === 1. HOME VIEW === -->
-        <section id="view-home" class="p-4 fade-in block pb-24">
+        <section id="view-home" class="p-4 fade-in block pb-32">
             <!-- HOME FILTERS -->
             <div class="flex p-1 bg-slate-200/60 rounded-xl mb-5 mx-1">
                 <button onclick="setHomeFilter('day')" id="hf-day" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500">Daily</button>
@@ -94,13 +90,20 @@
                 </div>
             </div>
 
-            <h3 class="font-bold text-slate-700 text-sm mb-3">Expense Analysis <span id="analysis-period-lbl" class="text-[10px] font-normal text-slate-400 ml-1"></span></h3>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 mb-4">
+            <!-- 1. Pie Chart -->
+            <h3 class="font-bold text-slate-700 text-sm mb-3">Expense Breakdown <span id="analysis-period-lbl" class="text-[10px] font-normal text-slate-400 ml-1"></span></h3>
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 mb-6">
                 <div class="flex justify-center mb-6 relative">
                     <div class="h-48 w-48 relative z-10"><canvas id="expenseChart"></canvas></div>
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><p class="text-[10px] text-slate-400 uppercase font-bold">Total</p><p class="text-lg font-bold text-slate-800" id="chart-total-center">₹0</p></div>
                 </div>
                 <div id="analysis-legend" class="space-y-3"></div>
+            </div>
+
+            <!-- 2. Bar Chart -->
+            <h3 class="font-bold text-slate-700 text-sm mb-3">Income vs Expense Trend</h3>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4">
+                <div class="h-48 relative"><canvas id="trendChart"></canvas></div>
             </div>
         </section>
 
@@ -143,7 +146,7 @@
                 <p class="text-[9px] font-medium opacity-80 flex items-center gap-1"><i class="fas fa-sync-alt"></i> Auto-detected from Income entries</p>
             </div>
             <div id="budget-content" class="space-y-4 mb-8">
-                <!-- Needs -->
+                <!-- Budget Panels -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-home text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Needs (50%)</h3><p class="text-[10px] text-slate-400 font-bold" id="budget-needs-limit">Limit: ₹0</p></div></div>
@@ -152,7 +155,6 @@
                     <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div id="bar-needs" class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
                     <div id="list-needs" class="mt-3 pt-2 border-t border-slate-50 space-y-2"></div>
                 </div>
-                <!-- Wants -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fas fa-shopping-bag text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Wants (30%)</h3><p class="text-[10px] text-slate-400 font-bold" id="budget-wants-limit">Limit: ₹0</p></div></div>
@@ -161,7 +163,6 @@
                     <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"><div id="bar-wants" class="h-full bg-purple-500 rounded-full transition-all duration-500" style="width: 0%"></div></div>
                     <div id="list-wants" class="mt-3 pt-2 border-t border-slate-50 space-y-2"></div>
                 </div>
-                <!-- Savings -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fas fa-piggy-bank text-xs"></i></div><div><h3 class="font-bold text-sm text-slate-700">Savings (20%)</h3><p class="text-[10px] text-slate-400 font-bold" id="budget-savings-limit">Target: ₹0</p></div></div>
@@ -178,14 +179,13 @@
             <div id="custom-budgets-list" class="space-y-3"></div>
         </section>
 
-        <!-- === 4. UDHAR VIEW (KHATA BOOK STYLE) === -->
+        <!-- === 4. UDHAR VIEW === -->
         <section id="view-udhar" class="p-4 fade-in hidden pb-24">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-bold text-slate-800">Khata Book</h2>
                 <button onclick="openNewUdharModal()" class="bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg hover:bg-slate-900 active:scale-95 flex items-center gap-2"><i class="fas fa-user-plus"></i> Add Customer</button>
             </div>
             
-            <!-- Summary Dashboard (Premium Look) -->
             <div class="khata-gradient p-5 rounded-2xl shadow-lg border border-slate-700 mb-6 text-white relative overflow-hidden">
                 <div class="absolute -right-6 -top-6 text-white opacity-5"><i class="fas fa-book text-9xl"></i></div>
                 <div class="flex justify-between items-center relative z-10 divide-x divide-slate-600">
@@ -200,7 +200,6 @@
                 </div>
             </div>
 
-            <!-- Customer List -->
             <div id="udhar-list-container" class="space-y-3"></div>
             <p id="no-udhar-msg" class="text-center text-slate-400 text-xs py-10 hidden">No active accounts.</p>
         </section>
@@ -222,7 +221,9 @@
         <nav class="fixed bottom-0 w-full max-w-md bg-white border-t border-slate-100 flex justify-between items-end px-4 pb-2 pt-2 z-40 shadow-lg" style="left: 50%; transform: translateX(-50%);">
             <button onclick="switchView('home')" class="nav-item active flex flex-col items-center gap-1" id="nav-home"><i class="fas fa-home text-lg"></i><span class="text-[9px] font-bold">Home</span></button>
             <button onclick="switchView('report')" class="nav-item flex flex-col items-center gap-1" id="nav-report"><i class="fas fa-chart-pie text-lg"></i><span class="text-[9px] font-bold">History</span></button>
-            <div class="relative w-12 flex justify-center z-50"><button onclick="openEntryModal()" class="absolute -top-10 bg-teal-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl fab-shadow transition-transform active:scale-90 border-[4px] border-slate-50 shadow-lg shadow-teal-100"><i class="fas fa-plus"></i></button></div>
+            <div class="relative w-12 flex justify-center z-50">
+                <button onclick="openEntryModal()" class="absolute -top-14 bg-teal-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl fab-shadow transition-transform active:scale-90 border-[4px] border-slate-50 shadow-lg shadow-teal-100"><i class="fas fa-plus"></i></button>
+            </div>
             <button onclick="switchView('budget')" class="nav-item flex flex-col items-center gap-1" id="nav-budget"><i class="fas fa-wallet text-lg"></i><span class="text-[9px] font-bold">Budget</span></button>
             <button onclick="switchView('udhar')" class="nav-item flex flex-col items-center gap-1" id="nav-udhar"><i class="fas fa-hand-holding-usd text-lg"></i><span class="text-[9px] font-bold">Udhar</span></button>
             <button onclick="switchView('settings')" class="nav-item flex flex-col items-center gap-1" id="nav-settings"><i class="fas fa-cog text-lg"></i><span class="text-[9px] font-bold">Setting</span></button>
@@ -230,7 +231,18 @@
     </div>
 
     <!-- ENTRY MODAL -->
-    <div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="entry-modal-title">New Entry</h3><button onclick="closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs" id="type-tabs-wrapper"><button onclick="setTxType('expense')" id="btn-expense" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600">Expense</button><button onclick="setTxType('income')" id="btn-income" class="flex-1 py-3 rounded-lg text-slate-400">Income</button><button onclick="setTxType('transfer')" id="btn-transfer" class="flex-1 py-3 rounded-lg text-slate-400">Transfer</button></div><input type="hidden" id="tx-type" value="expense"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="tx-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-teal-500"></div><div id="cat-wrapper" class="grid grid-cols-1 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label><select id="tx-category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"></select></div></div><div id="account-wrapper"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Wallet</label><select id="tx-account" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div><div id="transfer-wrapper" class="hidden items-end gap-2">
+    <div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="entry-modal-title">New Entry</h3><button onclick="closeEntryModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4"><div class="bg-slate-100 p-1 rounded-xl flex font-bold text-xs" id="type-tabs-wrapper"><button onclick="setTxType('expense')" id="btn-expense" class="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600">Expense</button><button onclick="setTxType('income')" id="btn-income" class="flex-1 py-3 rounded-lg text-slate-400">Income</button><button onclick="setTxType('transfer')" id="btn-transfer" class="flex-1 py-3 rounded-lg text-slate-400">Transfer</button></div><input type="hidden" id="tx-type" value="expense"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="tx-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-teal-500"></div>
+    <div id="cat-wrapper" class="grid grid-cols-1 gap-3">
+        <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Category</label>
+            <div class="flex gap-2">
+                <select id="tx-category" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"></select>
+                <!-- ADD CATEGORY BUTTON -->
+                <button onclick="openAddCategoryModal()" class="bg-slate-200 text-slate-600 px-3 rounded-xl hover:bg-slate-300"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+    </div>
+    <div id="account-wrapper"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Wallet</label><select id="tx-account" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div><div id="transfer-wrapper" class="hidden items-end gap-2">
         <div class="flex-1">
             <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">From</label>
             <select id="transfer-from" onchange="syncTransferDest()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-teal-500">
@@ -248,6 +260,38 @@
         </div>
     </div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><input type="date" id="tx-date" onchange="highlightDate(this)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Note</label><input type="text" id="tx-note" placeholder="Details..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></div></div><button onclick="saveTransaction()" class="w-full bg-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-check"></i> <span id="save-btn-text">Save Transaction</span></button></div></div></div>
 
+    <!-- CUSTOM CATEGORY MODAL -->
+    <div id="add-category-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 fade-in">
+        <div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
+                <h3 class="font-bold text-slate-800">Add New Category</h3>
+                <button onclick="document.getElementById('add-category-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Name</label>
+                    <input type="text" id="new-cat-name" placeholder="e.g. Internet" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold outline-none focus:border-teal-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Type</label>
+                    <select id="new-cat-type" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold outline-none" onchange="toggleBudgetSelect()">
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+                <div id="budget-type-wrapper">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Budget Tag</label>
+                    <select id="new-cat-budget" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold outline-none">
+                        <option value="needs">Needs (50%)</option>
+                        <option value="wants">Wants (30%)</option>
+                        <option value="savings">Savings (20%)</option>
+                    </select>
+                </div>
+                <button onclick="saveCustomCategory()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-xs font-bold mt-2">Create Category</button>
+            </div>
+        </div>
+    </div>
+
     <!-- KHATA BOOK NEW ENTRY MODAL -->
     <div id="udhar-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end justify-center sm:items-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-slate-800" id="udhar-modal-title">New Entry</h3><button onclick="closeUdharModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-4">
         <!-- Main Choice -->
@@ -257,10 +301,24 @@
         </div>
         <input type="hidden" id="loan-type" value="given">
         
+        <!-- Only shown for NEW customers -->
+        <div id="new-customer-fields">
+            <button onclick="pickContact()" class="w-full py-3 mb-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-slate-600 font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-100"><i class="fas fa-address-book text-lg"></i> Select from Contacts</button>
+            <div class="mb-3"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Person Name</label><input type="text" id="udhar-person" list="udhar-names-list" placeholder="Enter Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"><datalist id="udhar-names-list"></datalist></div>
+            <div class="mb-3"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Mobile (WA)</label><input type="tel" id="udhar-phone" placeholder="91..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"></div>
+        </div>
+        
+        <!-- Shown for EXISTING customers -->
+        <div id="existing-customer-display" class="hidden text-center p-2 bg-slate-50 rounded-xl border border-slate-100">
+            <p class="text-xs text-slate-400">Entry for:</p>
+            <p class="text-lg font-bold text-slate-800" id="existing-name-disp">Name</p>
+        </div>
+
         <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Amount</label><input type="number" id="udhar-amount" placeholder="0" class="w-full pl-4 p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xl text-slate-800 focus:outline-none focus:border-blue-500"></div>
-        <button onclick="pickContact()" class="w-full py-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-slate-600 font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-100"><i class="fas fa-address-book text-lg"></i> Select from Contacts</button>
-        <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Person Name</label><input type="text" id="udhar-person" list="udhar-names-list" placeholder="Enter Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"><datalist id="udhar-names-list"></datalist></div>
-        <div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Mobile (WA)</label><input type="tel" id="udhar-phone" placeholder="91..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Source Wallet</label><select id="udhar-source" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><input type="date" id="udhar-date" onchange="highlightDate(this)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Due Date (Optional)</label><input type="date" id="udhar-return-date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div></div><button onclick="saveUdharTransaction()" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-slate-900 active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-save"></i> <span id="save-udhar-btn-text">Save Entry</span></button></div></div></div>
+        <div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Date</label><input type="date" id="udhar-date" onchange="highlightDate(this)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Source Wallet</label><select id="udhar-source" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select></div></div>
+        <div id="return-date-div"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Due Date (Optional)</label><input type="date" id="udhar-return-date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none"></div>
+        
+        <button onclick="saveUdharTransaction()" class="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-slate-900 active:scale-95 flex justify-center items-center gap-2 mt-2"><i class="fas fa-save"></i> <span id="save-udhar-btn-text">Save Entry</span></button></div></div></div>
     
     <div id="cat-budget-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-2"><h3 class="font-bold text-lg text-slate-800" id="cat-budget-title">Add Budget Limit</h3><button onclick="document.getElementById('cat-budget-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div class="space-y-3"><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Select Category</label><select id="budget-cat-select" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold outline-none"></select></div><div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Monthly Limit (Rs.)</label><input type="number" id="budget-cat-limit" placeholder="e.g. 5000" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-800 outline-none focus:border-teal-500"></div><button onclick="saveCategoryLimit()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-xs font-bold mt-2">Save Limit</button></div></div></div>
     <div id="summary-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-2"><h3 class="font-bold text-lg text-slate-800" id="summary-title">Summary</h3><button onclick="document.getElementById('summary-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><div id="summary-content" class="space-y-3 max-h-96 overflow-y-auto no-scrollbar"></div></div></div>
@@ -269,7 +327,7 @@
     <div id="person-history-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 fade-in"><div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col h-[85vh]"><div class="flex justify-between items-center p-4 border-b border-slate-100 bg-white rounded-t-3xl"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg"><i class="fas fa-user"></i></div><div><h3 class="font-bold text-lg text-slate-800" id="ph-name">Name</h3><p class="text-[10px] text-slate-400 flex items-center gap-1"><i class="fab fa-whatsapp"></i> <span id="ph-phone">No number</span></p></div></div><button onclick="document.getElementById('person-history-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 flex items-center justify-center"><i class="fas fa-times"></i></button></div>
     <!-- Actions Bar: Reminder, Settle -->
     <div class="flex gap-2 px-4 py-2 border-b border-slate-50 bg-slate-50/50">
-        <button id="btn-ledger-reminder" class="flex-1 py-2 bg-green-50 text-green-600 rounded-lg text-xs font-bold border border-green-100 flex items-center justify-center gap-1 active:scale-95"><i class="fab fa-whatsapp"></i> Reminder</button>
+        <button id="btn-ledger-reminder" class="flex-1 py-2 bg-green-50 text-green-600 rounded-lg text-xs font-bold border border-green-100 flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50 disabled:active:scale-100"><i class="fab fa-whatsapp"></i> Reminder</button>
         <button id="btn-ledger-settle" class="flex-1 py-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-100 flex items-center justify-center gap-1 active:scale-95"><i class="fas fa-check-double"></i> Settle</button>
     </div>
     <!-- Ledger Content -->
@@ -286,7 +344,10 @@
         // --- 1. STATE & CONFIG ---
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let categoryLimits = JSON.parse(localStorage.getItem('categoryLimits')) || {};
+        let customCats = JSON.parse(localStorage.getItem('custom_categories')) || []; // LOAD CUSTOM CATEGORIES
+        
         let chartInstance = null;
+        let trendChartInstance = null;
         let editingTransactionId = null;
         let lastOpenedPerson = null;
         let currentView = 'home';
@@ -330,12 +391,25 @@
             "Loan Taken": { icon: "fa-hand-holding-usd", color: "bg-orange-500", text: "text-orange-500", bgLight: "bg-orange-50" },
             "Other": { icon: "fa-shapes", color: "bg-slate-500", text: "text-slate-500", bgLight: "bg-slate-50" }
         };
+        
+        // Merge custom categories into main config
+        customCats.forEach(c => {
+             catConfig[c.name] = c.details;
+        });
 
-        const expenseCats = Object.keys(catConfig).filter(k => catConfig[k].type);
-        const incomeCats = ["Salary", "Business", "Gift", "Bonus", "Loan Taken", "Other"];
+        // Dynamic Arrays based on config
+        let expenseCats = Object.keys(catConfig).filter(k => catConfig[k].type); // Default expenses
+        let incomeCats = ["Salary", "Business", "Gift", "Bonus", "Loan Taken", "Other"];
+        
+        // Add custom ones to arrays
+        customCats.forEach(c => {
+             if(c.type === 'expense' && !expenseCats.includes(c.name)) expenseCats.push(c.name);
+             if(c.type === 'income' && !incomeCats.includes(c.name)) incomeCats.push(c.name);
+        });
+
         const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 });
 
-        // --- 2. GLOBAL UTILITIES (DEFINED FIRST) ---
+        // --- 2. GLOBAL UTILITIES ---
         function saveData() { localStorage.setItem('transactions', JSON.stringify(transactions)); updateUI(); }
         
         function getLocalDate() {
@@ -362,7 +436,6 @@
                     opt.text = currentYear - i; 
                     yrSelect.appendChild(opt); 
                 }
-                // Set default value for Year select
                 yrSelect.value = currentYear;
             }
         }
@@ -384,6 +457,88 @@
         function populateBudgetCatSelect() { const sel = document.getElementById('budget-cat-select'); if(!sel) return; sel.innerHTML = ''; expenseCats.forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.innerText = cat; sel.appendChild(opt); }); }
         function populateCats(cats) { const sel = document.getElementById('tx-category'); if(!sel) return; sel.innerHTML = ''; cats.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt); }); }
         
+        function setTxType(type) {
+            document.getElementById('tx-type').value = type;
+            const btnExp = document.getElementById('btn-expense');
+            const btnInc = document.getElementById('btn-income');
+            const btnTrans = document.getElementById('btn-transfer'); 
+            
+            const allBtns = [btnExp, btnInc, btnTrans];
+            allBtns.forEach(b => { if(b) b.className = "flex-1 py-3 rounded-lg text-slate-400"; });
+
+            if(type==='expense'){ 
+                if(btnExp) btnExp.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600"; 
+                populateCats(expenseCats);
+                document.getElementById('cat-wrapper').classList.remove('hidden');
+                document.getElementById('account-wrapper').classList.remove('hidden');
+                document.getElementById('transfer-wrapper').classList.add('hidden');
+                document.getElementById('transfer-wrapper').classList.remove('flex');
+            } else if (type==='income') {
+                if(btnInc) btnInc.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-emerald-600";
+                populateCats(incomeCats);
+                document.getElementById('cat-wrapper').classList.remove('hidden');
+                document.getElementById('account-wrapper').classList.remove('hidden');
+                document.getElementById('transfer-wrapper').classList.add('hidden');
+                document.getElementById('transfer-wrapper').classList.remove('flex');
+            } else { 
+                if(btnTrans) btnTrans.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-blue-600";
+                document.getElementById('cat-wrapper').classList.add('hidden');
+                document.getElementById('account-wrapper').classList.add('hidden');
+                document.getElementById('transfer-wrapper').classList.remove('hidden');
+                document.getElementById('transfer-wrapper').classList.add('flex');
+            }
+        }
+
+        // --- CUSTOM CATEGORY FUNCTIONS ---
+        function openAddCategoryModal() {
+            document.getElementById('add-category-modal').classList.remove('hidden');
+            document.getElementById('new-cat-name').value = '';
+        }
+        
+        function toggleBudgetSelect() {
+             const type = document.getElementById('new-cat-type').value;
+             const budgetWrapper = document.getElementById('budget-type-wrapper');
+             if(type === 'expense') {
+                 budgetWrapper.classList.remove('hidden');
+             } else {
+                 budgetWrapper.classList.add('hidden');
+             }
+        }
+
+        function saveCustomCategory() {
+            const name = document.getElementById('new-cat-name').value;
+            const type = document.getElementById('new-cat-type').value;
+            const budgetType = document.getElementById('new-cat-budget').value;
+            
+            if(!name) return alert("Category Name is required");
+            if(catConfig[name]) return alert("Category already exists!");
+            
+            // Define details
+            let details = {};
+            if(type === 'expense') {
+                details = { icon: "fa-star", color: "bg-slate-500", text: "text-slate-500", bgLight: "bg-slate-100", type: budgetType };
+                expenseCats.push(name);
+            } else {
+                details = { icon: "fa-star", color: "bg-emerald-500", text: "text-emerald-500", bgLight: "bg-emerald-50" };
+                incomeCats.push(name);
+            }
+            
+            // Save
+            catConfig[name] = details;
+            customCats.push({name: name, type: type, details: details});
+            localStorage.setItem('custom_categories', JSON.stringify(customCats));
+            
+            // Refresh UI
+            const currentType = document.getElementById('tx-type').value;
+            if(currentType === type) {
+                populateCats(type === 'expense' ? expenseCats : incomeCats);
+            }
+            if(document.getElementById('budget-cat-select')) populateBudgetCatSelect();
+            
+            document.getElementById('add-category-modal').classList.add('hidden');
+            alert("Category Added!");
+        }
+
         // --- ADDED THIS FUNCTION TO FIX "ADD CUSTOMER" CLICK ISSUE ---
         function updateDatalist() {
              const dl = document.getElementById('udhar-names-list');
@@ -409,8 +564,8 @@
                 } 
                 // Settlement/Wusool Logic
                 else if (t.isWusool) { 
-                    if(t.type === 'income') bal -= t.amount; // Received cash (Decreases Receivable)
-                    else if(t.type === 'expense') bal += t.amount; // Paid cash (Decreases Payable, moves towards 0 from negative)
+                    if(t.type === 'income') bal -= t.amount; // Received cash
+                    else if(t.type === 'expense') bal += t.amount; // Paid cash
                 } 
             }); 
             return bal; 
@@ -755,45 +910,66 @@
 
             if(!amt || !name) return alert("Amount and Name required");
             
-            // Logic for Messages Reverted to Scenario 1-8
+            // --- SMART MESSAGE GENERATION ---
             const oldBal = calculateBalance(name);
+            // New Balance Calculation
+            // type 'given' (+ for me), 'taken' (- for me)
+            // But we need to check if it was a repayment or new loan
+            let balAfter = 0;
+            if (type === 'given') balAfter = oldBal + amt;
+            else balAfter = oldBal - amt;
+
             const amtFmt = formatter.format(amt).replace('₹','').trim();
-            const balAfter = type === 'given' ? oldBal + amt : oldBal - amt;
             const balFmt = formatter.format(Math.abs(balAfter)).replace('₹','').trim();
             const oldFmt = formatter.format(Math.abs(oldBal)).replace('₹','').trim();
             
             let msg = "";
-            // Logic restoration
-            if (type === 'taken') { // I TOOK (Payable increases or Receivable decreases)
-                if (oldBal < 0) { // Scenario 2: Already owed money, took more
-                     msg = `${name}, Pehle se ₹${oldFmt} udhaar the. Aaj ₹${amtFmt} aur udhaar liye gaye hain. Ab total udhaar ₹${balFmt} ho gaya hai. Jald hi wapas kar diya jayega. Thank you.`;
-                } else if (oldBal > 0) { // Scenario 5/6 (Wusool/Return): I gave money before, now taking back (receiving)
-                     if(Math.abs(balAfter) < 1) { // Scenario 6: Cleared
-                         msg = `${name}, Aaj aap ne ₹${amtFmt} wapas kiye hain. Is ke sath hi aapka poora hisaab clear ho gaya hai. Ab koi raqam baqi nahi rahi. Thank you.`;
-                     } else { // Scenario 5: Partial
-                         msg = `${name}, Aaj aap ne ₹${amtFmt} wapas kiye hain. Abhi baqi ₹${balFmt} reh gaye hain. Unko bhi jald wapas karne ki koshish karein. Thank you.`;
-                     }
-                } else { // Scenario 1: New debt
-                    msg = `${name}, Aaj aap se ₹${amtFmt} udhaar liye gaye hain. Jald hi wapas karne ki koshish ki jayegi. Thank you.`;
-                }
-            } else { // I GAVE (Receivable increases or Payable decreases)
-                if (oldBal > 0) { // Scenario 4: Already gave money, giving more
-                    msg = `${name}, Aapne pehle se ₹${oldFmt} liye hue the. Aaj ₹${amtFmt} aur udhaar liye hain. Ab total udhaar ₹${balFmt} ho gaye hain. Jald hi wapas karne ki koshish karein. Thank you.`;
-                } else if (oldBal < 0) { // Scenario 7/8 (Wusool/Return): I owed money, now returning (paying)
-                    if(Math.abs(balAfter) < 1) { // Scenario 8: Cleared
-                         msg = `${name}, Aaj maine aapko ₹${amtFmt} wapas kiye hain. Ab koi bhi raqam baqi nhi hai aap ka hisab clear ho gya hai. Thank you.`;
-                    } else { // Scenario 7: Partial
-                         msg = `${name}, Aaj maine aapko ₹${amtFmt} wapas kiye hain. Abhi baqi ₹${balFmt} reh gaye hain. Unko bhi jald wapas karne ki koshish karunga. Thank you.`;
+            
+            // Logic: 
+            // oldBal > 0: Log mujhe dene wale the (Asset)
+            // oldBal < 0: Mujhe logon ko dene the (Liability)
+            
+            if (type === 'given') { 
+                // MAINE DIYE (My Balance Increases)
+                if (oldBal < 0) { 
+                    // I owed money, now I am paying back (Repayment)
+                    const remaining = Math.abs(balAfter);
+                    if (remaining < 1) {
+                         msg = `Dear ${name}, Aaj maine aapko ₹${amtFmt} wapas kar diye hain. Ab hisaab barabar ho gaya hai. Shukriya.`;
+                    } else {
+                         msg = `Dear ${name}, Aaj maine aapko ₹${amtFmt} wapas kiye hain. Abhi ₹${formatter.format(remaining).replace('₹','').trim()} aur dena baqi hai.`;
                     }
-                } else { // Scenario 3: New loan
-                    msg = `${name}, Aapne ₹${amtFmt} udhaar liye hain. Please ${rDate?rDate:'jald'} tak wapas karne ki koshish karein. Thank you.`;
+                } else {
+                    // New Loan or Adding to existing Loan given by me
+                    msg = `Dear ${name}, Aaj maine aapko ₹${amtFmt} udhar diye hain. Ab total ₹${balFmt} lene hain.`;
+                }
+            } else { 
+                // MAINE LIYE (My Balance Decreases)
+                if (oldBal > 0) {
+                    // People owed me, now they are paying back (Recovery)
+                     const remaining = Math.abs(balAfter);
+                     if (remaining < 1) {
+                         msg = `Dear ${name}, Aaj aapne ₹${amtFmt} wapas kar diye hain. Aapka hisaab poora clear ho gaya hai. Shukriya.`;
+                     } else {
+                         msg = `Dear ${name}, Aaj aapne ₹${amtFmt} jama karwaye hain. Abhi ₹${formatter.format(remaining).replace('₹','').trim()} baqi reh gaye hain.`;
+                     }
+                } else {
+                    // I am taking new loan
+                    msg = `Dear ${name}, Aaj maine aapse ₹${amtFmt} udhar liye hain. Ab total ₹${balFmt} dena hai.`;
                 }
             }
 
-            // Determine entry type details
-            const isRecovery = (type === 'taken' && oldBal > 0);
-            const isRepayment = (type === 'given' && oldBal < 0);
+            // Determine entry description for history
+            const isRecovery = (type === 'taken' && oldBal > 0); // I got money from someone who owed me
+            const isRepayment = (type === 'given' && oldBal < 0); // I gave money to someone I owed
             
+            let descText = "";
+            if(type === 'taken') {
+                descText = isRecovery ? `Wapas Mile: ${name}` : `Udhar Liya: ${name}`;
+            } else {
+                descText = isRepayment ? `Wapas Diye: ${name}` : `Udhar Diya: ${name}`;
+            }
+
             const entry = {
                 id: Date.now(),
                 date: date,
@@ -804,15 +980,17 @@
                 phone: phone,
                 account: acc,
                 returnDate: rDate,
-                desc: type === 'taken' ? (isRecovery ? `Udhar Wapas Mila: ${name}` : `Loan taken: ${name}`) : (isRepayment ? `Udhar Wapas Diya: ${name}` : `Loan given: ${name}`),
+                desc: descText,
                 status: 'active',
-                isWusool: isRecovery || isRepayment // Mark as settlement/wusool if applicable
+                isWusool: isRecovery || isRepayment 
             };
             
             transactions.push(entry);
             saveData();
             closeUdharModal();
+            // Refresh list but don't reopen person modal to keep flow clean
             renderCustomerList();
+            if(lastOpenedPerson) openPersonDetails(lastOpenedPerson); 
             
             // Clear inputs
             document.getElementById('udhar-amount').value = '';
@@ -824,7 +1002,7 @@
             }
         }
         
-        // --- MODIFIED CONFIRM WUSOOL FUNCTION ---
+        // --- MODIFIED CONFIRM WUSOOL FUNCTION (For Settle Button) ---
         function confirmWusool() {
             try {
                 const name = document.getElementById('wusool-person-name').value;
@@ -836,46 +1014,36 @@
                 
                 const pending = parseFloat(document.getElementById('wusool-amount').dataset.pending || 0);
                 
-                // Determine flow based on pending balance
-                // Pending > 0 means I am owed money (Receivable). Settle means I get money (Income).
-                // Pending < 0 means I owe money (Payable). Settle means I give money (Expense).
                 let type = pending > 0 ? 'income' : 'expense';
-                
-                // Description as requested: "wapas mile" or similar
-                let desc = pending > 0 ? `Udhar Wapas Mila: ${name}` : `Udhar Wapas Diya: ${name}`;
+                let desc = pending > 0 ? `Full Settlement: ${name}` : `Full Settlement: ${name}`;
 
-                // Find phone from history to preserve it
+                // Find phone from history
                 const lastTx = transactions.slice().reverse().find(t => t.person === name && t.phone);
                 const phone = lastTx ? lastTx.phone : '';
 
                 const entry = {
                     id: Date.now(),
-                    date: new Date().toISOString().split('T')[0], // Use local date helper ideally, but this is safe enough for sorting
+                    date: new Date().toISOString().split('T')[0],
                     amount: amt,
                     type: type,
                     isWusool: true,
                     person: name,
                     account: acc,
                     desc: desc,
-                    phone: phone // Preserve phone
+                    phone: phone
                 };
                 
                 transactions.push(entry);
                 saveData();
                 
-                // Close Modals
                 document.getElementById('wusool-modal').classList.add('hidden');
                 
-                // Refresh UI
+                renderCustomerList(); 
                 if(lastOpenedPerson) openPersonDetails(lastOpenedPerson);
-                renderCustomerList();
 
-                // Clear input
                 document.getElementById('wusool-amount').value = '';
 
-                // WhatsApp Logic
-                const remaining = Math.abs(pending) - amt;
-                // Formatting helper for message
+                // WhatsApp Logic for Settlement
                 const formatNum = (n) => new Intl.NumberFormat('en-IN').format(n);
                 
                 if(phone) {
@@ -883,24 +1051,15 @@
                     const finalPhone = cleanPhone.length === 10 ? '91'+cleanPhone : cleanPhone;
                     let msg = "";
 
-                    if (type === 'income') { // I Received
-                        if (remaining <= 1) { 
-                             msg = `Salam ${name}, Aaj aap ne ₹${formatNum(amt)} wapas kiye hain. Is ke sath hi aapka poora hisaab clear ho gaya hai. Ab koi raqam baqi nahi rahi. Thank you.`;
-                        } else { 
-                             msg = `Salam ${name}, Aaj aap ne ₹${formatNum(amt)} wapas kiye hain. Abhi baqi ₹${formatNum(remaining)} reh gaye hain. Unko bhi jald wapas karne ki koshish karein. Thank you.`;
-                        }
-                    } else { // I Paid
-                        if (remaining <= 1) { 
-                             msg = `Salam ${name}, Aaj maine aapko ₹${formatNum(amt)} wapas kiye hain. Ab koi bhi raqam baqi nhi hai aap ka hisab clear ho gya hai. Thank you.`;
-                        } else { 
-                             msg = `Salam ${name}, Aaj maine aapko ₹${formatNum(amt)} wapas kiye hain. Abhi baqi ₹${formatNum(remaining)} reh gaye hain. Unko bhi jald wapas karne ki koshish karunga. Thank you.`;
-                        }
+                    if (type === 'income') { // I Received (User paid me back)
+                         msg = `Dear ${name}, Aaj aapne poora hisaab clear kar diya hai (₹${formatNum(amt)} received). Ab kuch baqi nahi. Shukriya.`;
+                    } else { // I Paid (I paid back user)
+                         msg = `Dear ${name}, Aaj maine aapka poora hisaab clear kar diya hai (₹${formatNum(amt)} paid). Ab kuch baqi nahi. Shukriya.`;
                     }
                     window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank');
                 }
             } catch (e) {
                 console.error(e);
-                alert("Error saving transaction. Check console.");
             }
         }
 
@@ -967,46 +1126,48 @@
         }
         function closeEntryModal() { document.getElementById('entry-modal').classList.add('hidden'); }
         
+        // --- ADD NEW CUSTOMER MODAL ---
         function openNewUdharModal() {
             setToday('udhar-date');
-            setLoanType('given'); // Default to giving
             updateDatalist();
+            
+            // Show fields for new customer
+            document.getElementById('udhar-modal-title').innerText = "Add New Customer";
+            document.getElementById('new-customer-fields').classList.remove('hidden');
+            document.getElementById('existing-customer-display').classList.add('hidden');
+            
+            // Clear fields
+            document.getElementById('udhar-person').value = '';
+            document.getElementById('udhar-phone').value = '';
+            document.getElementById('udhar-amount').value = ''; 
+            
+            setLoanType('given'); 
+            document.getElementById('udhar-modal').classList.remove('hidden');
+        }
+
+        // --- EXISTING CUSTOMER MODAL (Strictly for Ledger Transactions) ---
+        function openExistingUdharModal(name, phone, mode) {
+            setToday('udhar-date');
+            document.getElementById('udhar-modal-title').innerText = "Add Transaction";
+            
+            // Hide selection fields, show name display only
+            document.getElementById('new-customer-fields').classList.add('hidden');
+            document.getElementById('existing-customer-display').classList.remove('hidden');
+            document.getElementById('existing-name-disp').innerText = name;
+            
+            // Pre-fill hidden inputs logic
+            document.getElementById('udhar-person').value = name;
+            document.getElementById('udhar-phone').value = phone;
+            
+            setLoanType(mode); // 'given' or 'taken'
             document.getElementById('udhar-amount').value = ''; 
             document.getElementById('udhar-modal').classList.remove('hidden');
         }
+
         function closeUdharModal() { document.getElementById('udhar-modal').classList.add('hidden'); }
 
-        function setTxType(type) {
-            document.getElementById('tx-type').value = type;
-            const btnExp = document.getElementById('btn-expense');
-            const btnInc = document.getElementById('btn-income');
-            const btnTrans = document.getElementById('btn-transfer'); 
-            
-            const allBtns = [btnExp, btnInc, btnTrans];
-            allBtns.forEach(b => { if(b) b.className = "flex-1 py-3 rounded-lg text-slate-400"; });
+        // ... existing setTxType ...
 
-            if(type==='expense'){ 
-                if(btnExp) btnExp.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-rose-600"; 
-                populateCats(expenseCats);
-                document.getElementById('cat-wrapper').classList.remove('hidden');
-                document.getElementById('account-wrapper').classList.remove('hidden');
-                document.getElementById('transfer-wrapper').classList.add('hidden');
-                document.getElementById('transfer-wrapper').classList.remove('flex');
-            } else if (type==='income') {
-                if(btnInc) btnInc.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-emerald-600";
-                populateCats(incomeCats);
-                document.getElementById('cat-wrapper').classList.remove('hidden');
-                document.getElementById('account-wrapper').classList.remove('hidden');
-                document.getElementById('transfer-wrapper').classList.add('hidden');
-                document.getElementById('transfer-wrapper').classList.remove('flex');
-            } else { 
-                if(btnTrans) btnTrans.className="flex-1 py-3 rounded-lg shadow-sm bg-white text-blue-600";
-                document.getElementById('cat-wrapper').classList.add('hidden');
-                document.getElementById('account-wrapper').classList.add('hidden');
-                document.getElementById('transfer-wrapper').classList.remove('hidden');
-                document.getElementById('transfer-wrapper').classList.add('flex');
-            }
-        }
         function setLoanType(type) { 
             document.getElementById('loan-type').value = type; 
             const btnGiven = document.getElementById('btn-loan-given'); 
@@ -1024,7 +1185,14 @@
             } 
         }
 
-        // Smart Transfer Auto-Switch
+        // ... existing syncTransferDest ...
+        // ... existing saveTransaction ...
+        // ... existing updateChart ...
+        // ... existing showSummary ...
+        // ... existing editTransaction ...
+        // ... existing deleteTransaction ...
+        // ... existing exportData ...
+
         function syncTransferDest() {
             const fromVal = document.getElementById('transfer-from').value;
             const toEl = document.getElementById('transfer-to');
@@ -1103,6 +1271,38 @@
                     legendContainer.innerHTML += `<div class="flex justify-between items-center text-sm group"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full ${cfg.bgLight} ${cfg.text} flex items-center justify-center shadow-sm border border-slate-50"><i class="fas ${cfg.icon} text-xs"></i></div><div><p class="font-bold text-slate-700 text-xs">${cat}</p><div class="w-24 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden"><div class="h-full ${cfg.color} rounded-full" style="width: ${percent}%"></div></div></div></div><div class="text-right"><p class="font-bold text-slate-800 text-xs">${formatter.format(amount)}</p><p class="text-[10px] text-slate-400 font-bold">${percent}%</p></div></div>`; 
                 }); 
             }
+            
+            // Bar Chart Trend (Home Page)
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            const trendData = { labels: ['Income', 'Expense'], datasets: [{ label: 'Amount', data: [0, 0], backgroundColor: ['#10b981', '#f43f5e'], borderRadius: 5 }] };
+
+            // Calculate Income/Expense for period
+            let trendInc = 0, trendExp = 0;
+             const trendTx = transactions.filter(t => {
+                if (homeFilterState.period === 'day') return t.date === today;
+                if (homeFilterState.period === 'month') return t.date.startsWith(currentMonth);
+                if (homeFilterState.period === 'year') return t.date.startsWith(currentYear);
+                return true;
+            });
+            
+            trendTx.forEach(t => {
+                 if (t.type === 'income' && !t.isWusool) trendInc += t.amount;
+                 if (t.type === 'expense') trendExp += t.amount;
+            });
+            
+            trendData.datasets[0].data = [trendInc, trendExp];
+
+            if(trendChartInstance) trendChartInstance.destroy();
+            trendChartInstance = new Chart(trendCtx, {
+                type: 'bar',
+                data: trendData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                }
+            });
         }
 
         function showSummary(type) {
@@ -1169,16 +1369,24 @@
             const t = transactions.find(tx => tx.id === id);
             if (!t) return;
             if(t.type === 'udhar' || t.type.includes('Recovery') || t.isWusool) {
-                 openNewUdharModal(); 
-                 editingTransactionId = id; 
-                 document.getElementById('udhar-modal-title').innerText = "Edit Loan";
-                 if (t.loanType === 'taken') setLoanType('taken'); else setLoanType('given');
-                 document.getElementById('udhar-amount').value = t.amount;
-                 document.getElementById('udhar-person').value = t.person;
-                 document.getElementById('udhar-phone').value = t.phone || '';
-                 document.getElementById('udhar-source').value = t.account;
-                 document.getElementById('udhar-date').value = t.date;
-                 document.getElementById('udhar-return-date').value = t.returnDate || '';
+                 // For Udhar, open appropriate modal
+                 // We don't fully support editing complex udhar logic simply, best to delete and re-add for accuracy in this simple app
+                 // But we can allow editing amount/date if needed. For now, simple re-open new logic:
+                 if(t.person) {
+                     // It's a ledger entry. Open existing modal.
+                     openExistingUdharModal(t.person, t.phone, t.loanType || (t.type==='income'?'taken':'given'));
+                     // Override values
+                     document.getElementById('udhar-amount').value = t.amount;
+                     document.getElementById('udhar-date').value = t.date;
+                     document.getElementById('udhar-modal-title').innerText = "Edit Entry (Re-save to update)";
+                     // Note: Real editing would require replacing the ID. Here we might just be adding new. 
+                     // Deleting old then adding new is safer for this structure.
+                     if(confirm("To edit this ledger entry, it will be deleted and you can re-save. Continue?")) {
+                         deleteTransaction(id);
+                     } else {
+                         closeUdharModal();
+                     }
+                 }
                  return; 
             }
             editingTransactionId = id;
@@ -1365,36 +1573,50 @@
             // Find phone
             const personTx = transactions.filter(t => t.person === name);
             const lastTx = personTx.slice().reverse().find(t => t.phone) || {};
-            document.getElementById('ph-phone').innerText = lastTx.phone || "No Phone";
+            const phoneNo = lastTx.phone || "";
+            document.getElementById('ph-phone').innerText = phoneNo || "No Phone";
 
-            // Configure Header Buttons (Reminder / Settle)
+            // Configure Header Buttons
             const btnReminder = document.getElementById('btn-ledger-reminder');
-            btnReminder.onclick = () => {
-                const clean = (lastTx.phone || '').replace(/\D/g, '');
-                const ph = clean.length === 10 ? '91'+clean : clean;
-                if(!ph) return alert("No phone number found.");
-                const txt = `Dear ${name}, Your total pending balance is ${formatter.format(Math.abs(bal))}. Please clear it soon.`;
-                window.open(`https://wa.me/${ph}?text=${encodeURIComponent(txt)}`, '_blank');
-            };
+            
+            // REQUIREMENT: Disable if settled (balance < 1)
+            if (Math.abs(bal) < 1) {
+                btnReminder.disabled = true;
+                btnReminder.className = "flex-1 py-2 bg-slate-100 text-slate-400 rounded-lg text-xs font-bold border border-slate-200 flex items-center justify-center gap-1 cursor-not-allowed";
+            } else {
+                btnReminder.disabled = false;
+                btnReminder.className = "flex-1 py-2 bg-green-50 text-green-600 rounded-lg text-xs font-bold border border-green-100 flex items-center justify-center gap-1 active:scale-95";
+                btnReminder.onclick = () => {
+                    const clean = phoneNo.replace(/\D/g, '');
+                    const ph = clean.length === 10 ? '91'+clean : clean;
+                    if(!ph) return alert("No phone number found.");
+                    
+                    // Simple Reminder Message
+                    const txt = `Dear ${name}, Reminder: Your pending balance is ${formatter.format(Math.abs(bal))}. Please clear it soon.`;
+                    window.open(`https://wa.me/${ph}?text=${encodeURIComponent(txt)}`, '_blank');
+                };
+            }
 
             const btnSettle = document.getElementById('btn-ledger-settle');
-            btnSettle.onclick = () => openWusoolForPerson(name, true);
+            if(Math.abs(bal) < 1) {
+                 btnSettle.disabled = true;
+                 btnSettle.classList.add('opacity-50');
+            } else {
+                 btnSettle.disabled = false;
+                 btnSettle.classList.remove('opacity-50');
+                 btnSettle.onclick = () => openWusoolForPerson(name, true);
+            }
 
-            // Configure Footer Buttons (Give / Take)
+            // Configure Footer Buttons (Give / Take) -> Should NOT ask for name/contact again
             document.getElementById('btn-ledger-give').onclick = () => {
-                document.getElementById('person-history-modal').classList.add('hidden');
-                openNewUdharModal();
-                document.getElementById('udhar-person').value = name;
-                if(lastTx.phone) document.getElementById('udhar-phone').value = lastTx.phone;
-                setLoanType('given'); // Default: I GAVE
+                // Keep Ledger open or close? Usually closing ledger to open input is better on mobile
+                // document.getElementById('person-history-modal').classList.add('hidden'); 
+                openExistingUdharModal(name, phoneNo, 'given'); 
             };
             
             document.getElementById('btn-ledger-get').onclick = () => {
-                document.getElementById('person-history-modal').classList.add('hidden');
-                openNewUdharModal();
-                document.getElementById('udhar-person').value = name;
-                if(lastTx.phone) document.getElementById('udhar-phone').value = lastTx.phone;
-                setLoanType('taken'); // Default: I GOT
+                // document.getElementById('person-history-modal').classList.add('hidden');
+                openExistingUdharModal(name, phoneNo, 'taken');
             };
 
             list.innerHTML = '';
@@ -1403,6 +1625,9 @@
             
             history.forEach(t => {
                 // Card Style Entry
+                // Logic: 
+                // Green (Got) if I took money (loan taken or recovery)
+                // Red (Gave) if I gave money (loan given or repayment)
                 const isGiven = (t.type === 'udhar' && t.loanType === 'given') || (t.isWusool && t.type === 'expense');
                 
                 let amountColor = isGiven ? 'text-rose-600' : 'text-emerald-600';
@@ -1553,6 +1778,23 @@
             });
             
             doc.save(`Exp_Tracker_${Date.now()}.pdf`);
+        }
+        
+        function saveCategoryLimit() {
+            const cat = document.getElementById('budget-cat-select').value;
+            const lim = parseFloat(document.getElementById('budget-cat-limit').value);
+            if(!cat || !lim) return alert("Invalid inputs");
+            categoryLimits[cat] = lim;
+            localStorage.setItem('categoryLimits', JSON.stringify(categoryLimits));
+            document.getElementById('cat-budget-modal').classList.add('hidden');
+            calculateBudget();
+        }
+        
+        function removeCategoryLimit(cat) {
+            if(!confirm(`Remove limit for ${cat}?`)) return;
+            delete categoryLimits[cat];
+            localStorage.setItem('categoryLimits', JSON.stringify(categoryLimits));
+            calculateBudget();
         }
 
         // --- INITIALIZATION ---
