@@ -140,7 +140,7 @@
                     </div>
                 </div>
             </div>
-            <button onclick="downloadPDF()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 mb-4 hover:bg-slate-900"><i class="fas fa-file-pdf text-red-400"></i> Get Statement</button>
+            <button onclick="downloadPDF()" class="w-full bg-slate-800 text-white py-3 rounded-xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 active:scale-95 mb-4 hover:bg-slate-900"><i class="fas fa-file-pdf text-red-400"></i> Get Statement (PDF)</button>
             <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"><ul id="full-list" class="divide-y divide-slate-50"></ul></div>
         </section>
 
@@ -311,7 +311,11 @@
         
         <!-- Only shown for NEW customers -->
         <div id="new-customer-fields">
-            <button onclick="pickContact()" class="w-full py-3 mb-3 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-slate-600 font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-100"><i class="fas fa-address-book text-lg"></i> Select from Contacts</button>
+            <div class="flex gap-2 mb-3">
+                <button onclick="pickContact()" class="flex-1 py-3 bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 active:scale-95"><i class="fas fa-address-book"></i> Select from Contacts</button>
+                <button onclick="document.getElementById('contacts-modal').classList.remove('hidden');" class="flex-none w-12 bg-slate-100 text-slate-600 rounded-xl font-bold text-lg flex items-center justify-center border border-slate-200 active:scale-95"><i class="fas fa-list"></i></button>
+            </div>
+            
             <div class="mb-3"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Person Name</label><input type="text" id="udhar-person" list="udhar-names-list" placeholder="Enter Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"><datalist id="udhar-names-list"></datalist></div>
             <div class="mb-3"><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Mobile (WA)</label><input type="tel" id="udhar-phone" placeholder="91..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-blue-500"></div>
         </div>
@@ -343,7 +347,7 @@
     <!-- Footer Buttons -->
     <div class="p-4 bg-white border-t border-slate-100 grid grid-cols-2 gap-3"><button id="btn-ledger-give" class="py-3 bg-rose-50 text-rose-600 font-bold rounded-xl border border-rose-100 flex items-center justify-center gap-2 active:scale-95"> <i class="fas fa-arrow-up"></i> MAINE DIYE </button><button id="btn-ledger-get" class="py-3 bg-emerald-50 text-emerald-600 font-bold rounded-xl border border-emerald-100 flex items-center justify-center gap-2 active:scale-95"> <i class="fas fa-arrow-down"></i> MAINE LIYE </button></div></div></div>
     
-    <div id="contacts-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2"><h3 class="font-bold text-slate-800">Select Contact</h3><button onclick="document.getElementById('contacts-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button></div><div id="contacts-list-content" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar"></div></div></div>
+    <div id="contacts-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2"><h3 class="font-bold text-slate-800">Saved Contacts</h3><button onclick="document.getElementById('contacts-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button></div><div id="contacts-list-content" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar"></div></div></div>
     
     <!-- WUSOOL / SETTLE MODAL -->
     <div id="wusool-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 fade-in"><div class="bg-white w-full max-w-xs rounded-2xl p-5 shadow-2xl"><div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-2"><h3 class="font-bold text-lg text-slate-800" id="wusool-modal-title">Receive Money</h3><button onclick="document.getElementById('wusool-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fas fa-times"></i></button></div><p class="text-xs text-slate-500 mb-2 font-bold" id="wusool-msg">Settling...</p><input type="hidden" id="wusool-person-name"><label class="block text-[10px] font-bold text-emerald-600 uppercase mb-2 ml-1">Received Amount</label><div class="flex gap-2 mb-3"><input type="number" id="wusool-amount" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-lg font-bold text-slate-800 focus:outline-none focus:border-teal-500"><button onclick="settleFull()" class="bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap active:scale-95">Full Settle</button></div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">Deposit To</label><select id="wusool-account" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold mb-4"><option value="Cash">Cash</option><option value="Bank">Bank Account</option></select><div class="flex gap-2"><button onclick="document.getElementById('wusool-modal').classList.add('hidden')" class="flex-1 py-2 text-slate-500 font-bold text-xs bg-slate-100 rounded-lg">Cancel</button><button onclick="confirmWusool()" class="flex-1 py-2 text-white font-bold text-xs bg-emerald-600 rounded-lg">Confirm</button></div></div></div>
@@ -1667,82 +1671,90 @@
             // Helper to avoid Unicode Rupee symbol in PDF which breaks standard fonts
             const formatMoney = (amount) => "Rs. " + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             
-            // -- Header Styling (Teal Background) --
+            // -- Header Styling (Professional Bank Style) --
+            // Top Bar
             doc.setFillColor(13, 148, 136); // Teal-600
-            doc.rect(0, 0, 210, 40, 'F');
+            doc.rect(0, 0, 210, 15, 'F'); // Thin top bar
             
-            // Title
-            doc.setTextColor(255, 255, 255);
+            // Title Section
+            doc.setTextColor(33, 33, 33);
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(22);
-            doc.text("Madani Exp Tracker", 14, 18);
+            doc.setFontSize(20);
+            doc.text("STATEMENT OF ACCOUNT", 14, 30);
             
-            // Subtitle
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            doc.text("Madani Exp Tracker", 14, 36);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 42);
+
+            // -- Summary Section Box --
+            const data = getFilteredTransactions().sort((a,b) => new Date(a.date) - new Date(b.date)); // Sort Oldest First for Running Balance
+            
+            // Calculate totals
+            let totalCredit = 0, totalDebit = 0;
+            data.forEach(t => {
+                if(t.type === 'income' || (t.type === 'udhar' && t.loanType === 'taken')) totalCredit += t.amount;
+                if(t.type === 'expense' || (t.type === 'udhar' && t.loanType === 'given')) totalDebit += t.amount;
+            });
+            const closingBal = totalCredit - totalDebit;
+
+            // Box position
+            const startY = 50;
+            
+            // Summary Header
+            doc.setFillColor(241, 245, 249); // Slate-100
+            doc.rect(14, startY, 182, 8, 'F');
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.setTextColor(51, 65, 85);
+            doc.text("ACCOUNT SUMMARY", 16, startY + 5);
+
+            // Summary Content
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
-            doc.text("Account Statement", 14, 25);
-            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-
-            // -- Summary Section (Like App Header) --
-            // SORTING CHANGE: Date Descending, then ID Descending (Newest Entry Top in PDF too)
-            const data = getFilteredTransactions().sort((a,b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
             
-            // Calculate totals based on filtered view
-            let totalInc = 0, totalExp = 0;
-            data.forEach(t => {
-                if(t.type === 'income' || (t.type === 'udhar' && t.loanType === 'taken')) totalInc += t.amount;
-                if(t.type === 'expense' || (t.type === 'udhar' && t.loanType === 'given')) totalExp += t.amount;
-            });
-            const net = totalInc - totalExp;
-
-            // Draw Summary Box
-            doc.setFillColor(248, 250, 252); // Slate-50
-            doc.setDrawColor(226, 232, 240); // Slate-200
-            doc.roundedRect(14, 45, 182, 25, 3, 3, 'FD');
-
-            doc.setTextColor(100, 116, 139); // Slate-500
-            doc.setFontSize(8);
-            doc.text("TOTAL INCOME", 24, 53);
-            doc.text("TOTAL EXPENSE", 84, 53);
-            doc.text("NET BALANCE", 144, 53);
-
-            doc.setFontSize(12);
+            doc.text("Total Credit (In):", 16, startY + 16);
+            doc.setTextColor(22, 163, 74); // Green
+            doc.text(formatMoney(totalCredit), 60, startY + 16);
+            
+            doc.setTextColor(51, 65, 85);
+            doc.text("Total Debit (Out):", 16, startY + 22);
+            doc.setTextColor(220, 38, 38); // Red
+            doc.text(formatMoney(totalDebit), 60, startY + 22);
+            
+            doc.setTextColor(51, 65, 85);
             doc.setFont("helvetica", "bold");
-            doc.setTextColor(16, 185, 129); // Emerald
-            doc.text(formatMoney(totalInc), 24, 62);
-            
-            doc.setTextColor(225, 29, 72); // Rose
-            doc.text(formatMoney(totalExp), 84, 62);
-            
-            doc.setTextColor(net >= 0 ? 16 : 225, net >= 0 ? 185 : 29, net >= 0 ? 129 : 72); // Conditional Color
-            doc.text(formatMoney(net), 144, 62);
+            doc.text("Closing Balance:", 120, startY + 22);
+            doc.setTextColor(closingBal >= 0 ? 22 : 220, closingBal >= 0 ? 163 : 38, closingBal >= 0 ? 74 : 38);
+            doc.setFontSize(12);
+            doc.text(formatMoney(closingBal), 160, startY + 22);
 
-            // -- Table Section --
-            const balances = getRunningBalances();
-            
-            // Removed Time Column, Merged Date & Time
-            const tableColumn = ["Date", "Category", "Details", "Mode", "Amount", "Balance"];
+            // -- Ledger Table --
+            const tableColumn = ["Date", "Description", "Debit (-)", "Credit (+)", "Balance"];
             const tableRows = [];
+            
+            let runningBalance = 0;
 
             data.forEach(t => {
-                const bal = balances[t.id] !== undefined ? formatMoney(balances[t.id]) : '-';
-                const timeStr = new Date(t.id).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                let credit = 0;
+                let debit = 0;
                 
-                // Format Amount with +/- sign
-                let amtStr = formatMoney(t.amount);
                 if(t.type === 'income' || (t.type === 'udhar' && t.loanType === 'taken')) {
-                    amtStr = "+ " + amtStr;
+                    credit = t.amount;
+                    runningBalance += t.amount;
                 } else {
-                    amtStr = "- " + amtStr;
+                    debit = t.amount;
+                    runningBalance -= t.amount;
                 }
 
+                // Format row
                 const row = [
-                    t.date + "\n" + timeStr, // Date & Time Combined
-                    t.desc + (t.person ? ` (${t.person})` : ''), // Category / Main Title
-                    t.note || '-', // Description / User Note
-                    t.account,
-                    amtStr,
-                    bal
+                    t.date, 
+                    (t.desc + (t.person ? ` (${t.person})` : '')).substring(0, 35), // Truncate long desc
+                    debit > 0 ? formatMoney(debit) : "-",
+                    credit > 0 ? formatMoney(credit) : "-",
+                    formatMoney(runningBalance)
                 ];
                 tableRows.push(row);
             });
@@ -1751,41 +1763,45 @@
                 head: [tableColumn],
                 body: tableRows,
                 startY: 80,
-                theme: 'grid',
+                theme: 'striped',
                 styles: { 
-                    fontSize: 9, 
+                    fontSize: 8, 
                     cellPadding: 3,
                     font: "helvetica",
-                    textColor: [51, 65, 85], // Slate-700
-                    valign: 'middle'
+                    textColor: [50, 50, 50],
+                    lineWidth: 0.1,
+                    lineColor: [200, 200, 200]
                 },
                 headStyles: { 
-                    fillColor: [13, 148, 136], // Teal-600
-                    textColor: [255, 255, 255],
-                    fontStyle: 'bold'
+                    fillColor: [248, 250, 252], // Very Light Gray
+                    textColor: [15, 23, 42], // Slate-900
+                    fontStyle: 'bold',
+                    lineWidth: 0.1,
+                    lineColor: [200, 200, 200]
                 },
                 columnStyles: {
-                    0: { cellWidth: 25 }, // Date (Slightly wider for Time)
-                    1: { cellWidth: 30 }, // Category
-                    2: { cellWidth: 'auto' }, // Details (Dynamic width)
-                    3: { cellWidth: 15 }, // Mode
-                    4: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }, // Amount
-                    5: { cellWidth: 25, halign: 'right', fontStyle: 'bold', textColor: [100, 116, 139] } // Balance
+                    0: { cellWidth: 25 }, // Date
+                    1: { cellWidth: 'auto' }, // Desc
+                    2: { cellWidth: 30, halign: 'right', textColor: [220, 38, 38] }, // Debit (Red)
+                    3: { cellWidth: 30, halign: 'right', textColor: [22, 163, 74] }, // Credit (Green)
+                    4: { cellWidth: 30, halign: 'right', fontStyle: 'bold' } // Balance
                 },
-                didParseCell: function(data) {
-                    // Color code the Amount column
-                    if (data.section === 'body' && data.column.index === 4) { // Amount is now at index 4
-                        const text = data.cell.raw;
-                        if (text.startsWith('+')) {
-                            data.cell.styles.textColor = [16, 185, 129]; // Green
-                        } else {
-                            data.cell.styles.textColor = [225, 29, 72]; // Red
-                        }
-                    }
+                alternateRowStyles: {
+                    fillColor: [255, 255, 255]
                 }
             });
             
-            doc.save(`Exp_Tracker_${Date.now()}.pdf`);
+            // Footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`Page ${i} of ${pageCount}`, 190, 290, { align: 'right' });
+                doc.text("Madani Exp Tracker - Generated Report", 14, 290);
+            }
+            
+            doc.save(`Statement_${new Date().toISOString().split('T')[0]}.pdf`);
         }
         
         function saveCategoryLimit() {
