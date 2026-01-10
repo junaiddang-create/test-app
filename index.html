@@ -20,6 +20,8 @@
     <!-- PDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- Excel Library (SheetJS) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -44,7 +46,11 @@
         <!-- HEADER -->
         <header class="bg-white p-4 sticky top-0 z-30 shadow-sm border-b border-slate-100 flex justify-between items-center pt-safe">
             <div>
-                <h1 class="text-lg font-bold text-teal-700 flex items-center gap-2"><i class="fas fa-wallet"></i> Madani Exp Tracker</h1>
+                <h1 class="text-lg font-bold text-teal-700 flex items-center gap-2">
+                    <i class="fas fa-wallet"></i> 
+                    <span id="header-app-title">Madani Exp Tracker</span>
+                </h1>
+                <p class="text-[10px] text-slate-400 font-bold ml-7" id="header-user-greeting">Welcome</p>
             </div>
             <div class="text-right">
                 <p class="text-[10px] text-slate-400 uppercase tracking-wider font-bold" id="net-balance-label">Net Balance</p>
@@ -215,10 +221,20 @@
         <!-- === 5. SETTINGS VIEW === -->
         <section id="view-settings" class="p-4 fade-in hidden pb-24">
             <h2 class="text-lg font-bold mb-4">Settings</h2>
+            
+            <!-- User Name Input -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 mb-4">
+                <h3 class="font-bold text-sm text-slate-700 mb-2">User Profile</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="settings-user-name" placeholder="Enter Your Name" class="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold outline-none focus:border-teal-500">
+                    <button onclick="saveUserName()" class="bg-teal-600 text-white px-4 py-2 rounded-lg text-xs font-bold active:scale-95">Save</button>
+                </div>
+            </div>
+
             <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                <button onclick="exportData()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-save"></i></div><div><p class="text-sm font-bold text-slate-700">Backup Data</p><p class="text-[10px] text-slate-400">Save to device</p></div></button>
-                <button onclick="document.getElementById('import-file').click()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><i class="fas fa-file-import"></i></div><div><p class="text-sm font-bold text-slate-700">Restore Data</p><p class="text-[10px] text-slate-400">Replace current data with backup</p></div></button>
-                <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(this)">
+                <button onclick="exportData()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><i class="fas fa-file-excel"></i></div><div><p class="text-sm font-bold text-slate-700">Backup Data (Excel)</p><p class="text-[10px] text-slate-400">Save as .xlsx</p></div></button>
+                <button onclick="document.getElementById('import-file').click()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-file-import"></i></div><div><p class="text-sm font-bold text-slate-700">Restore Data (Excel)</p><p class="text-[10px] text-slate-400">Upload .xlsx backup</p></div></button>
+                <input type="file" id="import-file" class="hidden" accept=".xlsx, .xls" onchange="importData(this)">
                 <button onclick="clearAll()" class="w-full text-left p-4 hover:bg-red-50 flex items-center gap-3 border-b border-slate-50"><div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-trash-alt"></i></div><div><p class="text-sm font-bold text-red-600">Reset App</p><p class="text-[10px] text-red-400">Delete all data</p></div></button>
                 <button onclick="exitApp()" class="w-full text-left p-4 hover:bg-slate-50 flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center"><i class="fas fa-power-off"></i></div><div><p class="text-sm font-bold text-slate-700">Exit App</p><p class="text-[10px] text-slate-400">Close application</p></div></button>
             </div>
@@ -357,6 +373,7 @@
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let categoryLimits = JSON.parse(localStorage.getItem('categoryLimits')) || {};
         let customCats = JSON.parse(localStorage.getItem('custom_categories')) || []; // LOAD CUSTOM CATEGORIES
+        let appUserName = localStorage.getItem('appUserName') || '';
         
         let chartInstance = null;
         let trendChartInstance = null;
@@ -501,6 +518,75 @@
             }
         }
 
+        // --- USER NAME & BACKUP FUNCTIONS ---
+        function updateHeaderName() {
+            const titleEl = document.getElementById('header-app-title');
+            const greetingEl = document.getElementById('header-user-greeting');
+            
+            if(appUserName) {
+                // Option 1: Replace Title
+                // titleEl.innerText = `${appUserName}'s Tracker`;
+                // Option 2: Show small greeting below (Implemented)
+                greetingEl.innerText = `Welcome, ${appUserName}`;
+                greetingEl.classList.remove('hidden');
+            } else {
+                greetingEl.innerText = 'Welcome';
+            }
+        }
+
+        function saveUserName() {
+            const name = document.getElementById('settings-user-name').value;
+            if(name) {
+                appUserName = name;
+                localStorage.setItem('appUserName', name);
+                updateHeaderName();
+                alert("Name Saved!");
+            }
+        }
+
+        function exportData() {
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+            // Convert transactions to worksheet
+            const ws = XLSX.utils.json_to_sheet(transactions);
+            // Append worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+            // Generate Excel file
+            XLSX.writeFile(wb, "Madani_Tracker_Backup.xlsx");
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if(!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // Assuming first sheet contains data
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // Convert to JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                if(jsonData && jsonData.length > 0) {
+                    if(confirm("Restore " + jsonData.length + " transactions from Excel? This will replace current data.")) {
+                        transactions = jsonData;
+                        saveData();
+                        alert("Data Restored Successfully!");
+                        location.reload(); 
+                    }
+                } else {
+                    alert("No valid data found in Excel file.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            // Reset input so same file can be selected again if needed
+            input.value = '';
+        }
+
         // --- CUSTOM CATEGORY FUNCTIONS ---
         function openAddCategoryModal() {
             document.getElementById('add-category-modal').classList.remove('hidden');
@@ -586,6 +672,9 @@
         // FIXED: Robust Filtering Logic including Custom Date Range
         function getFilteredTransactions() {
             return transactions.filter(t => {
+                // 3. SEPARATE HISTORY: Hide 'udhar' type from main list
+                if (currentView === 'report' && t.type === 'udhar') return false;
+
                 // 1. Filter by Transaction Type (All/Debit/Credit)
                 if(filterState.txType === 'expense' && t.type !== 'expense') return false;
                 if(filterState.txType === 'income' && t.type !== 'income') return false;
@@ -925,8 +1014,6 @@
             // --- SMART MESSAGE GENERATION ---
             const oldBal = calculateBalance(name);
             // New Balance Calculation
-            // type 'given' (+ for me), 'taken' (- for me)
-            // But we need to check if it was a repayment or new loan
             let balAfter = 0;
             if (type === 'given') balAfter = oldBal + amt;
             else balAfter = oldBal - amt;
@@ -934,6 +1021,7 @@
             const amtFmt = formatter.format(amt).replace('₹','').trim();
             const balFmt = formatter.format(Math.abs(balAfter)).replace('₹','').trim();
             const oldFmt = formatter.format(Math.abs(oldBal)).replace('₹','').trim();
+            const dueDateText = rDate ? rDate : "jald se jald";
             
             let msg = "";
             
@@ -946,28 +1034,42 @@
                 if (oldBal < 0) { 
                     // I owed money, now I am paying back (Repayment)
                     const remaining = Math.abs(balAfter);
+                    const remainingFmt = formatter.format(remaining).replace('₹','').trim();
                     if (remaining < 1) {
-                         msg = `Dear ${name}, Aaj maine aapko ₹${amtFmt} wapas kar diye hain. Ab hisaab barabar ho gaya hai. Shukriya.`;
+                         // Full Repayment
+                         msg = `${name},\nAaj Maine ₹${amtFmt} wapas kiye hain.\nIs ke sath aapka poora hisaab clear ho gaya hai.\nAb koi raqam baqi nahi rahi.\n\nThank you.`;
                     } else {
-                         msg = `Dear ${name}, Aaj maine aapko ₹${amtFmt} wapas kiye hain. Abhi ₹${formatter.format(remaining).replace('₹','').trim()} aur dena baqi hai.`;
+                         // Partial Repayment
+                         msg = `${name},\nAaj maine aapko ₹${amtFmt} wapas kiye hain.\nAbhi baqi ₹${remainingFmt} reh gaye hain.\nUnko bhi jald wapas karne ki koshish karunga.\n\nThank you.`;
                     }
                 } else {
                     // New Loan or Adding to existing Loan given by me
-                    msg = `Dear ${name}, Aaj maine aapko ₹${amtFmt} udhar diye hain. Ab total ₹${balFmt} lene hain.`;
+                    if (oldBal === 0) {
+                        msg = `${name},\nAapne ₹${amtFmt} udhaar liye hain.\nPlease ${dueDateText} ko wapas karne ki koshish karein.\n\nThank you.`;
+                    } else {
+                        msg = `${name},\nAapne pehle se ₹${oldFmt} liye hue the.\nAaj ₹${amtFmt} aur udhaar liye gaye hain.\nAb total udhaar ₹${balFmt} ho gaye hain.\nJald hi wapas karne ki koshish karein.\n\nThank you.`;
+                    }
                 }
             } else { 
                 // MAINE LIYE (My Balance Decreases)
                 if (oldBal > 0) {
                     // People owed me, now they are paying back (Recovery)
                      const remaining = Math.abs(balAfter);
+                     const remainingFmt = formatter.format(remaining).replace('₹','').trim();
                      if (remaining < 1) {
-                         msg = `Dear ${name}, Aaj aapne ₹${amtFmt} wapas kar diye hain. Aapka hisaab poora clear ho gaya hai. Shukriya.`;
+                         // Full Recovery
+                         msg = `${name},\nAaj aap ne ₹${amtFmt} wapas kiye hain.\nIs ke sath aapka poora hisaab clear ho gaya hai.\nAb koi raqam baqi nahi rahi.\n\nThank you.`;
                      } else {
-                         msg = `Dear ${name}, Aaj aapne ₹${amtFmt} jama karwaye hain. Abhi ₹${formatter.format(remaining).replace('₹','').trim()} baqi reh gaye hain.`;
+                         // Partial Recovery
+                         msg = `${name},\nAaj aap ne ₹${amtFmt} wapas kiye hain.\nAbhi baqi ₹${remainingFmt} reh gaye hain.\nUnko bhi jald wapas karne ki koshish karein.\n\nThank you.`;
                      }
                 } else {
-                    // I am taking new loan
-                    msg = `Dear ${name}, Aaj maine aapse ₹${amtFmt} udhar liye hain. Ab total ₹${balFmt} dena hai.`;
+                    // I am taking new loan or adding to debt
+                    if (oldBal === 0) {
+                        msg = `${name},\nAaj aap se ₹${amtFmt} udhaar liye gaye hain.\nJald hi wapas karne ki koshish ki jayegi.\n\nThank you.`;
+                    } else {
+                        msg = `${name},\nPehle se ₹${oldFmt} udhaar the.\nAaj ₹${amtFmt} aur udhaar liye gaye hain.\nAb total udhaar ₹${balFmt} ho gaya hai.\nJald hi wapas kar diya jayega.\n\nThank you.`;
+                    }
                 }
             }
 
@@ -1056,7 +1158,7 @@
                 document.getElementById('wusool-amount').value = '';
 
                 // WhatsApp Logic for Settlement
-                const formatNum = (n) => new Intl.NumberFormat('en-IN').format(n);
+                const formatNum = (n) => new Intl.NumberFormat('en-IN').format(n).replace('₹','').trim();
                 
                 if(phone) {
                     const cleanPhone = phone.replace(/\D/g, '');
@@ -1064,9 +1166,9 @@
                     let msg = "";
 
                     if (type === 'income') { // I Received (User paid me back)
-                         msg = `Dear ${name}, Aaj aapne poora hisaab clear kar diya hai (₹${formatNum(amt)} received). Ab kuch baqi nahi. Shukriya.`;
+                         msg = `${name},\nAaj aap ne ₹${formatNum(amt)} wapas kiye hain.\nIs ke sath aapka poora hisaab clear ho gaya hai.\nAb koi raqam baqi nahi rahi.\n\nThank you.`;
                     } else { // I Paid (I paid back user)
-                         msg = `Dear ${name}, Aaj maine aapka poora hisaab clear kar diya hai (₹${formatNum(amt)} paid). Ab kuch baqi nahi. Shukriya.`;
+                         msg = `${name},\nAaj Maine ₹${formatNum(amt)} wapas kiye hain.\nIs ke sath aapka poora hisaab clear ho gaya hai.\nAb koi raqam baqi nahi rahi.\n\nThank you.`;
                     }
                     window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank');
                 }
@@ -1422,8 +1524,48 @@
             updateUI();
         }
 
-        function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(transactions)); const a = document.createElement('a'); a.href = dataStr; a.download = "backup.json"; a.click(); }
-        function importData(input) { const reader = new FileReader(); reader.onload = function(e) { if(confirm("This will replace all current data. Are you sure?")) { transactions = JSON.parse(e.target.result); saveData(); alert("Data Restored!"); } }; reader.readAsText(input.files[0]); }
+        function exportData() {
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+            // Convert transactions to worksheet
+            const ws = XLSX.utils.json_to_sheet(transactions);
+            // Append worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+            // Generate Excel file
+            XLSX.writeFile(wb, "Madani_Tracker_Backup.xlsx");
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if(!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // Assuming first sheet contains data
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // Convert to JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                if(jsonData && jsonData.length > 0) {
+                    if(confirm("Restore " + jsonData.length + " transactions from Excel? This will replace current data.")) {
+                        transactions = jsonData;
+                        saveData();
+                        alert("Data Restored Successfully!");
+                        location.reload(); 
+                    }
+                } else {
+                    alert("No valid data found in Excel file.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            // Reset input so same file can be selected again if needed
+            input.value = '';
+        }
         function clearAll() { if(confirm("⚠️ Critical Warning:\nReset App?")) { transactions = []; saveData(); updateUI(); alert("Reset Done."); } }
         function exitApp() { if(confirm("Exit App?")) { window.close(); if(!window.closed) alert("Close tab manually."); } }
 
@@ -1604,7 +1746,8 @@
                     if(!ph) return alert("No phone number found.");
                     
                     // Simple Reminder Message
-                    const txt = `Dear ${name}, Reminder: Your pending balance is ${formatter.format(Math.abs(bal))}. Please clear it soon.`;
+                    const remainingFmt = formatter.format(Math.abs(bal)).replace('₹','').trim();
+                    const txt = `${name},\nYaad dilaana hai ke aap par ₹${remainingFmt} baqi hain.\nJald hi wapas karne ki koshish karein.\n\nThank you.`;
                     window.open(`https://wa.me/${ph}?text=${encodeURIComponent(txt)}`, '_blank');
                 };
             }
@@ -1647,16 +1790,17 @@
                 let bgClass = isGiven ? 'bg-rose-50 border-rose-100' : 'bg-emerald-50 border-emerald-100';
 
                 const item = document.createElement('div');
-                item.className = `p-3 mb-2 rounded-xl border ${bgClass} flex justify-between items-center`;
+                item.className = `p-3 mb-2 rounded-xl border ${bgClass} flex justify-between items-center group relative`;
                 item.innerHTML = `
                     <div>
                         <p class="text-[10px] text-slate-400 font-bold mb-0.5">${t.date}</p>
                         <p class="font-bold text-slate-700 text-xs">${t.desc}</p>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right mr-6">
                         <p class="font-bold ${amountColor} text-sm">₹${t.amount.toLocaleString()}</p>
                         <p class="text-[9px] ${amountColor} font-bold opacity-80">${typeLabel}</p>
                     </div>
+                    <button onclick="deleteTransaction(${t.id})" class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"><i class="fas fa-trash-alt text-xs"></i></button>
                 `;
                 list.appendChild(item);
             });
@@ -1685,7 +1829,8 @@
             doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(100, 100, 100);
-            doc.text("Madani Exp Tracker", 14, 36);
+            const reportName = appUserName ? `${appUserName}'s Tracker` : "Madani Exp Tracker";
+            doc.text(reportName, 14, 36);
             doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 42);
 
             // -- Summary Section Box --
@@ -1748,10 +1893,15 @@
                     runningBalance -= t.amount;
                 }
 
+                // Construct Description with Note logic added here
+                let descText = t.desc;
+                if(t.person) descText += ` (${t.person})`;
+                if(t.note) descText += `\n• ${t.note}`; // Details added here with a bullet point
+
                 // Format row
                 const row = [
                     t.date, 
-                    (t.desc + (t.person ? ` (${t.person})` : '')).substring(0, 35), // Truncate long desc
+                    descText, 
                     debit > 0 ? formatMoney(debit) : "-",
                     credit > 0 ? formatMoney(credit) : "-",
                     formatMoney(runningBalance)
@@ -1798,7 +1948,8 @@
                 doc.setFontSize(8);
                 doc.setTextColor(150);
                 doc.text(`Page ${i} of ${pageCount}`, 190, 290, { align: 'right' });
-                doc.text("Madani Exp Tracker - Generated Report", 14, 290);
+                const footerName = appUserName ? `${appUserName}'s Tracker` : "Madani Exp Tracker";
+                doc.text(`${footerName} - Generated Report`, 14, 290);
             }
             
             doc.save(`Statement_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -1821,6 +1972,34 @@
             calculateBudget();
         }
 
+        // --- USER NAME & BACKUP FUNCTIONS ---
+        function updateHeaderName() {
+            const titleEl = document.getElementById('header-app-title');
+            const greetingEl = document.getElementById('header-user-greeting');
+            
+            if(appUserName) {
+                // Option 2: Show small greeting below
+                greetingEl.innerText = `Welcome, ${appUserName}`;
+                greetingEl.classList.remove('hidden');
+                
+                // Set input value if in settings view
+                const input = document.getElementById('settings-user-name');
+                if(input) input.value = appUserName;
+            } else {
+                greetingEl.innerText = 'Welcome';
+            }
+        }
+
+        function saveUserName() {
+            const name = document.getElementById('settings-user-name').value;
+            if(name) {
+                appUserName = name;
+                localStorage.setItem('appUserName', name);
+                updateHeaderName();
+                alert("Name Saved!");
+            }
+        }
+
         // --- INITIALIZATION ---
         window.onload = function() {
             setupDates();
@@ -1829,6 +2008,7 @@
             switchView('home');
             calculateBudget();
             updateUI();
+            updateHeaderName();
         };
     </script>
 </body>
